@@ -1,4 +1,4 @@
-defmodule Cqrs.Message.Introspection do
+defmodule Cqrs.Message.Reflection do
   @moduledoc false
 
   defmacro generate do

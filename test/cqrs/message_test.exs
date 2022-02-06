@@ -29,18 +29,23 @@ defmodule Cqrs.MessageTest do
   describe "field options" do
     alias Protocol.FieldOptions
 
+    test "discarded data is returned" do
+      assert {:ok, _, %{"weed" => :yes}} = FieldOptions.new(name: "chris", weed: :yes)
+    end
+
     test "name is required" do
       assert {:error, %{name: ["can't be blank"]}} = FieldOptions.new(%{})
-      assert {:ok, %FieldOptions{gender: nil, name: "chris"}} = FieldOptions.new(%{name: "chris"})
+      assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(%{name: "chris"})
     end
 
     test "can accept values from different data structures" do
-      assert {:ok, %FieldOptions{gender: nil, name: "chris"}} = FieldOptions.new(%{name: "chris"})
-      assert {:ok, %FieldOptions{gender: nil, name: "chris"}} = FieldOptions.new(name: "chris")
+      assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(%{name: "chris"})
+      assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(name: "chris")
     end
 
     test "dog defaults to the default option" do
-      assert {:ok, %FieldOptions{gender: :m, name: "chris", dog: "maize"}} = FieldOptions.new(name: "chris", gender: :m)
+      assert {:ok, %FieldOptions{gender: :m, name: "chris", dog: "maize"}, _discarded_data} =
+               FieldOptions.new(name: "chris", gender: :m)
     end
   end
 

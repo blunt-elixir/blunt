@@ -1,7 +1,9 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Introspection, Option, Schema}
+  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Reflection, Option, Schema}
 
-  @callback handle_validate(Changeset.t()) :: Changeset.t()
+  @type changeset :: Ecto.Changeset.t()
+
+  @callback handle_validate(changeset()) :: changeset()
   @callback after_validate(struct()) :: struct()
 
   defmacro __using__(opts \\ []) do
@@ -46,13 +48,13 @@ defmodule Cqrs.Message do
       end
 
     quote location: :keep do
-      require Cqrs.Message.{Changeset, Dispatch, Introspection, Schema}
+      require Cqrs.Message.{Changeset, Dispatch, Reflection, Schema}
 
       Module.eval_quoted(__MODULE__, unquote(constructor))
 
       Schema.generate()
       Changeset.generate()
-      Introspection.generate()
+      Reflection.generate()
 
       if @dispatch? do
         Dispatch.generate()

@@ -7,17 +7,16 @@ defmodule Cqrs.Message.Schema do
 
       alias Cqrs.Message.{Field, MessageType}
 
-      if Module.get_attribute(__MODULE__, :create_jason_encoders?) and Code.ensure_loaded?(Jason),
-        do: @derive({Jason.Encoder, except: [:discarded_input]})
+      if Module.get_attribute(__MODULE__, :create_jason_encoders?) and Code.ensure_loaded?(Jason) do
+        @derive Jason.Encoder
+      end
 
       if Mix.env() == :prod do
-        @derive {Inspect, except: [:discarded_input]}
+        @derive Inspect
       end
 
       @primary_key false
       embedded_schema do
-        Ecto.Schema.field(:discarded_input, :map, virtual: true)
-
         Enum.map(@schema_fields, fn
           {name, {:array, :enum}, opts} ->
             Ecto.Schema.field(name, {:array, Ecto.Enum}, opts)

@@ -6,7 +6,10 @@ defmodule Cqrs.Message.Type.Pid do
   def cast(pid) when is_pid(pid),
     do: {:ok, pid}
 
-  def cast(value) when is_binary(value) do
+  def cast(string) when is_binary(string),
+    do: {:error, [message: "is not a valid Pid"]}
+
+  def cast(value) when is_list(value) do
     {:ok, :erlang.list_to_pid(value)}
   rescue
     _ -> {:error, [message: "is not a valid Pid"]}

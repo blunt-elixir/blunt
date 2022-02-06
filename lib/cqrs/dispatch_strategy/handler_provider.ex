@@ -1,4 +1,10 @@
-defmodule Cqrs.MessageDispatcher.HandlerProvider do
+defmodule Cqrs.DispatchStrategy.HandlerProvider do
+  @moduledoc """
+  Finds `CommandHandler`s and `QueryHandler`s by convention.
+
+  Handler modules are meant to be named "Namespace.MessageHandler".
+  That is, the message module with "Handler" appended to the end.
+  """
   defmodule Error do
     defexception [:message]
   end

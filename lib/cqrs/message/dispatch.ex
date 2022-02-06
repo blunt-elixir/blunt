@@ -1,7 +1,7 @@
 defmodule Cqrs.Message.Dispatch do
   @moduledoc false
 
-  alias Cqrs.{ExecutionContext, MessageDispatcher, Message.Dispatch}
+  alias Cqrs.{ExecutionContext, DispatchStrategy, Message.Dispatch}
 
   defmacro generate do
     quote do
@@ -13,11 +13,11 @@ defmodule Cqrs.Message.Dispatch do
     end
   end
 
-  def apply({:ok, message}, opts) do
-    with {:ok, context} <- ExecutionContext.new(message, opts) do
+  def apply({:ok, message, discarded_data}, opts) do
+    with {:ok, context} <- ExecutionContext.new(message, discarded_data, opts) do
       if ExecutionContext.async?(context),
-        do: Task.async(fn -> MessageDispatcher.dispatch(context) end),
-        else: MessageDispatcher.dispatch(context)
+        do: Task.async(fn -> DispatchStrategy.dispatch(context) end),
+        else: DispatchStrategy.dispatch(context)
     end
   end
 

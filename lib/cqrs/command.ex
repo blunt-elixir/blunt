@@ -23,14 +23,20 @@ defmodule Cqrs.Command do
 
   defmacro derive_event(name, opts \\ [])
 
-  defmacro derive_event(name, do: body),
-    do: DerivedEvent.record(name, do: body)
+  defmacro derive_event(name, do: body) do
+    body = Macro.escape(body, unquote: true)
+    body = quote do: unquote(body)
+    DerivedEvent.record(name, do: body)
+  end
 
   defmacro derive_event(name, opts),
     do: DerivedEvent.record(name, opts)
 
-  defmacro derive_event(name, opts, do: body),
-    do: DerivedEvent.record(name, Keyword.put(opts, :do, body))
+  defmacro derive_event(name, opts, do: body) do
+    body = Macro.escape(body, unquote: true)
+    body = quote do: unquote(body)
+    DerivedEvent.record(name, Keyword.put(opts, :do, body))
+  end
 
   defmacro __before_compile__(_env) do
     quote do

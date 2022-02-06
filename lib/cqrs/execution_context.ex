@@ -3,6 +3,7 @@ defmodule Cqrs.ExecutionContext do
 
   @type t :: %__MODULE__{
           message: struct(),
+          discarded_data: map(),
           message_type: atom(),
           created_at: DateTime.t(),
           async: boolean(),
@@ -16,6 +17,7 @@ defmodule Cqrs.ExecutionContext do
 
   defstruct [
     :message,
+    :discarded_data,
     :message_type,
     :created_at,
     :async,
@@ -27,13 +29,14 @@ defmodule Cqrs.ExecutionContext do
     pipeline: []
   ]
 
-  def new(%{__struct__: message_module} = message, opts) do
+  def new(%{__struct__: message_module} = message, discarded_data, opts) do
     {async, opts} = Keyword.pop(opts, :async, false)
 
     base_context = %__MODULE__{
       opts: opts,
       async: async,
       message: message,
+      discarded_data: discarded_data,
       created_at: DateTime.utc_now(),
       last_pipeline_step: :read_opts,
       message_type: message_module.__message_type__()

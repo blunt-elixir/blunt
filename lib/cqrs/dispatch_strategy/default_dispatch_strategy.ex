@@ -1,11 +1,12 @@
-defmodule Cqrs.MessageDispatcher.DefaultDispatcher do
-  @behaviour Cqrs.MessageDispatcher
+defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
+  @behaviour Cqrs.DispatchStrategy
 
   alias Cqrs.Query
   alias Cqrs.ExecutionContext, as: Context
-  alias Cqrs.MessageDispatcher.HandlerProvider
+  alias Cqrs.DispatchStrategy.HandlerProvider
 
   @spec dispatch(Context.t()) :: {:error, Context.t()} | {:ok, Context.t() | any}
+
   @doc """
   Receives an `ExecutionContext`, locates the message handler, and runs the handler pipeline.
 

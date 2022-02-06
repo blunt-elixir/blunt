@@ -6,7 +6,7 @@ defmodule Cqrs.CommandTest do
 
   test "dispatch with no handler" do
     alias Protocol.DispatchNoHandler
-    alias Cqrs.MessageDispatcher.HandlerProvider.Error
+    alias Cqrs.DispatchStrategy.HandlerProvider.Error
 
     error = "No CommandHandler found for query: Cqrs.CommandTest.Protocol.DispatchNoHandler"
 
@@ -19,7 +19,7 @@ defmodule Cqrs.CommandTest do
 
   describe "dispatch" do
     alias Protocol.DispatchWithHandler
-    alias Cqrs.MessageDispatcher.HandlerProvider.Error
+    alias Cqrs.DispatchStrategy.HandlerProvider.Error
 
     test "options" do
       options = DispatchWithHandler.__options__() |> Enum.into(%{})
@@ -84,9 +84,10 @@ defmodule Cqrs.CommandTest do
     alias Protocol.DispatchWithHandler
 
     test "is simple" do
-      assert %Task{} = task = %{name: "chris"}
-      |> DispatchWithHandler.new()
-      |> DispatchWithHandler.dispatch_async(return: :context, reply_to: self())
+      assert task =
+               %{name: "chris"}
+               |> DispatchWithHandler.new()
+               |> DispatchWithHandler.dispatch_async(return: :context, reply_to: self())
 
       assert {:ok, context} = Task.await(task)
 
@@ -109,6 +110,7 @@ defmodule Cqrs.CommandTest do
                private: %{}
              } = context
 
+      assert [:before_dispatch_error] = ExecutionContext.errors(context)
       assert {:error, :before_dispatch_error} == ExecutionContext.get_last_pipeline(context)
     end
 
@@ -121,6 +123,7 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
+      assert [:handle_authorize_error] = ExecutionContext.errors(context)
       assert {:error, :handle_authorize_error} == ExecutionContext.get_last_pipeline(context)
     end
 
@@ -133,6 +136,7 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
+      assert [:handle_dispatch_error] = ExecutionContext.errors(context)
       assert {:error, :handle_dispatch_error} == ExecutionContext.get_last_pipeline(context)
     end
 
@@ -142,6 +146,35 @@ defmodule Cqrs.CommandTest do
       %{name: "chris"}
       |> DispatchWithHandler.new()
       |> DispatchWithHandler.dispatch(opts)
+    end
+  end
+
+  describe "event derivation" do
+    alias Cqrs.CommandTest.Events.NamespacedEventWithExtrasAndDrops
+    alias Protocol.{CommandWithEventDerivations, DefaultEvent, EventWithExtras, EventWithDrops, EventWithExtrasAndDrops}
+
+    test "event structs are created" do
+      %{} = %DefaultEvent{}
+      %{} = %EventWithExtras{}
+      %{} = %EventWithExtrasAndDrops{}
+      %{} = %NamespacedEventWithExtrasAndDrops{}
+    end
+
+    test "are created and returned from handler" do
+      {:ok, events} =
+        %{name: "chris"}
+        |> CommandWithEventDerivations.new()
+        |> CommandWithEventDerivations.dispatch()
+
+      today = Date.utc_today()
+
+      assert %{
+               default_event: %DefaultEvent{dog: "maize", name: "chris"},
+               event_with_drops: %EventWithDrops{name: "chris"},
+               event_with_extras: %EventWithExtras{dog: "maize", name: "chris", date: ^today},
+               event_with_extras_and_drops: %EventWithExtrasAndDrops{name: "chris", date: ^today},
+               namespaced_event_with_extras_and_drops: %NamespacedEventWithExtrasAndDrops{name: "chris", date: ^today}
+             } = events
     end
   end
 end

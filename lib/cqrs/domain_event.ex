@@ -7,9 +7,13 @@ defmodule Cqrs.DomainEvent do
           |> Keyword.put(:dispatch?, false)
           |> Keyword.put(:message_type, :event)
 
-      @spec create(values :: Input.t(), overrides :: Input.t()) :: {:ok, struct()} | {:error, any()}
+      @type values :: Cqrs.Message.Input.t()
+      @type overrides :: Cqrs.Message.Input.t()
+
+      @spec create(values(), overrides()) :: struct() | {:error, any()}
+
       def create(values, overrides \\ []) do
-        with {:ok, event} <- new(values, overrides) do
+        with {:ok, event, _discarded_data} <- new(values, overrides) do
           event
         end
       end

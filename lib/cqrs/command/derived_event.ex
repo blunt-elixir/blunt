@@ -3,10 +3,7 @@ defmodule Cqrs.Command.DerivedEvent do
 
   def record(name, opts) do
     quote do
-      # opts = Keyword.update(unquote(opts), :namespace, @event_namespace, &Function.identity/1)
-      opts = unquote(opts)
-
-      @events {unquote(name), opts, {__ENV__.file, __ENV__.line}}
+      @events {unquote(name), unquote(opts), {__ENV__.file, __ENV__.line}}
     end
   end
 
@@ -44,7 +41,7 @@ defmodule Cqrs.Command.DerivedEvent do
 
   @doc false
   def fq_event_name(command, event_name, opts) do
-    case Keyword.get(opts, :namespace) do
+    case Keyword.get(opts, :ns) do
       nil ->
         case namespace(event_name) do
           Elixir -> command |> namespace() |> Module.concat(event_name)

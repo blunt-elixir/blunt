@@ -1,5 +1,5 @@
-defmodule Cqrs.MessageDispatcher do
-  alias Cqrs.{Behaviour, ExecutionContext, MessageDispatcher.DefaultDispatcher}
+defmodule Cqrs.DispatchStrategy do
+  alias Cqrs.{Behaviour, ExecutionContext, DispatchStrategy.DefaultDispatchStrategy}
 
   defmodule Error do
     defexception [:message]
@@ -9,12 +9,12 @@ defmodule Cqrs.MessageDispatcher do
 
   @callback dispatch(context()) :: {:ok, any()} | {:error, context()}
   def dispatch(context) do
-    get_dispatcher().dispatch(context)
+    get_strategy().dispatch(context)
   end
 
-  defp get_dispatcher do
+  defp get_strategy do
     :cqrs_tools
-    |> Application.get_env(:message_dispatcher, DefaultDispatcher)
+    |> Application.get_env(:dispatch_strategy, DefaultDispatchStrategy)
     |> Behaviour.validate!(__MODULE__)
   end
 end

@@ -4,6 +4,17 @@ defmodule Cqrs.CommandTest do
   alias Cqrs.ExecutionContext
   alias Cqrs.CommandTest.Protocol
 
+  test "command options" do
+    alias Protocol.CommandOptions
+    options = CommandOptions.__options__() |> Enum.into(%{})
+
+    assert %{
+             audit: [{:type, :boolean}, {:required, false}, {:default, true}],
+             debug: [{:type, :boolean}, {:required, false}, {:default, false}],
+             return: [type: :enum, values: [:context, :response], default: :response, required: true]
+           } == options
+  end
+
   test "dispatch with no handler" do
     alias Protocol.DispatchNoHandler
     alias Cqrs.DispatchStrategy.HandlerProvider.Error

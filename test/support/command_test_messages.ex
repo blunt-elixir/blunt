@@ -1,4 +1,11 @@
 defmodule Cqrs.CommandTest.Protocol do
+  defmodule CommandOptions do
+    use Cqrs.Command
+
+    option :debug, :boolean, default: false
+    option :audit, :boolean, default: true
+  end
+
   defmodule DispatchNoHandler do
     use Cqrs.Command
 

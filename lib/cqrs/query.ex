@@ -10,11 +10,39 @@ defmodule Cqrs.Query do
           |> Keyword.put(:dispatch?, true)
           |> Keyword.put(:message_type, :query)
 
+      Module.register_attribute(__MODULE__, :options, accumulate: true)
+      Module.register_attribute(__MODULE__, :bindings, accumulate: true)
+
+      @before_compile Cqrs.Query
+
+      import Cqrs.Query, only: :macros
+
       @options Option.message_return()
 
-      option :execute, :boolean, default: true
-      option :preload, {:array, :any}, default: []
-      option :allow_nil_filters, :boolean, default: false
+      @options {:execute, [type: :boolean, default: true, required: true]}
+      @options {:preload, [type: {:array, :any}, default: [], required: true]}
+      @options {:allow_nil_filters, [type: :boolean, default: false, required: true]}
+    end
+  end
+
+  @spec option(name :: atom(), type :: any(), keyword()) :: any()
+  defmacro option(name, type, opts \\ []) when is_atom(name) and is_list(opts),
+    do: Option.record(name, type, opts)
+
+  @spec binding(atom(), atom(), keyword()) :: any()
+  defmacro binding(name, target_schema, opts \\ []) do
+    quote do
+      @bindings {unquote(name), unquote(target_schema), unquote(opts)}
+    end
+  end
+
+  defmacro __before_compile__(_env) do
+    quote do
+      def __options__, do: @options
+      def __bindings__, do: @bindings
+
+      Module.delete_attribute(__MODULE__, :options)
+      Module.delete_attribute(__MODULE__, :bindings)
     end
   end
 

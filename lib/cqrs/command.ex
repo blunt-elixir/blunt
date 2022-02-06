@@ -10,9 +10,10 @@ defmodule Cqrs.Command do
           |> Keyword.put(:dispatch?, true)
           |> Keyword.put(:message_type, :command)
 
+      Module.register_attribute(__MODULE__, :options, accumulate: true)
       Module.register_attribute(__MODULE__, :events, accumulate: true)
 
-      import Cqrs.Command, only: [derive_event: 1, derive_event: 2, derive_event: 3]
+      import Cqrs.Command, only: :macros
 
       @options Option.message_return()
 
@@ -20,6 +21,10 @@ defmodule Cqrs.Command do
       @after_compile Cqrs.Command
     end
   end
+
+  @spec option(name :: atom(), type :: any(), keyword()) :: any()
+  defmacro option(name, type, opts \\ []) when is_atom(name) and is_list(opts),
+    do: Option.record(name, type, opts)
 
   defmacro derive_event(name, opts \\ [])
 
@@ -41,7 +46,10 @@ defmodule Cqrs.Command do
   defmacro __before_compile__(_env) do
     quote do
       def __events__, do: @events
+      def __options__, do: @options
+
       Module.delete_attribute(__MODULE__, :events)
+      Module.delete_attribute(__MODULE__, :options)
     end
   end
 

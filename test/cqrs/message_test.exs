@@ -48,17 +48,4 @@ defmodule Cqrs.MessageTest do
                FieldOptions.new(name: "chris", gender: :m)
     end
   end
-
-  describe "message options" do
-    alias Protocol.MessageOptions
-
-    test "list options" do
-      options = MessageOptions.__options__() |> Enum.into(%{})
-
-      assert %{
-               audit: [{:type, :boolean}, {:required, false}, {:default, true}],
-               debug: [{:type, :boolean}, {:required, false}, {:default, false}]
-             } == options
-    end
-  end
 end

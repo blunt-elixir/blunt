@@ -1,5 +1,5 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Reflection, Option, Schema}
+  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Reflection, Schema}
 
   @type changeset :: Ecto.Changeset.t()
 
@@ -13,7 +13,6 @@ defmodule Cqrs.Message do
       create_jason_encoders? = Cqrs.Message.create_jason_encoders?(unquote(opts))
       require_all_fields? = Keyword.get(unquote(opts), :require_all_fields?, false)
 
-      Module.register_attribute(__MODULE__, :options, accumulate: true)
       Module.register_attribute(__MODULE__, :schema_fields, accumulate: true)
       Module.register_attribute(__MODULE__, :required_fields, accumulate: true)
 
@@ -22,7 +21,7 @@ defmodule Cqrs.Message do
       Module.put_attribute(__MODULE__, :require_all_fields?, require_all_fields?)
       Module.put_attribute(__MODULE__, :create_jason_encoders?, create_jason_encoders?)
 
-      import Cqrs.Message, only: [field: 2, field: 3, option: 2, option: 3]
+      import Cqrs.Message, only: [field: 2, field: 3]
 
       @behaviour Cqrs.Message
       @before_compile Cqrs.Message
@@ -62,7 +61,6 @@ defmodule Cqrs.Message do
         Dispatch.generate()
       end
 
-      Module.delete_attribute(__MODULE__, :options)
       Module.delete_attribute(__MODULE__, :dispatch?)
       Module.delete_attribute(__MODULE__, :schema_fields)
       Module.delete_attribute(__MODULE__, :required_fields)
@@ -74,10 +72,6 @@ defmodule Cqrs.Message do
   @spec field(name :: atom(), type :: atom(), keyword()) :: any()
   defmacro field(name, type, opts \\ []),
     do: Field.record(name, type, opts)
-
-  @spec option(name :: atom(), type :: any(), keyword()) :: any()
-  defmacro option(name, type, opts \\ []) when is_atom(name) and is_list(opts),
-    do: Option.record(name, type, opts)
 
   @doc false
   def create_jason_encoders?(opts) do

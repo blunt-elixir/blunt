@@ -6,7 +6,7 @@ defmodule Cqrs.QueryTest do
 
   describe "basics" do
     alias Protocol.BasicQuery
-    alias Cqrs.DispatchStrategy.HandlerProvider.Error
+    alias Cqrs.DispatchStrategy.Error
 
     test "predefined options" do
       options = BasicQuery.__options__() |> Enum.into(%{})
@@ -42,19 +42,19 @@ defmodule Cqrs.QueryTest do
     alias Protocol.{CreatePerson, GetPerson}
 
     defp create_person(name) do
-      %{name: name}
-      |> CreatePerson.new()
-      |> CreatePerson.dispatch()
+      assert {:ok, person} =
+               %{name: name}
+               |> CreatePerson.new()
+               |> CreatePerson.dispatch()
+
+      person
     end
 
     setup do
-      assert {:ok, %{id: chris_id}} = create_person("chris")
-      assert {:ok, %{id: sarah_id}} = create_person("sarah")
+      assert %{id: chris_id} = create_person("chris")
+      assert %{id: sarah_id} = create_person("sarah")
 
-      %{
-        chris_id: chris_id,
-        sarah_id: sarah_id
-      }
+      %{chris_id: chris_id, sarah_id: sarah_id}
     end
 
     test "with id filter", %{chris_id: chris_id} do
@@ -74,14 +74,17 @@ defmodule Cqrs.QueryTest do
     end
 
     test "context holds some good data", %{sarah_id: sarah_id} do
+      alias Cqrs.QueryTest.ReadModel.Person
+
       assert {:ok, context} =
                %{id: sarah_id, name: "sarah"}
                |> GetPerson.new()
                |> GetPerson.dispatch(return: :context)
 
+      assert [person: Person] = Query.bindings(context)
       assert %{id: ^sarah_id, name: "sarah"} = Query.filters(context)
-      assert %Ecto.Query{} = Query.query(context)
-      assert %{id: ^sarah_id, name: "sarah"} = Query.results(context)
+      assert %Person{id: ^sarah_id, name: "sarah"} = Query.results(context)
+      assert %Ecto.Query{from: %{source: {"people", Person}}} = Query.query(context)
     end
   end
 end

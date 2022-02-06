@@ -1,6 +1,6 @@
 defmodule Cqrs.CommandHandler do
   @type command :: struct()
-  @type context :: Cqrs.DispatchContext.t()
+  @type context :: Cqrs.DispatchContext.command_context()
 
   @callback before_dispatch(command, context) :: {:ok, context()} | {:error, any()}
   @callback handle_authorize(command, context) :: {:ok, context()} | {:error, any()} | :error

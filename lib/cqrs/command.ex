@@ -1,6 +1,7 @@
 defmodule Cqrs.Command do
   alias Cqrs.Message.Option
   alias Cqrs.Command.Events
+  alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
     quote do
@@ -10,12 +11,12 @@ defmodule Cqrs.Command do
           |> Keyword.put(:dispatch?, true)
           |> Keyword.put(:message_type, :command)
 
-      Module.register_attribute(__MODULE__, :options, accumulate: true)
       Module.register_attribute(__MODULE__, :events, accumulate: true)
+      Module.register_attribute(__MODULE__, :options, accumulate: true)
 
       import Cqrs.Command, only: :macros
 
-      @options Option.message_return()
+      @options Option.return_option()
 
       @before_compile Cqrs.Command
       @after_compile Cqrs.Command
@@ -55,4 +56,13 @@ defmodule Cqrs.Command do
 
   defmacro __after_compile__(env, _bytecode),
     do: Events.generate_events(env)
+
+  @spec results(Context.command_context()) :: any
+  def results(context), do: Context.get_last_pipeline(context)
+
+  @spec private(Context.command_context()) :: any
+  def private(context), do: Context.get_private(context)
+
+  @spec errors(Context.command_context()) :: any
+  def errors(context), do: Context.errors(context)
 end

@@ -1,8 +1,8 @@
 defmodule Cqrs.CommandTest do
   use ExUnit.Case, async: true
 
-  alias Cqrs.DispatchContext
   alias Cqrs.CommandTest.Protocol
+  alias Cqrs.{Command, DispatchContext}
 
   test "command options" do
     alias Protocol.CommandOptions
@@ -17,7 +17,7 @@ defmodule Cqrs.CommandTest do
 
   test "dispatch with no handler" do
     alias Protocol.DispatchNoHandler
-    alias Cqrs.DispatchStrategy.HandlerProvider.Error
+    alias Cqrs.DispatchStrategy.Error
 
     error = "No CommandHandler found for query: Cqrs.CommandTest.Protocol.DispatchNoHandler"
 
@@ -30,7 +30,7 @@ defmodule Cqrs.CommandTest do
 
   describe "dispatch" do
     alias Protocol.DispatchWithHandler
-    alias Cqrs.DispatchStrategy.HandlerProvider.Error
+    alias Cqrs.DispatchStrategy.Error
 
     test "options" do
       options = DispatchWithHandler.__options__() |> Enum.into(%{})
@@ -67,8 +67,7 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch(reply_to: "lkajsdf")
 
-      assert [opts: %{reply_to: ["is not a valid Pid"]}] = DispatchContext.errors(context)
-      assert %{errors: [opts: %{reply_to: ["is not a valid Pid"]}]} = context
+      assert [opts: %{reply_to: ["is not a valid Pid"]}] = Command.errors(context)
     end
 
     test "returns handle_dispatch result by default" do
@@ -84,10 +83,9 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch(return: :context, reply_to: self())
 
-      assert %DispatchContext{errors: [], last_pipeline_step: :handle_dispatch} = context
-      assert %{child: %{related: "value"}} = DispatchContext.get_private(context)
-
-      assert "YO-HOHO" = DispatchContext.get_last_pipeline(context)
+      assert [] == Command.errors(context)
+      assert "YO-HOHO" = Command.results(context)
+      assert %{child: %{related: "value"}} = Command.private(context)
     end
   end
 
@@ -102,10 +100,8 @@ defmodule Cqrs.CommandTest do
 
       assert {:ok, context} = Task.await(task)
 
-      assert %DispatchContext{errors: [], last_pipeline_step: :handle_dispatch} = context
-      assert %{child: %{related: "value"}} = DispatchContext.get_private(context)
-
-      assert "YO-HOHO" = DispatchContext.get_last_pipeline(context)
+      assert %{child: %{related: "value"}} = Command.private(context)
+      assert "YO-HOHO" = Command.results(context)
     end
   end
 
@@ -121,7 +117,7 @@ defmodule Cqrs.CommandTest do
                private: %{}
              } = context
 
-      assert [:before_dispatch_error] = DispatchContext.errors(context)
+      assert [:before_dispatch_error] = Command.errors(context)
       assert {:error, :before_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
 
@@ -134,7 +130,7 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
-      assert [:handle_authorize_error] = DispatchContext.errors(context)
+      assert [:handle_authorize_error] = Command.errors(context)
       assert {:error, :handle_authorize_error} == DispatchContext.get_last_pipeline(context)
     end
 
@@ -147,7 +143,7 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
-      assert [:handle_dispatch_error] = DispatchContext.errors(context)
+      assert [:handle_dispatch_error] = Command.errors(context)
       assert {:error, :handle_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
 

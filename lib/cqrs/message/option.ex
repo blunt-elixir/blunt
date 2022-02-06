@@ -19,7 +19,7 @@ defmodule Cqrs.Message.Option do
     end
   end
 
-  def message_return do
+  def return_option do
     values = [:context, :response]
 
     value = Application.get_env(:cqrs, :dispatch_return, :response)
@@ -40,8 +40,8 @@ defmodule Cqrs.Message.Option do
       Enum.reduce(
         supported,
         %{parsed: [], unparsed: opts},
-        fn option, acc ->
-          {name, value} = parse_option(option, acc.unparsed)
+        fn current_option, acc ->
+          {name, value} = parse_option(current_option, acc.unparsed)
           %{acc | parsed: [{name, value} | acc.parsed], unparsed: Keyword.delete(acc.unparsed, name)}
         end
       )

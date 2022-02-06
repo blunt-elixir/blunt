@@ -5,7 +5,8 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
   alias Cqrs.DispatchContext, as: Context
   alias Cqrs.DispatchStrategy.HandlerProvider
 
-  @spec dispatch(Context.t()) :: {:error, Context.t()} | {:ok, Context.t() | any}
+  @spec dispatch(Context.command_context() | Context.query_context()) ::
+          {:error, Context.t()} | {:ok, Context.t() | any}
 
   @doc """
   Receives an `DispatchContext`, locates the message handler, and runs the handler pipeline.
@@ -34,10 +35,17 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
   end
 
   def dispatch(%{message_type: :query, message: filter_map} = context) do
+    %{__struct__: query_module} = filter_map
+
     user = Context.user(context)
+    bindings = query_module.__bindings__()
     handler = HandlerProvider.get_handler!(context)
     filter_list = Query.create_filter_list(context)
-    context = Context.put_private(context, :filters, Enum.into(filter_list, %{}))
+
+    context =
+      context
+      |> Context.put_private(:bindings, bindings)
+      |> Context.put_private(:filters, Enum.into(filter_list, %{}))
 
     with {:ok, context} <- execute({handler, :before_dispatch, [filter_map, context]}, context),
          {:ok, context} <- execute({handler, :create_query, [filter_list, context]}, context),

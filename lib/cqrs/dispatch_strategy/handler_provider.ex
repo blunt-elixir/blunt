@@ -5,17 +5,15 @@ defmodule Cqrs.DispatchStrategy.HandlerProvider do
   Handler modules are meant to be named "Namespace.MessageHandler".
   That is, the message module with "Handler" appended to the end.
   """
-  defmodule Error do
-    defexception [:message]
-  end
 
+  alias Cqrs.DispatchStrategy.Error
   alias Cqrs.{Behaviour, CommandHandler, DispatchContext, QueryHandler}
 
   @type handler :: atom()
-  @type context :: DispatchContext.t()
+  @type context :: DispatchContext.command_context() | DispatchContext.query_context()
 
-  @spec get_handler(context) :: {:error, :no_handler} | {:ok, handler}
   @spec get_handler!(context) :: handler
+  @spec get_handler(context) :: {:error, :no_handler} | {:ok, handler}
 
   def get_handler(%{message_type: :command, message: %{__struct__: module}}),
     do: resolve_handler(module, CommandHandler)

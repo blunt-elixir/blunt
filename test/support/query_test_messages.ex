@@ -19,7 +19,11 @@ defmodule Cqrs.QueryTest.Protocol do
   defmodule GetPerson do
     use Cqrs.Query
 
+    alias Cqrs.QueryTest.ReadModel.Person
+
     field :id, :binary_id
     field :name, :string
+
+    binding :person, Person
   end
 end

@@ -4,7 +4,7 @@ defmodule Cqrs.QueryHandler do
   @type filter_list :: keyword()
   @type user :: struct() | nil
   @type query :: Ecto.Query.t() | any()
-  @type context :: Cqrs.DispatchContext.t()
+  @type context :: Cqrs.DispatchContext.query_context()
 
   @callback before_dispatch(filters(), context) :: {:ok, context()} | {:error, any()}
   @callback create_query(filter_list(), context()) :: query()

@@ -6,6 +6,7 @@ defmodule Cqrs.Behaviour do
   end
 
   @spec validate(atom, atom) :: {:error, String.t()} | {:ok, atom}
+
   def validate(handler_module, behaviour_module) do
     error = "#{inspect(handler_module)} is not a valid #{inspect(behaviour_module)}"
 
@@ -22,6 +23,7 @@ defmodule Cqrs.Behaviour do
   end
 
   @spec validate!(atom, atom) :: atom
+
   def validate!(handler_module, behaviour_module) do
     case validate(handler_module, behaviour_module) do
       {:ok, handler} -> handler

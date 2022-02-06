@@ -17,7 +17,7 @@ defmodule Cqrs.Query do
 
       import Cqrs.Query, only: :macros
 
-      @options Option.message_return()
+      @options Option.return_option()
 
       @options {:execute, [type: :boolean, default: true, required: true]}
       @options {:preload, [type: {:array, :any}, default: [], required: true]}
@@ -29,10 +29,10 @@ defmodule Cqrs.Query do
   defmacro option(name, type, opts \\ []) when is_atom(name) and is_list(opts),
     do: Option.record(name, type, opts)
 
-  @spec binding(atom(), atom(), keyword()) :: any()
-  defmacro binding(name, target_schema, opts \\ []) do
+  @spec binding(atom(), atom()) :: any()
+  defmacro binding(name, target_schema) do
     quote do
-      @bindings {unquote(name), unquote(target_schema), unquote(opts)}
+      @bindings {unquote(name), unquote(target_schema)}
     end
   end
 
@@ -60,6 +60,9 @@ defmodule Cqrs.Query do
 
   defp reject_nil_filters(filters, _opts),
     do: filters
+
+  @spec bindings(Cqrs.DispatchContext.query_context()) :: keyword()
+  def bindings(context), do: Context.get_private(context, :bindings)
 
   @spec query(Cqrs.DispatchContext.query_context()) :: any
   def query(context), do: Context.get_private(context, :query)

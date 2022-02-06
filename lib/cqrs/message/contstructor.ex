@@ -7,9 +7,6 @@ defmodule Cqrs.Message.Contstructor do
 
   def generate(%{name: name, has_fields?: true, has_required_fields?: true}) do
     quote do
-      @doc """
-      Creates a new #{inspect(__MODULE__)} #{@message_type}.
-      """
       @spec unquote(name)(values :: Input.t(), overrides :: Input.t()) ::
               {:ok, struct()} | {:error, any()}
       def unquote(name)(values, overrides \\ []) when is_list(values) or is_map(values),
@@ -19,9 +16,6 @@ defmodule Cqrs.Message.Contstructor do
 
   def generate(%{name: name, has_fields?: true}) do
     quote do
-      @doc """
-      Creates a new #{inspect(__MODULE__)} #{@message_type}.
-      """
       @spec unquote(name)(values :: Input.t(), overrides :: Input.t()) ::
               {:ok, struct()} | {:error, any()}
       def unquote(name)(values \\ %{}, overrides \\ []) when is_list(values) or is_map(values),
@@ -31,9 +25,6 @@ defmodule Cqrs.Message.Contstructor do
 
   def generate(%{name: name}) do
     quote do
-      @doc """
-      Creates a new #{inspect(__MODULE__)} #{@message_type}.
-      """
       @spec unquote(name)() ::
               {:ok, struct()} | {:error, any()}
       def unquote(name)(),

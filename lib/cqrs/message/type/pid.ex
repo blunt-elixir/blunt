@@ -1,4 +1,6 @@
 defmodule Cqrs.Message.Type.Pid do
+  @moduledoc false
+
   use Ecto.Type
 
   def type, do: :any

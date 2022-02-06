@@ -1,4 +1,4 @@
-defmodule Cqrs.Command.DerivedEvent do
+defmodule Cqrs.Command.Events do
   @moduledoc false
 
   def record(name, opts) do

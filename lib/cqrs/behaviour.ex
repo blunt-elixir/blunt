@@ -1,5 +1,6 @@
 defmodule Cqrs.Behaviour do
   @moduledoc false
+
   defmodule Error do
     defexception [:message]
   end

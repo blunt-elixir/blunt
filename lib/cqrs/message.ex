@@ -28,10 +28,12 @@ defmodule Cqrs.Message do
       @before_compile Cqrs.Message
 
       @impl true
-      def handle_validate(changeset), do: changeset
+      def handle_validate(changeset),
+        do: changeset
 
       @impl true
-      def after_validate(message), do: message
+      def after_validate(message),
+        do: message
 
       defoverridable after_validate: 1
     end

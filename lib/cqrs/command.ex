@@ -1,6 +1,6 @@
 defmodule Cqrs.Command do
   alias Cqrs.Message.Option
-  alias Cqrs.Command.DerivedEvent
+  alias Cqrs.Command.Events
 
   defmacro __using__(opts) do
     quote do
@@ -26,16 +26,16 @@ defmodule Cqrs.Command do
   defmacro derive_event(name, do: body) do
     body = Macro.escape(body, unquote: true)
     body = quote do: unquote(body)
-    DerivedEvent.record(name, do: body)
+    Events.record(name, do: body)
   end
 
   defmacro derive_event(name, opts),
-    do: DerivedEvent.record(name, opts)
+    do: Events.record(name, opts)
 
   defmacro derive_event(name, opts, do: body) do
     body = Macro.escape(body, unquote: true)
     body = quote do: unquote(body)
-    DerivedEvent.record(name, Keyword.put(opts, :do, body))
+    Events.record(name, Keyword.put(opts, :do, body))
   end
 
   defmacro __before_compile__(_env) do
@@ -46,5 +46,5 @@ defmodule Cqrs.Command do
   end
 
   defmacro __after_compile__(env, _bytecode),
-    do: DerivedEvent.generate_events(env)
+    do: Events.generate_events(env)
 end

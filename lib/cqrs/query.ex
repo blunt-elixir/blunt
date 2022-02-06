@@ -23,7 +23,6 @@ defmodule Cqrs.Query do
 
     query
     |> Map.from_struct()
-    |> Map.drop([:discarded_input])
     |> reject_nil_filters(opts)
   end
 

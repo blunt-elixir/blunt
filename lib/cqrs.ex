@@ -14,7 +14,7 @@ defmodule Cqrs do
 
   defmacro defevent(opts \\ [], do: body) do
     quote do
-      use Cqrs.Event, unquote(opts)
+      use Cqrs.DomainEvent, unquote(opts)
       unquote(body)
     end
   end

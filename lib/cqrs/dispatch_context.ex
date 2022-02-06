@@ -1,10 +1,38 @@
-defmodule Cqrs.ExecutionContext do
+defmodule Cqrs.DispatchContext do
   alias Cqrs.Message.Option
 
   @type t :: %__MODULE__{
           message: struct(),
           discarded_data: map(),
           message_type: atom(),
+          created_at: DateTime.t(),
+          async: boolean(),
+          user: any(),
+          private: map(),
+          pipeline: map(),
+          last_pipeline_step: atom(),
+          opts: keyword(),
+          errors: list()
+        }
+
+  @type command_context :: %__MODULE__{
+          message: struct(),
+          discarded_data: map(),
+          message_type: :command,
+          created_at: DateTime.t(),
+          async: boolean(),
+          user: any(),
+          private: map(),
+          pipeline: map(),
+          last_pipeline_step: atom(),
+          opts: keyword(),
+          errors: list()
+        }
+
+  @type query_context :: %__MODULE__{
+          message: struct(),
+          discarded_data: map(),
+          message_type: :query,
           created_at: DateTime.t(),
           async: boolean(),
           user: any(),
@@ -94,7 +122,7 @@ defmodule Cqrs.ExecutionContext do
       import Inspect.Algebra
 
       def inspect(%{last_pipeline_step: step} = context, opts) do
-        response = Cqrs.ExecutionContext.get_pipeline(context, step)
+        response = Cqrs.DispatchContext.get_pipeline(context, step)
 
         message =
           context
@@ -102,7 +130,7 @@ defmodule Cqrs.ExecutionContext do
           |> Map.put(:response, response)
           |> Enum.map(fn {key, value} -> concat(Atom.to_string(key) <> ": ", inspect(value)) end)
 
-        container_doc("#Cqrs.ExecutionContext<", message, ">", opts, fn x, _ -> x end)
+        container_doc("#Cqrs.DispatchContext<", message, ">", opts, fn x, _ -> x end)
       end
     end
   end

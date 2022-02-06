@@ -9,10 +9,10 @@ defmodule Cqrs.DispatchStrategy.HandlerProvider do
     defexception [:message]
   end
 
-  alias Cqrs.{Behaviour, CommandHandler, ExecutionContext, QueryHandler}
+  alias Cqrs.{Behaviour, CommandHandler, DispatchContext, QueryHandler}
 
   @type handler :: atom()
-  @type context :: ExecutionContext.t()
+  @type context :: DispatchContext.t()
 
   @spec get_handler(context) :: {:error, :no_handler} | {:ok, handler}
   @spec get_handler!(context) :: handler

@@ -1,7 +1,7 @@
 defmodule Cqrs.CommandTest do
   use ExUnit.Case, async: true
 
-  alias Cqrs.ExecutionContext
+  alias Cqrs.DispatchContext
   alias Cqrs.CommandTest.Protocol
 
   test "command options" do
@@ -67,7 +67,7 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch(reply_to: "lkajsdf")
 
-      assert [opts: %{reply_to: ["is not a valid Pid"]}] = ExecutionContext.errors(context)
+      assert [opts: %{reply_to: ["is not a valid Pid"]}] = DispatchContext.errors(context)
       assert %{errors: [opts: %{reply_to: ["is not a valid Pid"]}]} = context
     end
 
@@ -84,10 +84,10 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch(return: :context, reply_to: self())
 
-      assert %ExecutionContext{errors: [], last_pipeline_step: :handle_dispatch} = context
-      assert %{child: %{related: "value"}} = ExecutionContext.get_private(context)
+      assert %DispatchContext{errors: [], last_pipeline_step: :handle_dispatch} = context
+      assert %{child: %{related: "value"}} = DispatchContext.get_private(context)
 
-      assert "YO-HOHO" = ExecutionContext.get_last_pipeline(context)
+      assert "YO-HOHO" = DispatchContext.get_last_pipeline(context)
     end
   end
 
@@ -102,10 +102,10 @@ defmodule Cqrs.CommandTest do
 
       assert {:ok, context} = Task.await(task)
 
-      assert %ExecutionContext{errors: [], last_pipeline_step: :handle_dispatch} = context
-      assert %{child: %{related: "value"}} = ExecutionContext.get_private(context)
+      assert %DispatchContext{errors: [], last_pipeline_step: :handle_dispatch} = context
+      assert %{child: %{related: "value"}} = DispatchContext.get_private(context)
 
-      assert "YO-HOHO" = ExecutionContext.get_last_pipeline(context)
+      assert "YO-HOHO" = DispatchContext.get_last_pipeline(context)
     end
   end
 
@@ -121,8 +121,8 @@ defmodule Cqrs.CommandTest do
                private: %{}
              } = context
 
-      assert [:before_dispatch_error] = ExecutionContext.errors(context)
-      assert {:error, :before_dispatch_error} == ExecutionContext.get_last_pipeline(context)
+      assert [:before_dispatch_error] = DispatchContext.errors(context)
+      assert {:error, :before_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
 
     test "simulate error in handle_authorize" do
@@ -134,8 +134,8 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
-      assert [:handle_authorize_error] = ExecutionContext.errors(context)
-      assert {:error, :handle_authorize_error} == ExecutionContext.get_last_pipeline(context)
+      assert [:handle_authorize_error] = DispatchContext.errors(context)
+      assert {:error, :handle_authorize_error} == DispatchContext.get_last_pipeline(context)
     end
 
     test "simulate error in handle_dispatch" do
@@ -147,8 +147,8 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
-      assert [:handle_dispatch_error] = ExecutionContext.errors(context)
-      assert {:error, :handle_dispatch_error} == ExecutionContext.get_last_pipeline(context)
+      assert [:handle_dispatch_error] = DispatchContext.errors(context)
+      assert {:error, :handle_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
 
     defp dispatch(error_at: error_at) do

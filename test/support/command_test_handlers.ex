@@ -1,6 +1,6 @@
 defmodule Cqrs.CommandTest.Protocol.DispatchWithHandlerHandler do
   use Cqrs.CommandHandler
-  alias Cqrs.ExecutionContext, as: Context
+  alias Cqrs.DispatchContext, as: Context
 
   defp reply(context, pipeline) do
     context

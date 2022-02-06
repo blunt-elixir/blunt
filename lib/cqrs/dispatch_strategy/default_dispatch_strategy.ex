@@ -2,13 +2,13 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
   @behaviour Cqrs.DispatchStrategy
 
   alias Cqrs.Query
-  alias Cqrs.ExecutionContext, as: Context
+  alias Cqrs.DispatchContext, as: Context
   alias Cqrs.DispatchStrategy.HandlerProvider
 
   @spec dispatch(Context.t()) :: {:error, Context.t()} | {:ok, Context.t() | any}
 
   @doc """
-  Receives an `ExecutionContext`, locates the message handler, and runs the handler pipeline.
+  Receives an `DispatchContext`, locates the message handler, and runs the handler pipeline.
 
   ## CommandHandler Pipeline
 
@@ -36,8 +36,8 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
   def dispatch(%{message_type: :query, message: filter_map} = context) do
     user = Context.user(context)
     handler = HandlerProvider.get_handler!(context)
-    filter_list = Query.create_filter_list(filter_map, context)
-    context = Context.put_private(context, :filters, filter_list)
+    filter_list = Query.create_filter_list(context)
+    context = Context.put_private(context, :filters, Enum.into(filter_list, %{}))
 
     with {:ok, context} <- execute({handler, :before_dispatch, [filter_map, context]}, context),
          {:ok, context} <- execute({handler, :create_query, [filter_list, context]}, context),
@@ -52,6 +52,7 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
     # put the query into the context
     query = Context.get_last_pipeline(context)
     context = Context.put_private(context, :query, query)
+    opts = Context.options(context)
 
     # -  If `execution` is set to false, just return the query;
     #     otherwise, execute `handle_dispatch`
@@ -60,7 +61,7 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
         return_final(query, context)
 
       true ->
-        with {:ok, context} <- execute({handler, :handle_dispatch, [query, context]}, context) do
+        with {:ok, context} <- execute({handler, :handle_dispatch, [query, context, opts]}, context) do
           return_last_pipeline(context)
         end
     end

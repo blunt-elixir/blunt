@@ -4,12 +4,12 @@ defmodule Cqrs.QueryHandler do
   @type filter_list :: keyword()
   @type user :: struct() | nil
   @type query :: Ecto.Query.t() | any()
-  @type context :: Cqrs.ExecutionContext.t()
+  @type context :: Cqrs.DispatchContext.t()
 
   @callback before_dispatch(filters(), context) :: {:ok, context()} | {:error, any()}
   @callback create_query(filter_list(), context()) :: query()
   @callback handle_scope(user(), query(), context()) :: query()
-  @callback handle_dispatch(query(), context) :: any()
+  @callback handle_dispatch(query(), context(), opts()) :: any()
 
   defmacro __using__(_opts) do
     quote do
@@ -21,7 +21,11 @@ defmodule Cqrs.QueryHandler do
       def before_dispatch(_filters, context),
         do: {:ok, context}
 
-      defoverridable before_dispatch: 2
+      @impl true
+      def handle_scope(_user, query, _context),
+        do: query
+
+      defoverridable before_dispatch: 2, handle_scope: 3
     end
   end
 end

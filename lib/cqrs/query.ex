@@ -1,6 +1,6 @@
 defmodule Cqrs.Query do
   alias Cqrs.Message.Option
-  alias Cqrs.ExecutionContext, as: Context
+  alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
     quote do
@@ -46,10 +46,11 @@ defmodule Cqrs.Query do
     end
   end
 
-  def create_filter_list(query, context) do
+  @spec create_filter_list(Cqrs.DispatchContext.query_context()) :: list | map
+  def create_filter_list(%{message_type: :query, message: filter_map} = context) do
     opts = Context.options(context) |> Enum.into(%{})
 
-    query
+    filter_map
     |> Map.from_struct()
     |> reject_nil_filters(opts)
   end
@@ -59,4 +60,16 @@ defmodule Cqrs.Query do
 
   defp reject_nil_filters(filters, _opts),
     do: filters
+
+  @spec query(Cqrs.DispatchContext.query_context()) :: any
+  def query(context), do: Context.get_private(context, :query)
+
+  @spec filters(Cqrs.DispatchContext.query_context()) :: keyword()
+  def filters(context), do: Context.get_private(context, :filters)
+
+  @spec message(Cqrs.DispatchContext.query_context()) :: keyword()
+  def message(%{message: message}), do: message
+
+  @spec results(Cqrs.DispatchContext.query_context()) :: any
+  def results(context), do: Context.get_last_pipeline(context)
 end

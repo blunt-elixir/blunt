@@ -7,9 +7,6 @@ defmodule Cqrs.DomainEvent do
           |> Keyword.put(:dispatch?, false)
           |> Keyword.put(:message_type, :event)
 
-      @doc """
-      Creates a `#{inspect(__MODULE__)}` event and unwraps it from the :ok tuple if successful`
-      """
       @spec create(values :: Input.t(), overrides :: Input.t()) :: {:ok, struct()} | {:error, any()}
       def create(values, overrides \\ []) do
         with {:ok, event} <- new(values, overrides) do

@@ -116,22 +116,4 @@ defmodule Cqrs.DispatchContext do
 
   def get_last_pipeline(%__MODULE__{last_pipeline_step: step} = context),
     do: get_pipeline(context, step)
-
-  if Mix.env() == :prod do
-    defimpl Inspect do
-      import Inspect.Algebra
-
-      def inspect(%{last_pipeline_step: step} = context, opts) do
-        response = Cqrs.DispatchContext.get_pipeline(context, step)
-
-        message =
-          context
-          |> Map.take([:message, :message_type, :errors, :opts, :last_pipeline_step])
-          |> Map.put(:response, response)
-          |> Enum.map(fn {key, value} -> concat(Atom.to_string(key) <> ": ", inspect(value)) end)
-
-        container_doc("#Cqrs.DispatchContext<", message, ">", opts, fn x, _ -> x end)
-      end
-    end
-  end
 end

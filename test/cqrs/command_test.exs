@@ -80,6 +80,23 @@ defmodule Cqrs.CommandTest do
     end
   end
 
+  describe "async dispatch" do
+    alias Protocol.DispatchWithHandler
+
+    test "is simple" do
+      assert %Task{} = task = %{name: "chris"}
+      |> DispatchWithHandler.new()
+      |> DispatchWithHandler.dispatch_async(return: :context, reply_to: self())
+
+      assert {:ok, context} = Task.await(task)
+
+      assert %ExecutionContext{errors: [], last_pipeline_step: :handle_dispatch} = context
+      assert %{child: %{related: "value"}} = ExecutionContext.get_private(context)
+
+      assert "YO-HOHO" = ExecutionContext.get_last_pipeline(context)
+    end
+  end
+
   describe "dispatch error simulations" do
     alias Protocol.DispatchWithHandler
 

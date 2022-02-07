@@ -74,8 +74,14 @@ defmodule Cqrs.Message do
     do: Field.record(name, type, opts)
 
   @spec internal_field(name :: atom(), type :: atom(), keyword()) :: any()
-  defmacro internal_field(name, type, opts \\ []),
-    do: Field.record(name, type, Keyword.put(opts, :internal, true))
+  defmacro internal_field(name, type, opts \\ []) do
+    opts =
+      opts
+      |> Keyword.put(:internal, true)
+      |> Keyword.put(:required, false)
+
+    Field.record(name, type, opts)
+  end
 
   @doc false
   def create_jason_encoders?(opts) do

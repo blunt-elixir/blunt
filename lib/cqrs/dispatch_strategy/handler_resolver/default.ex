@@ -9,11 +9,10 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver.Default do
   """
 
   alias Cqrs.Behaviour
-  alias Cqrs.DispatchStrategy.HandlerResolver
 
-  @type handler :: HandlerResolver.handler()
-  @type message_module :: HandlerResolver.message_module()
-  @type behaviour_module :: HandlerResolver.behaviour_module()
+  @type handler :: atom()
+  @type message_module :: atom()
+  @type behaviour_module :: atom()
 
   @spec resolve(message_module(), behaviour_module()) :: {:ok, handler()} | :error
 

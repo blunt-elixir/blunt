@@ -1,6 +1,4 @@
 defmodule Cqrs.DispatchStrategy.HandlerResolver do
-  # TODO: Document :cqrs_tools, :handler_resolver
-
   alias Cqrs.{Behaviour, CommandHandler, DispatchContext, DispatchError, QueryHandler}
 
   @type handler :: atom()
@@ -8,7 +6,7 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver do
   @type behaviour_module :: atom()
   @type context :: DispatchContext.command_context() | DispatchContext.query_context()
 
-  @callback resolve(message_module, behaviour_module()) :: {:ok, handler} | :error
+  @callback resolve(message_module, behaviour_module) :: {:ok, handler} | :error
 
   @spec get_handler!(context) :: handler
   @spec get_handler(context) :: {:ok, handler} | :error

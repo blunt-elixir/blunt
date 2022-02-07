@@ -12,10 +12,9 @@ defmodule Cqrs.Behaviour do
 
     case Code.ensure_compiled(handler_module) do
       {:module, module} ->
-        case has_all_callbacks?(module, behaviour_module) do
-          true -> {:ok, module}
-          false -> {:error, error}
-        end
+        if has_all_callbacks?(module, behaviour_module),
+          do: {:ok, module},
+          else: {:error, error}
 
       _ ->
         {:error, error}

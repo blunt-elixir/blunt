@@ -2,4 +2,4 @@
 ** TODO add result_mapper function option to command and query macros
 This will require a way to store a Function ref in an Ecto type. ~:any~ would probably be fine. Just have to manually validate it in Message.Option.
 
-** DONE put message_opts property in DispatchContext
+** DONE +put message_opts property in DispatchContext+

@@ -98,10 +98,15 @@ defmodule Cqrs.DispatchContext do
   def put_pipeline(%__MODULE__{pipeline: pipeline} = context, key, value) when is_atom(key),
     do: %{context | last_pipeline_step: key, pipeline: pipeline ++ [{key, value}]}
 
+  @spec get_pipeline(context) :: map()
+  def get_pipeline(%__MODULE__{pipeline: pipeline}) do
+    Enum.into(pipeline, %{})
+  end
+
   @spec get_pipeline(context, atom) :: any | nil
-  def get_pipeline(%__MODULE__{pipeline: pipeline}, key) do
-    pipeline
-    |> Enum.into(%{})
+  def get_pipeline(%__MODULE__{} = context, key) do
+    context
+    |> get_pipeline()
     |> Map.get(key)
   end
 

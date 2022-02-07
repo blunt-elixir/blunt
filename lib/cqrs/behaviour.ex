@@ -7,10 +7,10 @@ defmodule Cqrs.Behaviour do
 
   @spec validate(atom, atom) :: {:error, String.t()} | {:ok, atom}
 
-  def validate(handler_module, behaviour_module) do
-    error = "#{inspect(handler_module)} is not a valid #{inspect(behaviour_module)}"
+  def validate(module, behaviour_module) do
+    error = "#{inspect(module)} is not a valid #{inspect(behaviour_module)}"
 
-    case Code.ensure_compiled(handler_module) do
+    case Code.ensure_compiled(module) do
       {:module, module} ->
         if has_all_callbacks?(module, behaviour_module),
           do: {:ok, module},
@@ -23,8 +23,8 @@ defmodule Cqrs.Behaviour do
 
   @spec validate!(atom, atom) :: atom
 
-  def validate!(handler_module, behaviour_module) do
-    case validate(handler_module, behaviour_module) do
+  def validate!(module, behaviour_module) do
+    case validate(module, behaviour_module) do
       {:ok, handler} -> handler
       {:error, error} -> raise Error, message: error
     end

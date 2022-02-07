@@ -29,7 +29,7 @@ defmodule Cqrs.CommandTest.Protocol do
     field :dog, :string, default: "maize"
 
     option :reply_to, :pid, required: true
-    option :error_at, :enum, values: [:before_dispatch, :handle_authorize, :handle_dispatch]
+    option :return_error, :boolean, default: false
   end
 
   defmodule CommandWithEventDerivations do

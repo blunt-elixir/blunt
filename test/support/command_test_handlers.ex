@@ -9,42 +9,14 @@ defmodule Cqrs.CommandTest.Protocol.DispatchWithHandlerHandler do
   end
 
   @impl true
-  def before_dispatch(command, context) do
-    reply(context, :before_dispatch)
-
-    if Context.get_option(context, :error_at) == :before_dispatch do
-      {:error, :before_dispatch_error}
-    else
-      with {:ok, child} <- get_some_dependency(command) do
-        {:ok, Context.put_private(context, :child, child)}
-      end
-    end
-  end
-
-  @impl true
-  def handle_authorize(_user, _command, context) do
-    reply(context, :handle_authorize)
-
-    if Context.get_option(context, :error_at) == :handle_authorize do
-      {:error, :handle_authorize_error}
-    else
-      {:ok, context}
-    end
-  end
-
-  @impl true
   def handle_dispatch(_command, context) do
     reply(context, :handle_dispatch)
 
-    if Context.get_option(context, :error_at) == :handle_dispatch do
+    if Context.get_option(context, :return_error) do
       {:error, :handle_dispatch_error}
     else
       "YO-HOHO"
     end
-  end
-
-  defp get_some_dependency(_command) do
-    {:ok, %{related: "value"}}
   end
 end
 

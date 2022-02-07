@@ -1,9 +1,9 @@
 defmodule Cqrs.DispatchStrategy.Default do
   @behaviour Cqrs.DispatchStrategy
 
-  alias Cqrs.Query
   alias Cqrs.DispatchContext, as: Context
   alias Cqrs.DispatchStrategy.HandlerResolver
+  alias Cqrs.{CommandHandler, Query, QueryHandler}
 
   @type context :: Context.t()
   @type query_context :: Context.query_context()
@@ -13,28 +13,21 @@ defmodule Cqrs.DispatchStrategy.Default do
           {:error, context()} | {:ok, context() | any}
 
   @moduledoc """
-  Receives an `DispatchContext`, locates the message handler, and runs the handler pipeline.
+  Receives a `DispatchContext`, locates a message handler, and runs the handler's pipeline.
 
   ## CommandHandler Pipeline
 
-  1. `before_dispatch`
-  2. `handle_authorize`
-  3. `handle_dispatch`
+  1. `handle_dispatch`
 
   ## QueryHandler Pipeline
 
-  1. `before_dispatch`
-  2. `create_query`
-  3. `handle_scope`
-  4. `handle_dispatch`
+  1. `create_query`
+  2. `handle_dispatch`
   """
   def dispatch(%{message_type: :command, message: command} = context) do
-    handler = HandlerResolver.get_handler!(context)
-    user = Context.user(context)
+    handler = HandlerResolver.get_handler!(context, CommandHandler)
 
-    with {:ok, context} <- execute({handler, :before_dispatch, [command, context]}, context),
-         {:ok, context} <- execute({handler, :handle_authorize, [user, command, context]}, context),
-         {:ok, context} <- execute({handler, :handle_dispatch, [command, context]}, context) do
+    with {:ok, context} <- execute({handler, :handle_dispatch, [command, context]}, context) do
       return_last_pipeline(context)
     end
   end
@@ -42,41 +35,32 @@ defmodule Cqrs.DispatchStrategy.Default do
   def dispatch(%{message_type: :query, message: filter_map} = context) do
     %{__struct__: query_module} = filter_map
 
-    user = Context.user(context)
     bindings = query_module.__bindings__()
-    handler = HandlerResolver.get_handler!(context)
     filter_list = Query.create_filter_list(context)
+    handler = HandlerResolver.get_handler!(context, QueryHandler)
 
     context =
       context
       |> Context.put_private(:bindings, bindings)
       |> Context.put_private(:filters, Enum.into(filter_list, %{}))
 
-    with {:ok, context} <- execute({handler, :before_dispatch, [filter_map, context]}, context),
-         {:ok, context} <- execute({handler, :create_query, [filter_list, context]}, context),
-         # - Apply Query Scoping
-         query = Context.get_last_pipeline(context),
-         {:ok, context} <- execute({handler, :handle_scope, [user, query, context]}, context) do
-      execute_query(handler, context)
-    end
-  end
+    with {:ok, context} <- execute({handler, :create_query, [filter_list, context]}, context) do
+      # put the query into the context
+      query = Context.get_last_pipeline(context)
+      context = Context.put_private(context, :query, query)
+      opts = Context.options(context)
 
-  defp execute_query(handler, context) do
-    # put the query into the context
-    query = Context.get_last_pipeline(context)
-    context = Context.put_private(context, :query, query)
-    opts = Context.options(context)
+      # -  If `execution` is set to false, just return the query;
+      #     otherwise, execute `handle_dispatch`
+      case Context.get_option(context, :execute) do
+        false ->
+          return_final(query, context)
 
-    # -  If `execution` is set to false, just return the query;
-    #     otherwise, execute `handle_dispatch`
-    case Context.get_option(context, :execute) do
-      false ->
-        return_final(query, context)
-
-      true ->
-        with {:ok, context} <- execute({handler, :handle_dispatch, [query, context, opts]}, context) do
-          return_last_pipeline(context)
-        end
+        true ->
+          with {:ok, context} <- execute({handler, :handle_dispatch, [query, context, opts]}, context) do
+            return_last_pipeline(context)
+          end
+      end
     end
   end
 

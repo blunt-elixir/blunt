@@ -1,5 +1,9 @@
 defmodule Cqrs.DispatchStrategy.HandlerResolver do
-  alias Cqrs.{Behaviour, CommandHandler, DispatchContext, DispatchError, QueryHandler}
+  alias Cqrs.{Behaviour, DispatchContext}
+
+  defmodule Error do
+    defexception [:message]
+  end
 
   @type handler :: atom()
   @type message_module :: atom()
@@ -8,34 +12,20 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver do
 
   @callback resolve(message_module, behaviour_module) :: {:ok, handler} | :error
 
-  @spec get_handler!(context) :: handler
-  @spec get_handler(context) :: {:ok, handler} | :error
+  @spec get_handler!(context, behaviour_module) :: handler
+  @spec get_handler(context, behaviour_module) :: {:ok, handler} | {:error, any()} | :error
 
   @doc false
-  def get_handler(%{message_type: :command, message: %{__struct__: module}}),
-    do: resolver().resolve(module, CommandHandler)
-
-  @doc false
-  def get_handler(%{message_type: :query, message: %{__struct__: module}}),
-    do: resolver().resolve(module, QueryHandler)
-
-  @doc false
-  def get_handler!(%{message_type: :command, message: command} = context) do
-    %{__struct__: module} = command
-
-    case get_handler(context) do
-      {:ok, handler} -> handler
-      :error -> raise DispatchError, message: "No CommandHandler found for query: #{inspect(module)}"
-    end
+  def get_handler(%{message: %{__struct__: module}}, behaviour_module) do
+    resolver().resolve(module, behaviour_module)
   end
 
   @doc false
-  def get_handler!(%{message_type: :query, message: query} = context) do
-    %{__struct__: module} = query
-
-    case get_handler(context) do
+  def get_handler!(%{message: %{__struct__: module}} = context, behaviour_module) do
+    case get_handler(context, behaviour_module) do
       {:ok, handler} -> handler
-      :error -> raise DispatchError, message: "No QueryHandler found for query: #{inspect(module)}"
+      {:error, reason} -> raise Error, message: reason
+      :error -> raise Error, message: "No #{inspect(behaviour_module)} found for query: #{inspect(module)}"
     end
   end
 

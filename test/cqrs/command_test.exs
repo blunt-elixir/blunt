@@ -2,7 +2,8 @@ defmodule Cqrs.CommandTest do
   use ExUnit.Case, async: true
 
   alias Cqrs.CommandTest.Protocol
-  alias Cqrs.{Command, DispatchContext, DispatchError}
+  alias Cqrs.{Command, DispatchContext}
+  alias Cqrs.DispatchStrategy.HandlerResolver
 
   test "command options" do
     alias Protocol.CommandOptions
@@ -18,9 +19,9 @@ defmodule Cqrs.CommandTest do
   test "dispatch with no handler" do
     alias Protocol.DispatchNoHandler
 
-    error = "No CommandHandler found for query: Cqrs.CommandTest.Protocol.DispatchNoHandler"
+    error = "No Cqrs.CommandHandler found for query: Cqrs.CommandTest.Protocol.DispatchNoHandler"
 
-    assert_raise(DispatchError, error, fn ->
+    assert_raise(HandlerResolver.Error, error, fn ->
       %{name: "chris"}
       |> DispatchNoHandler.new()
       |> DispatchNoHandler.dispatch()
@@ -34,19 +35,9 @@ defmodule Cqrs.CommandTest do
       options = DispatchWithHandler.__options__() |> Enum.into(%{})
 
       assert %{
-               error_at: [
-                 {:type, :enum},
-                 {:required, false},
-                 {:default, nil},
-                 {:values, [:before_dispatch, :handle_authorize, :handle_dispatch]}
-               ],
                reply_to: [type: :pid, default: nil, required: true],
-               return: [
-                 {:type, :enum},
-                 {:values, [:context, :response]},
-                 {:default, :response},
-                 {:required, true}
-               ]
+               return: [type: :enum, values: [:context, :response], default: :response, required: true],
+               return_error: [type: :boolean, required: false, default: false]
              } = options
     end
 
@@ -83,7 +74,6 @@ defmodule Cqrs.CommandTest do
 
       assert %{} == Command.errors(context)
       assert "YO-HOHO" = Command.results(context)
-      assert %{child: %{related: "value"}} = Command.private(context)
     end
   end
 
@@ -98,7 +88,6 @@ defmodule Cqrs.CommandTest do
 
       assert {:ok, context} = Task.await(task)
 
-      assert %{child: %{related: "value"}} = Command.private(context)
       assert "YO-HOHO" = Command.results(context)
     end
   end
@@ -106,51 +95,19 @@ defmodule Cqrs.CommandTest do
   describe "dispatch error simulations" do
     alias Protocol.DispatchWithHandler
 
-    test "simulate error in before_dispatch" do
-      {:error, context} = dispatch(error_at: :before_dispatch)
-
-      assert %{
-               errors: [:before_dispatch_error],
-               last_pipeline_step: :before_dispatch,
-               private: %{}
-             } = context
-
-      assert %{generic: [:before_dispatch_error]} = Command.errors(context)
-      assert {:error, :before_dispatch_error} == DispatchContext.get_last_pipeline(context)
-    end
-
-    test "simulate error in handle_authorize" do
-      {:error, context} = dispatch(error_at: :handle_authorize)
-
-      assert %{
-               errors: [:handle_authorize_error],
-               last_pipeline_step: :handle_authorize,
-               private: %{child: %{related: "value"}}
-             } = context
-
-      assert %{generic: [:handle_authorize_error]} = Command.errors(context)
-      assert {:error, :handle_authorize_error} == DispatchContext.get_last_pipeline(context)
-    end
-
     test "simulate error in handle_dispatch" do
-      {:error, context} = dispatch(error_at: :handle_dispatch)
+      {:error, context} =
+        %{name: "chris"}
+        |> DispatchWithHandler.new()
+        |> DispatchWithHandler.dispatch(return_error: true, return: :context, reply_to: self())
 
       assert %{
                errors: [:handle_dispatch_error],
-               last_pipeline_step: :handle_dispatch,
-               private: %{child: %{related: "value"}}
+               last_pipeline_step: :handle_dispatch
              } = context
 
       assert %{generic: [:handle_dispatch_error]} = Command.errors(context)
       assert {:error, :handle_dispatch_error} == DispatchContext.get_last_pipeline(context)
-    end
-
-    defp dispatch(error_at: error_at) do
-      opts = [error_at: error_at, return: :context, reply_to: self()]
-
-      %{name: "chris"}
-      |> DispatchWithHandler.new()
-      |> DispatchWithHandler.dispatch(opts)
     end
   end
 

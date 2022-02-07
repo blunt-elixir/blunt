@@ -30,9 +30,10 @@ defmodule Cqrs.DispatchStrategy.Default do
   """
   def dispatch(%{message_type: :command, message: command} = context) do
     handler = HandlerResolver.get_handler!(context)
+    user = Context.user(context)
 
     with {:ok, context} <- execute({handler, :before_dispatch, [command, context]}, context),
-         {:ok, context} <- execute({handler, :handle_authorize, [command, context]}, context),
+         {:ok, context} <- execute({handler, :handle_authorize, [user, command, context]}, context),
          {:ok, context} <- execute({handler, :handle_dispatch, [command, context]}, context) do
       return_last_pipeline(context)
     end

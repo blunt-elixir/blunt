@@ -22,7 +22,7 @@ defmodule Cqrs.CommandTest.Protocol.DispatchWithHandlerHandler do
   end
 
   @impl true
-  def handle_authorize(_command, context) do
+  def handle_authorize(_user, _command, context) do
     reply(context, :handle_authorize)
 
     if Context.get_option(context, :error_at) == :handle_authorize do

@@ -21,7 +21,7 @@ defmodule Cqrs.Message do
       Module.put_attribute(__MODULE__, :require_all_fields?, require_all_fields?)
       Module.put_attribute(__MODULE__, :create_jason_encoders?, create_jason_encoders?)
 
-      import Cqrs.Message, only: [field: 2, field: 3]
+      import Cqrs.Message, only: :macros
 
       @behaviour Cqrs.Message
       @before_compile Cqrs.Message
@@ -72,6 +72,10 @@ defmodule Cqrs.Message do
   @spec field(name :: atom(), type :: atom(), keyword()) :: any()
   defmacro field(name, type, opts \\ []),
     do: Field.record(name, type, opts)
+
+  @spec internal_field(name :: atom(), type :: atom(), keyword()) :: any()
+  defmacro internal_field(name, type, opts \\ []),
+    do: Field.record(name, type, Keyword.put(opts, :internal, true))
 
   @doc false
   def create_jason_encoders?(opts) do

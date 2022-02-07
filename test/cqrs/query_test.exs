@@ -6,7 +6,7 @@ defmodule Cqrs.QueryTest do
 
   describe "basics" do
     alias Protocol.BasicQuery
-    alias Cqrs.DispatchStrategy.Error
+    alias Cqrs.DispatchError
 
     test "predefined options" do
       options = BasicQuery.__options__() |> Enum.into(%{})
@@ -31,7 +31,7 @@ defmodule Cqrs.QueryTest do
     test "no handler" do
       error = "No QueryHandler found for query: Cqrs.QueryTest.Protocol.BasicQuery"
 
-      assert_raise(Error, error, fn ->
+      assert_raise(DispatchError, error, fn ->
         BasicQuery.new()
         |> BasicQuery.dispatch(return: :context)
       end)

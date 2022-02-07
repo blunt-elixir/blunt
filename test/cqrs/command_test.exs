@@ -2,7 +2,7 @@ defmodule Cqrs.CommandTest do
   use ExUnit.Case, async: true
 
   alias Cqrs.CommandTest.Protocol
-  alias Cqrs.{Command, DispatchContext}
+  alias Cqrs.{Command, DispatchContext, DispatchError}
 
   test "command options" do
     alias Protocol.CommandOptions
@@ -17,11 +17,10 @@ defmodule Cqrs.CommandTest do
 
   test "dispatch with no handler" do
     alias Protocol.DispatchNoHandler
-    alias Cqrs.DispatchStrategy.Error
 
     error = "No CommandHandler found for query: Cqrs.CommandTest.Protocol.DispatchNoHandler"
 
-    assert_raise(Error, error, fn ->
+    assert_raise(DispatchError, error, fn ->
       %{name: "chris"}
       |> DispatchNoHandler.new()
       |> DispatchNoHandler.dispatch()
@@ -30,7 +29,6 @@ defmodule Cqrs.CommandTest do
 
   describe "dispatch" do
     alias Protocol.DispatchWithHandler
-    alias Cqrs.DispatchStrategy.Error
 
     test "options" do
       options = DispatchWithHandler.__options__() |> Enum.into(%{})

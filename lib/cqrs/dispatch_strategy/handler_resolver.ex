@@ -1,8 +1,7 @@
 defmodule Cqrs.DispatchStrategy.HandlerResolver do
   # TODO: Document :cqrs_tools, :handler_resolver
 
-  alias Cqrs.DispatchStrategy.Error
-  alias Cqrs.{Behaviour, CommandHandler, DispatchContext, QueryHandler}
+  alias Cqrs.{Behaviour, CommandHandler, DispatchContext, DispatchError, QueryHandler}
 
   @type handler :: atom()
   @type message_module :: atom()
@@ -28,7 +27,7 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver do
 
     case get_handler(context) do
       {:ok, handler} -> handler
-      :error -> raise Error, message: "No CommandHandler found for query: #{inspect(module)}"
+      :error -> raise DispatchError, message: "No CommandHandler found for query: #{inspect(module)}"
     end
   end
 
@@ -38,7 +37,7 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver do
 
     case get_handler(context) do
       {:ok, handler} -> handler
-      :error -> raise Error, message: "No QueryHandler found for query: #{inspect(module)}"
+      :error -> raise DispatchError, message: "No QueryHandler found for query: #{inspect(module)}"
     end
   end
 

@@ -1,10 +1,6 @@
 defmodule Cqrs.DispatchStrategy do
   alias Cqrs.{Behaviour, DispatchContext}
 
-  defmodule Error do
-    defexception [:message]
-  end
-
   @type context :: DispatchContext.t()
 
   @callback dispatch(context()) :: {:ok, any()} | {:error, context()}

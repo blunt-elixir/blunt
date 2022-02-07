@@ -105,6 +105,7 @@ defmodule Cqrs.DispatchContext do
     |> Map.get(key)
   end
 
+  @spec get_last_pipeline(Cqrs.DispatchContext.t()) :: any | nil
   def get_last_pipeline(%__MODULE__{last_pipeline_step: step} = context),
     do: get_pipeline(context, step)
 

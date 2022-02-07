@@ -56,7 +56,7 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch()
 
-      assert %{errors: [%{reply_to: ["can't be blank"]}]} = context
+      assert %{reply_to: ["can't be blank"]} = Command.errors(context)
     end
 
     test "command requires reply_to option to be set to a valid Pid" do

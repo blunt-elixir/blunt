@@ -57,12 +57,12 @@ defmodule Cqrs.Command do
   defmacro __after_compile__(env, _bytecode),
     do: Events.generate_events(env)
 
-  @spec results(Context.command_context()) :: any
+  @spec results(Context.command_context()) :: any | nil
   def results(context), do: Context.get_last_pipeline(context)
 
-  @spec private(Context.command_context()) :: any
+  @spec private(Context.command_context()) :: map()
   def private(context), do: Context.get_private(context)
 
-  @spec errors(Context.command_context()) :: any
+  @spec errors(Context.command_context()) :: map()
   def errors(context), do: Context.errors(context)
 end

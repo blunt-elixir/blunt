@@ -61,18 +61,18 @@ defmodule Cqrs.Query do
   defp reject_nil_filters(filters, _opts),
     do: filters
 
-  @spec bindings(Cqrs.DispatchContext.query_context()) :: keyword()
+  @spec bindings(Cqrs.DispatchContext.query_context()) :: map()
   def bindings(context), do: Context.get_private(context, :bindings)
 
-  @spec query(Cqrs.DispatchContext.query_context()) :: any
+  @spec query(Cqrs.DispatchContext.query_context()) :: any | nil
   def query(context), do: Context.get_private(context, :query)
 
-  @spec filters(Cqrs.DispatchContext.query_context()) :: keyword()
+  @spec filters(Cqrs.DispatchContext.query_context()) :: map()
   def filters(context), do: Context.get_private(context, :filters)
 
-  @spec message(Cqrs.DispatchContext.query_context()) :: keyword()
+  @spec message(Cqrs.DispatchContext.query_context()) :: struct()
   def message(%{message: message}), do: message
 
-  @spec results(Cqrs.DispatchContext.query_context()) :: any
+  @spec results(Cqrs.DispatchContext.query_context()) :: any | nil
   def results(context), do: Context.get_last_pipeline(context)
 end

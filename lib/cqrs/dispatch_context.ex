@@ -9,6 +9,7 @@ defmodule Cqrs.DispatchContext do
 
   defstruct [
     :message,
+    :message_module,
     :discarded_data,
     :message_type,
     :created_at,
@@ -28,16 +29,19 @@ defmodule Cqrs.DispatchContext do
   def new(%{__struct__: message_module} = message, discarded_data, opts) do
     {async, opts} = Keyword.pop(opts, :async, false)
 
-    base_context = %__MODULE__{
+    read_opts(%__MODULE__{
       opts: opts,
       async: async,
       message: message,
+      message_module: message_module,
       discarded_data: discarded_data,
       created_at: DateTime.utc_now(),
       last_pipeline_step: :read_opts,
       message_type: message_module.__message_type__()
-    }
+    })
+  end
 
+  defp read_opts(%{message_module: message_module, opts: opts} = base_context) do
     context =
       case Option.parse_message_opts(message_module, opts) do
         {:ok, message_opts, opts} -> %{base_context | opts: opts, message_opts: message_opts}

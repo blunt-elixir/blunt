@@ -3,12 +3,14 @@ defmodule Cqrs.Query do
   alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
+    opts =
+      [require_all_fields?: false]
+      |> Keyword.merge(opts)
+      |> Keyword.put(:dispatch?, true)
+      |> Keyword.put(:message_type, :query)
+
     quote do
-      use Cqrs.Message,
-          [require_all_fields?: false]
-          |> Keyword.merge(unquote(opts))
-          |> Keyword.put(:dispatch?, true)
-          |> Keyword.put(:message_type, :query)
+      use Cqrs.Message, unquote(opts)
 
       Module.register_attribute(__MODULE__, :options, accumulate: true)
       Module.register_attribute(__MODULE__, :bindings, accumulate: true)

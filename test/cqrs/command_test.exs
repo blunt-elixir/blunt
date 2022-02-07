@@ -58,7 +58,7 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch()
 
-      assert %{errors: [opts: %{reply_to: ["can't be blank"]}]} = context
+      assert %{errors: [%{reply_to: ["can't be blank"]}]} = context
     end
 
     test "command requires reply_to option to be set to a valid Pid" do
@@ -67,7 +67,7 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch(reply_to: "lkajsdf")
 
-      assert [opts: %{reply_to: ["is not a valid Pid"]}] = Command.errors(context)
+      assert %{reply_to: ["is not a valid Pid"]} = Command.errors(context)
     end
 
     test "returns handle_dispatch result by default" do
@@ -83,7 +83,7 @@ defmodule Cqrs.CommandTest do
                |> DispatchWithHandler.new()
                |> DispatchWithHandler.dispatch(return: :context, reply_to: self())
 
-      assert [] == Command.errors(context)
+      assert %{} == Command.errors(context)
       assert "YO-HOHO" = Command.results(context)
       assert %{child: %{related: "value"}} = Command.private(context)
     end
@@ -117,7 +117,7 @@ defmodule Cqrs.CommandTest do
                private: %{}
              } = context
 
-      assert [:before_dispatch_error] = Command.errors(context)
+      assert %{generic: [:before_dispatch_error]} = Command.errors(context)
       assert {:error, :before_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
 
@@ -130,7 +130,7 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
-      assert [:handle_authorize_error] = Command.errors(context)
+      assert %{generic: [:handle_authorize_error]} = Command.errors(context)
       assert {:error, :handle_authorize_error} == DispatchContext.get_last_pipeline(context)
     end
 
@@ -143,7 +143,7 @@ defmodule Cqrs.CommandTest do
                private: %{child: %{related: "value"}}
              } = context
 
-      assert [:handle_dispatch_error] = Command.errors(context)
+      assert %{generic: [:handle_dispatch_error]} = Command.errors(context)
       assert {:error, :handle_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
 

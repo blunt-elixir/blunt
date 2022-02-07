@@ -3,7 +3,7 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
 
   alias Cqrs.Query
   alias Cqrs.DispatchContext, as: Context
-  alias Cqrs.DispatchStrategy.HandlerProvider
+  alias Cqrs.DispatchStrategy.HandlerResolver
 
   @type context :: Context.t()
   @type command_context :: Context.command_context()
@@ -29,7 +29,7 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
   4. `handle_dispatch`
   """
   def dispatch(%{message_type: :command, message: command} = context) do
-    handler = HandlerProvider.get_handler!(context)
+    handler = HandlerResolver.get_handler!(context)
 
     with {:ok, context} <- execute({handler, :before_dispatch, [command, context]}, context),
          {:ok, context} <- execute({handler, :handle_authorize, [command, context]}, context),
@@ -43,7 +43,7 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
 
     user = Context.user(context)
     bindings = query_module.__bindings__()
-    handler = HandlerProvider.get_handler!(context)
+    handler = HandlerResolver.get_handler!(context)
     filter_list = Query.create_filter_list(context)
 
     context =

@@ -22,6 +22,9 @@ defmodule Cqrs.DispatchContext do
     pipeline: []
   ]
 
+  @type context :: __MODULE__.t()
+
+  @spec new(message :: struct(), map(), keyword) :: {:error, context} | {:ok, context}
   def new(%{__struct__: message_module} = message, discarded_data, opts) do
     {async, opts} = Keyword.pop(opts, :async, false)
 
@@ -46,34 +49,52 @@ defmodule Cqrs.DispatchContext do
         {:ok, put_pipeline(context, :read_opts, :ok)}
 
       %{errors: errors} = context ->
-        {:error, put_pipeline(context, :read_opts, errors)}
+        {:error, put_pipeline(context, :read_opts, {:error, errors})}
     end
   end
 
+  @spec async?(context) :: boolean()
   def async?(%__MODULE__{async: async}), do: async
 
+  @spec options(context) :: keyword()
   def options(%__MODULE__{opts: opts}), do: opts
+
+  @spec get_option(context, atom, any | nil) :: any | nil
   def get_option(%__MODULE__{opts: opts}, key, default \\ nil) when is_atom(key), do: Keyword.get(opts, key, default)
 
+  @spec user(context) :: map() | nil
   def user(%__MODULE__{user: user}), do: user
 
-  def errors(%__MODULE__{errors: errors}),
-    do: Enum.reduce(errors, %{}, &Map.merge(&2, &1))
+  @spec errors(context) :: map()
+  def errors(%__MODULE__{errors: errors} = context) do
+    Enum.reduce(errors, %{}, fn
+      map, acc when is_map(map) -> Map.merge(acc, map)
+      list, acc when is_list(list) -> acc ++ errors(%{context | errors: list})
+      atom, acc when is_atom(atom) -> Map.update(acc, :generic, [atom], fn errors -> [atom | errors] end)
+      string, acc when is_binary(string) -> Map.update(acc, :generic, [string], fn errors -> [string | errors] end)
+    end)
+  end
 
+  @spec put_error(context, any) :: context
   def put_error(%__MODULE__{errors: errors} = context, error),
     do: %{context | errors: errors ++ List.wrap(error)}
 
+  @spec put_private(context, atom, any) :: context
   def put_private(%__MODULE__{private: private} = context, key, value) when is_atom(key),
     do: %{context | private: Map.put(private, key, value)}
 
+  @spec get_private(context) :: map()
   def get_private(%__MODULE__{private: private}), do: private
 
+  @spec get_private(context, atom, any | nil) :: any | nil
   def get_private(%__MODULE__{private: private}, key, default \\ nil),
     do: Map.get(private, key, default)
 
+  @spec put_pipeline(context, atom, any) :: context
   def put_pipeline(%__MODULE__{pipeline: pipeline} = context, key, value) when is_atom(key),
     do: %{context | last_pipeline_step: key, pipeline: pipeline ++ [{key, value}]}
 
+  @spec get_pipeline(context, atom) :: any | nil
   def get_pipeline(%__MODULE__{pipeline: pipeline}, key) do
     pipeline
     |> Enum.into(%{})

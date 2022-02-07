@@ -51,7 +51,7 @@ defmodule Cqrs.Message.Option do
         {:ok, message_opts, Keyword.merge(unparsed, parsed)}
 
       {:error, errors} ->
-        {:error, {:opts, errors}}
+        {:error, errors}
     end
   end
 

@@ -5,8 +5,12 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
   alias Cqrs.DispatchContext, as: Context
   alias Cqrs.DispatchStrategy.HandlerProvider
 
-  @spec dispatch(Context.command_context() | Context.query_context()) ::
-          {:error, Context.t()} | {:ok, Context.t() | any}
+  @type context :: Context.t()
+  @type command_context :: Context.command_context()
+  @type query_context :: Context.query_context()
+
+  @spec dispatch(command_context() | query_context()) ::
+          {:error, context()} | {:ok, context() | any}
 
   @doc """
   Receives an `DispatchContext`, locates the message handler, and runs the handler pipeline.

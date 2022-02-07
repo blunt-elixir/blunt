@@ -34,11 +34,11 @@ defmodule Cqrs.Message.Option do
   end
 
   def parse_message_opts(message_module, opts) do
-    supported = message_module.__options__()
+    message_opts = message_module.__options__()
 
     %{parsed: parsed, unparsed: unparsed} =
       Enum.reduce(
-        supported,
+        message_opts,
         %{parsed: [], unparsed: opts},
         fn current_option, acc ->
           {name, value} = parse_option(current_option, acc.unparsed)
@@ -46,9 +46,9 @@ defmodule Cqrs.Message.Option do
         end
       )
 
-    case validate_options(parsed, supported) do
+    case validate_options(parsed, message_opts) do
       {:ok, parsed} ->
-        {:ok, Keyword.merge(unparsed, parsed)}
+        {:ok, message_opts, Keyword.merge(unparsed, parsed)}
 
       {:error, errors} ->
         {:error, {:opts, errors}}

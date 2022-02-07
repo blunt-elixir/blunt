@@ -17,6 +17,7 @@ defmodule Cqrs.DispatchContext do
     :last_pipeline_step,
     private: %{},
     opts: [],
+    message_opts: [],
     errors: [],
     pipeline: []
   ]
@@ -36,7 +37,7 @@ defmodule Cqrs.DispatchContext do
 
     context =
       case Option.parse_message_opts(message_module, opts) do
-        {:ok, opts} -> %{base_context | opts: opts}
+        {:ok, message_opts, opts} -> %{base_context | opts: opts, message_opts: message_opts}
         {:error, error} -> %{base_context | errors: [error]}
       end
 

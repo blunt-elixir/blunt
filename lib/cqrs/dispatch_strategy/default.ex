@@ -1,6 +1,8 @@
 defmodule Cqrs.DispatchStrategy.Default do
   @behaviour Cqrs.DispatchStrategy
 
+  import Cqrs.DispatchStrategy
+
   alias Cqrs.DispatchContext, as: Context
   alias Cqrs.DispatchStrategy.PipelineResolver
   alias Cqrs.{CommandPipeline, Query, QueryPipeline}
@@ -61,47 +63,6 @@ defmodule Cqrs.DispatchStrategy.Default do
             return_last_pipeline(context)
           end
       end
-    end
-  end
-
-  defp return_last_pipeline(context) do
-    context
-    |> Context.get_last_pipeline()
-    |> return_final(context)
-  end
-
-  defp return_final(value, context) do
-    case Context.get_option(context, :return) do
-      :context -> {:ok, context}
-      _ -> {:ok, value}
-    end
-  end
-
-  defp execute({pipeline, callback, args}, context) do
-    case apply(pipeline, callback, args) do
-      {:error, error} ->
-        {:error,
-         context
-         |> Context.put_error(error)
-         |> Context.put_pipeline(callback, {:error, error})}
-
-      :error ->
-        {:error,
-         context
-         |> Context.put_error(:error)
-         |> Context.put_pipeline(callback, :error)}
-
-      {:ok, %Context{} = context} ->
-        {:ok, Context.put_pipeline(context, callback, :ok)}
-
-      {:ok, {:ok, response}} ->
-        {:ok, Context.put_pipeline(context, callback, response)}
-
-      {:ok, response} ->
-        {:ok, Context.put_pipeline(context, callback, response)}
-
-      response ->
-        {:ok, Context.put_pipeline(context, callback, response)}
     end
   end
 end

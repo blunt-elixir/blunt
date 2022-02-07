@@ -1,5 +1,5 @@
 defmodule Cqrs.DispatchStrategy do
-  alias Cqrs.{Behaviour, DispatchContext, DispatchStrategy.DefaultDispatchStrategy}
+  alias Cqrs.{Behaviour, DispatchContext}
 
   defmodule Error do
     defexception [:message]
@@ -14,7 +14,7 @@ defmodule Cqrs.DispatchStrategy do
 
   defp get_strategy do
     :cqrs_tools
-    |> Application.get_env(:dispatch_strategy, DefaultDispatchStrategy)
+    |> Application.get_env(:dispatch_strategy, __MODULE__.Default)
     |> Behaviour.validate!(__MODULE__)
   end
 end

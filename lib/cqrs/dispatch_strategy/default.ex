@@ -1,4 +1,4 @@
-defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
+defmodule Cqrs.DispatchStrategy.Default do
   @behaviour Cqrs.DispatchStrategy
 
   alias Cqrs.Query

@@ -1,47 +1,11 @@
 defmodule Cqrs.DispatchContext do
+  # TODO: Document :cqrs_tools, :context_shipper
   alias Cqrs.Message.Option
+  alias Cqrs.DispatchContext.Shipper
 
-  @type t :: %__MODULE__{
-          message: struct(),
-          discarded_data: map(),
-          message_type: atom(),
-          created_at: DateTime.t(),
-          async: boolean(),
-          user: any(),
-          private: map(),
-          pipeline: map(),
-          last_pipeline_step: atom(),
-          opts: keyword(),
-          errors: list()
-        }
-
-  @type command_context :: %__MODULE__{
-          message: struct(),
-          discarded_data: map(),
-          message_type: :command,
-          created_at: DateTime.t(),
-          async: boolean(),
-          user: any(),
-          private: map(),
-          pipeline: map(),
-          last_pipeline_step: atom(),
-          opts: keyword(),
-          errors: list()
-        }
-
-  @type query_context :: %__MODULE__{
-          message: struct(),
-          discarded_data: map(),
-          message_type: :query,
-          created_at: DateTime.t(),
-          async: boolean(),
-          user: any(),
-          private: map(),
-          pipeline: map(),
-          last_pipeline_step: atom(),
-          opts: keyword(),
-          errors: list()
-        }
+  @type t :: %__MODULE__{message_type: atom(), message: struct(), errors: list()}
+  @type command_context :: %__MODULE__{message_type: :command, message: struct(), errors: list()}
+  @type query_context :: %__MODULE__{message_type: :query, message: struct(), errors: list()}
 
   defstruct [
     :message,
@@ -92,7 +56,8 @@ defmodule Cqrs.DispatchContext do
 
   def user(%__MODULE__{user: user}), do: user
 
-  def errors(%__MODULE__{errors: errors}), do: errors
+  def errors(%__MODULE__{errors: errors}),
+    do: Enum.reduce(errors, %{}, &Map.merge(&2, &1))
 
   def put_error(%__MODULE__{errors: errors} = context, error),
     do: %{context | errors: errors ++ List.wrap(error)}
@@ -116,4 +81,7 @@ defmodule Cqrs.DispatchContext do
 
   def get_last_pipeline(%__MODULE__{last_pipeline_step: step} = context),
     do: get_pipeline(context, step)
+
+  def ship(%__MODULE__{} = context),
+    do: Shipper.ship(context)
 end

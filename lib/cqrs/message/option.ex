@@ -48,12 +48,7 @@ defmodule Cqrs.Message.Option do
 
     case validate_options(parsed, supported) do
       {:ok, parsed} ->
-        validated =
-          unparsed
-          |> tap(&log_unsupported_options(message_module, &1))
-          |> Keyword.merge(parsed)
-
-        {:ok, validated}
+        {:ok, Keyword.merge(unparsed, parsed)}
 
       {:error, errors} ->
         {:error, {:opts, errors}}
@@ -63,16 +58,6 @@ defmodule Cqrs.Message.Option do
   defp parse_option({name, config}, provided_opts) do
     default = Keyword.fetch!(config, :default)
     {name, Keyword.get(provided_opts, name, default)}
-  end
-
-  defp log_unsupported_options(message_module, options) do
-    unsupported = Keyword.keys(options)
-
-    unless unsupported == [] do
-      Logger.warning(
-        "Unsupported option(s) #{inspect(unsupported)} passed to #{inspect(message_module)} dispatch. If these options are meant to be used, consider declaring them using the `option` macro."
-      )
-    end
   end
 
   defp validate_options(parsed_opts, supported_opts) do

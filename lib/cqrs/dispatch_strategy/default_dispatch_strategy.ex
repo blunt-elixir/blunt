@@ -88,31 +88,31 @@ defmodule Cqrs.DispatchStrategy.DefaultDispatchStrategy do
     end
   end
 
-  defp execute({module, step, args}, context) do
-    case apply(module, step, args) do
+  defp execute({handler, callback, args}, context) do
+    case apply(handler, callback, args) do
       {:error, error} ->
         {:error,
          context
          |> Context.put_error(error)
-         |> Context.put_pipeline(step, {:error, error})}
+         |> Context.put_pipeline(callback, {:error, error})}
 
       :error ->
         {:error,
          context
          |> Context.put_error(:error)
-         |> Context.put_pipeline(step, :error)}
+         |> Context.put_pipeline(callback, :error)}
 
       {:ok, %Context{} = context} ->
-        {:ok, Context.put_pipeline(context, step, :ok)}
+        {:ok, Context.put_pipeline(context, callback, :ok)}
 
       {:ok, {:ok, response}} ->
-        {:ok, Context.put_pipeline(context, step, response)}
+        {:ok, Context.put_pipeline(context, callback, response)}
 
       {:ok, response} ->
-        {:ok, Context.put_pipeline(context, step, response)}
+        {:ok, Context.put_pipeline(context, callback, response)}
 
       response ->
-        {:ok, Context.put_pipeline(context, step, response)}
+        {:ok, Context.put_pipeline(context, callback, response)}
     end
   end
 end

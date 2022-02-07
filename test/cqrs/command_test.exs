@@ -3,7 +3,7 @@ defmodule Cqrs.CommandTest do
 
   alias Cqrs.CommandTest.Protocol
   alias Cqrs.{Command, DispatchContext}
-  alias Cqrs.DispatchStrategy.HandlerResolver
+  alias Cqrs.DispatchStrategy.PipelineResolver
 
   test "command options" do
     alias Protocol.CommandOptions
@@ -16,23 +16,23 @@ defmodule Cqrs.CommandTest do
            } == options
   end
 
-  test "dispatch with no handler" do
-    alias Protocol.DispatchNoHandler
+  test "dispatch with no pipeline" do
+    alias Protocol.DispatchNoPipeline
 
-    error = "No Cqrs.CommandHandler found for query: Cqrs.CommandTest.Protocol.DispatchNoHandler"
+    error = "No Cqrs.CommandPipeline found for query: Cqrs.CommandTest.Protocol.DispatchNoPipeline"
 
-    assert_raise(HandlerResolver.Error, error, fn ->
+    assert_raise(PipelineResolver.Error, error, fn ->
       %{name: "chris"}
-      |> DispatchNoHandler.new()
-      |> DispatchNoHandler.dispatch()
+      |> DispatchNoPipeline.new()
+      |> DispatchNoPipeline.dispatch()
     end)
   end
 
   describe "dispatch" do
-    alias Protocol.DispatchWithHandler
+    alias Protocol.DispatchWithPipeline
 
     test "options" do
-      options = DispatchWithHandler.__options__() |> Enum.into(%{})
+      options = DispatchWithPipeline.__options__() |> Enum.into(%{})
 
       assert %{
                reply_to: [type: :pid, default: nil, required: true],
@@ -44,8 +44,8 @@ defmodule Cqrs.CommandTest do
     test "command requires reply_to option to be set" do
       assert {:error, context} =
                %{name: "chris"}
-               |> DispatchWithHandler.new()
-               |> DispatchWithHandler.dispatch()
+               |> DispatchWithPipeline.new()
+               |> DispatchWithPipeline.dispatch()
 
       assert %{reply_to: ["can't be blank"]} = Command.errors(context)
     end
@@ -53,8 +53,8 @@ defmodule Cqrs.CommandTest do
     test "command requires reply_to option to be set to a valid Pid" do
       assert {:error, context} =
                %{name: "chris"}
-               |> DispatchWithHandler.new()
-               |> DispatchWithHandler.dispatch(reply_to: "lkajsdf")
+               |> DispatchWithPipeline.new()
+               |> DispatchWithPipeline.dispatch(reply_to: "lkajsdf")
 
       assert %{reply_to: ["is not a valid Pid"]} = Command.errors(context)
     end
@@ -62,15 +62,15 @@ defmodule Cqrs.CommandTest do
     test "returns handle_dispatch result by default" do
       assert {:ok, "YO-HOHO"} =
                %{name: "chris"}
-               |> DispatchWithHandler.new()
-               |> DispatchWithHandler.dispatch(reply_to: self())
+               |> DispatchWithPipeline.new()
+               |> DispatchWithPipeline.dispatch(reply_to: self())
     end
 
     test "returns context if selected in option" do
       assert {:ok, context} =
                %{name: "chris"}
-               |> DispatchWithHandler.new()
-               |> DispatchWithHandler.dispatch(return: :context, reply_to: self())
+               |> DispatchWithPipeline.new()
+               |> DispatchWithPipeline.dispatch(return: :context, reply_to: self())
 
       assert %{} == Command.errors(context)
       assert "YO-HOHO" = Command.results(context)
@@ -78,13 +78,13 @@ defmodule Cqrs.CommandTest do
   end
 
   describe "async dispatch" do
-    alias Protocol.DispatchWithHandler
+    alias Protocol.DispatchWithPipeline
 
     test "is simple" do
       assert task =
                %{name: "chris"}
-               |> DispatchWithHandler.new()
-               |> DispatchWithHandler.dispatch_async(return: :context, reply_to: self())
+               |> DispatchWithPipeline.new()
+               |> DispatchWithPipeline.dispatch_async(return: :context, reply_to: self())
 
       assert {:ok, context} = Task.await(task)
 
@@ -93,13 +93,13 @@ defmodule Cqrs.CommandTest do
   end
 
   describe "dispatch error simulations" do
-    alias Protocol.DispatchWithHandler
+    alias Protocol.DispatchWithPipeline
 
     test "simulate error in handle_dispatch" do
       {:error, context} =
         %{name: "chris"}
-        |> DispatchWithHandler.new()
-        |> DispatchWithHandler.dispatch(return_error: true, return: :context, reply_to: self())
+        |> DispatchWithPipeline.new()
+        |> DispatchWithPipeline.dispatch(return_error: true, return: :context, reply_to: self())
 
       assert %{
                errors: [:handle_dispatch_error],
@@ -122,7 +122,7 @@ defmodule Cqrs.CommandTest do
       %{} = %NamespacedEventWithExtrasAndDrops{}
     end
 
-    test "are created and returned from handler" do
+    test "are created and returned from pipeline" do
       {:ok, events} =
         %{name: "chris"}
         |> CommandWithEventDerivations.new()

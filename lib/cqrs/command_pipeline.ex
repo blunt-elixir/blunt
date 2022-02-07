@@ -1,4 +1,4 @@
-defmodule Cqrs.CommandHandler do
+defmodule Cqrs.CommandPipeline do
   @type user :: map()
   @type command :: struct()
   @type context :: Cqrs.DispatchContext.command_context()
@@ -7,7 +7,7 @@ defmodule Cqrs.CommandHandler do
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Cqrs.CommandHandler
+      @behaviour Cqrs.CommandPipeline
     end
   end
 end

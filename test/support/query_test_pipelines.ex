@@ -1,5 +1,5 @@
-defmodule Cqrs.QueryTest.Protocol.GetPersonHandler do
-  use Cqrs.QueryHandler
+defmodule Cqrs.QueryTest.Protocol.GetPersonPipeline do
+  use Cqrs.QueryPipeline
 
   alias Cqrs.Repo
   alias Cqrs.QueryTest.ReadModel.Person
@@ -18,8 +18,8 @@ defmodule Cqrs.QueryTest.Protocol.GetPersonHandler do
   end
 end
 
-defmodule Cqrs.QueryTest.Protocol.CreatePersonHandler do
-  use Cqrs.CommandHandler
+defmodule Cqrs.QueryTest.Protocol.CreatePersonPipeline do
+  use Cqrs.CommandPipeline
 
   alias Cqrs.Repo
   alias Cqrs.QueryTest.ReadModel.Person

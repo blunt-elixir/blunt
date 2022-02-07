@@ -1,4 +1,4 @@
-defmodule Cqrs.QueryHandler do
+defmodule Cqrs.QueryPipeline do
   @type opts :: keyword()
   @type filter_list :: keyword()
   @type query :: Ecto.Query.t() | any()
@@ -11,7 +11,7 @@ defmodule Cqrs.QueryHandler do
     quote do
       import Ecto.Query
 
-      @behaviour Cqrs.QueryHandler
+      @behaviour Cqrs.QueryPipeline
     end
   end
 end

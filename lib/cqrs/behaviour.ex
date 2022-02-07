@@ -25,16 +25,16 @@ defmodule Cqrs.Behaviour do
 
   def validate!(module, behaviour_module) do
     case validate(module, behaviour_module) do
-      {:ok, handler} -> handler
+      {:ok, pipeline} -> pipeline
       {:error, error} -> raise Error, message: error
     end
   end
 
-  defp has_all_callbacks?(handler, behaviour_module) do
+  defp has_all_callbacks?(pipeline, behaviour_module) do
     callbacks = behaviour_module.behaviour_info(:callbacks)
 
     Enum.all?(callbacks, fn {name, arity} ->
-      function_exported?(handler, name, arity)
+      function_exported?(pipeline, name, arity)
     end)
   end
 end

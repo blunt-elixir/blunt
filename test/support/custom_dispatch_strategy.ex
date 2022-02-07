@@ -3,8 +3,8 @@ defmodule Cqrs.CustomDispatchStrategy do
 
   alias Cqrs.Query
   alias Cqrs.DispatchContext, as: Context
-  alias Cqrs.DispatchStrategy.HandlerResolver
-  alias Cqrs.CustomDispatchStrategy.{CustomCommandHandler, CustomQueryHandler}
+  alias Cqrs.DispatchStrategy.PipelineResolver
+  alias Cqrs.CustomDispatchStrategy.{CustomCommandPipeline, CustomQueryPipeline}
 
   @type context :: Context.t()
   @type query_context :: Context.query_context()
@@ -14,15 +14,15 @@ defmodule Cqrs.CustomDispatchStrategy do
           {:error, context()} | {:ok, context() | any}
 
   @moduledoc """
-  Receives a `DispatchContext`, locates the message handler, and runs the handler pipeline.
+  Receives a `DispatchContext`, locates the message pipeline, and runs the pipeline pipeline.
 
-  ## CustomCommandHandler Pipeline
+  ## CustomCommandPipeline Pipeline
 
   1. `before_dispatch`
   2. `handle_authorize`
   3. `handle_dispatch`
 
-  ## CustomQueryHandler Pipeline
+  ## CustomQueryPipeline Pipeline
 
   1. `before_dispatch`
   2. `create_query`
@@ -31,11 +31,11 @@ defmodule Cqrs.CustomDispatchStrategy do
   """
   def dispatch(%{message_type: :command, message: command} = context) do
     user = Context.user(context)
-    handler = HandlerResolver.get_handler!(context, CustomCommandHandler)
+    pipeline = PipelineResolver.get_pipeline!(context, CustomCommandPipeline)
 
-    with {:ok, context} <- execute({handler, :before_dispatch, [command, context]}, context),
-         {:ok, context} <- execute({handler, :handle_authorize, [user, command, context]}, context),
-         {:ok, context} <- execute({handler, :handle_dispatch, [command, context]}, context) do
+    with {:ok, context} <- execute({pipeline, :before_dispatch, [command, context]}, context),
+         {:ok, context} <- execute({pipeline, :handle_authorize, [user, command, context]}, context),
+         {:ok, context} <- execute({pipeline, :handle_dispatch, [command, context]}, context) do
       return_last_pipeline(context)
     end
   end
@@ -46,23 +46,23 @@ defmodule Cqrs.CustomDispatchStrategy do
     user = Context.user(context)
     bindings = query_module.__bindings__()
     filter_list = Query.create_filter_list(context)
-    handler = HandlerResolver.get_handler!(context, CustomQueryHandler)
+    pipeline = PipelineResolver.get_pipeline!(context, CustomQueryPipeline)
 
     context =
       context
       |> Context.put_private(:bindings, bindings)
       |> Context.put_private(:filters, Enum.into(filter_list, %{}))
 
-    with {:ok, context} <- execute({handler, :before_dispatch, [filter_map, context]}, context),
-         {:ok, context} <- execute({handler, :create_query, [filter_list, context]}, context),
+    with {:ok, context} <- execute({pipeline, :before_dispatch, [filter_map, context]}, context),
+         {:ok, context} <- execute({pipeline, :create_query, [filter_list, context]}, context),
          # - Apply Query Scoping
          query = Context.get_last_pipeline(context),
-         {:ok, context} <- execute({handler, :handle_scope, [user, query, context]}, context) do
-      execute_query(handler, context)
+         {:ok, context} <- execute({pipeline, :handle_scope, [user, query, context]}, context) do
+      execute_query(pipeline, context)
     end
   end
 
-  defp execute_query(handler, context) do
+  defp execute_query(pipeline, context) do
     # put the query into the context
     query = Context.get_last_pipeline(context)
     context = Context.put_private(context, :query, query)
@@ -75,7 +75,7 @@ defmodule Cqrs.CustomDispatchStrategy do
         return_final(query, context)
 
       true ->
-        with {:ok, context} <- execute({handler, :handle_dispatch, [query, context, opts]}, context) do
+        with {:ok, context} <- execute({pipeline, :handle_dispatch, [query, context, opts]}, context) do
           return_last_pipeline(context)
         end
     end
@@ -94,8 +94,8 @@ defmodule Cqrs.CustomDispatchStrategy do
     end
   end
 
-  defp execute({handler, callback, args}, context) do
-    case apply(handler, callback, args) do
+  defp execute({pipeline, callback, args}, context) do
+    case apply(pipeline, callback, args) do
       {:error, error} ->
         {:error,
          context

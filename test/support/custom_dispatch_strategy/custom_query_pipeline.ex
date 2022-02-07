@@ -1,4 +1,4 @@
-defmodule Cqrs.CustomDispatchStrategy.CustomQueryHandler do
+defmodule Cqrs.CustomDispatchStrategy.CustomQueryPipeline do
   @type opts :: keyword()
   @type filters :: struct()
   @type filter_list :: keyword()
@@ -15,7 +15,7 @@ defmodule Cqrs.CustomDispatchStrategy.CustomQueryHandler do
     quote do
       import Ecto.Query
 
-      @behaviour Cqrs.CustomDispatchStrategy.CustomQueryHandler
+      @behaviour Cqrs.CustomDispatchStrategy.CustomQueryPipeline
 
       @impl true
       def before_dispatch(_filters, context),

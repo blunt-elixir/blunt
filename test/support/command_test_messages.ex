@@ -6,7 +6,7 @@ defmodule Cqrs.CommandTest.Protocol do
     option :audit, :boolean, default: true
   end
 
-  defmodule DispatchNoHandler do
+  defmodule DispatchNoPipeline do
     use Cqrs.Command
 
     field :name, :string, required: true
@@ -22,7 +22,7 @@ defmodule Cqrs.CommandTest.Protocol do
     end
   end
 
-  defmodule DispatchWithHandler do
+  defmodule DispatchWithPipeline do
     use Cqrs.Command
 
     field :name, :string, required: true

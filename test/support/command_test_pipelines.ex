@@ -1,5 +1,5 @@
-defmodule Cqrs.CommandTest.Protocol.DispatchWithHandlerHandler do
-  use Cqrs.CommandHandler
+defmodule Cqrs.CommandTest.Protocol.DispatchWithPipelinePipeline do
+  use Cqrs.CommandPipeline
   alias Cqrs.DispatchContext, as: Context
 
   defp reply(context, pipeline) do
@@ -20,8 +20,8 @@ defmodule Cqrs.CommandTest.Protocol.DispatchWithHandlerHandler do
   end
 end
 
-defmodule Cqrs.CommandTest.Protocol.CommandWithEventDerivationsHandler do
-  use Cqrs.CommandHandler
+defmodule Cqrs.CommandTest.Protocol.CommandWithEventDerivationsPipeline do
+  use Cqrs.CommandPipeline
 
   alias Cqrs.CommandTest.Protocol.{DefaultEvent, EventWithExtras, EventWithDrops, EventWithExtrasAndDrops}
   alias alias Cqrs.CommandTest.Events.NamespacedEventWithExtrasAndDrops

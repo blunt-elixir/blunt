@@ -22,8 +22,8 @@ defmodule Cqrs.CustomDispatchStrategyTest do
       do: %{command | id: UUID.uuid4()}
   end
 
-  defmodule CreatePersonHandler do
-    use Cqrs.CustomDispatchStrategy.CustomCommandHandler
+  defmodule CreatePersonPipeline do
+    use Cqrs.CustomDispatchStrategy.CustomCommandPipeline
 
     @impl true
     def before_dispatch(_command, context) do

@@ -1,4 +1,4 @@
-defmodule Cqrs.CustomDispatchStrategy.CustomCommandHandler do
+defmodule Cqrs.CustomDispatchStrategy.CustomCommandPipeline do
   @type user :: map()
   @type command :: struct()
   @type context :: Cqrs.DispatchContext.command_context()
@@ -9,7 +9,7 @@ defmodule Cqrs.CustomDispatchStrategy.CustomCommandHandler do
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Cqrs.CustomDispatchStrategy.CustomCommandHandler
+      @behaviour Cqrs.CustomDispatchStrategy.CustomCommandPipeline
 
       @impl true
       def handle_authorize(_user, _command, context),

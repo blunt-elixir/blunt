@@ -6,7 +6,7 @@ defmodule Cqrs.QueryTest do
 
   describe "basics" do
     alias Protocol.BasicQuery
-    alias Cqrs.DispatchStrategy.HandlerResolver
+    alias Cqrs.DispatchStrategy.PipelineResolver
 
     test "predefined options" do
       options = BasicQuery.__options__() |> Enum.into(%{})
@@ -28,10 +28,10 @@ defmodule Cqrs.QueryTest do
       assert [] == BasicQuery.__bindings__()
     end
 
-    test "no handler" do
-      error = "No Cqrs.QueryHandler found for query: Cqrs.QueryTest.Protocol.BasicQuery"
+    test "no pipeline" do
+      error = "No Cqrs.QueryPipeline found for query: Cqrs.QueryTest.Protocol.BasicQuery"
 
-      assert_raise(HandlerResolver.Error, error, fn ->
+      assert_raise(PipelineResolver.Error, error, fn ->
         BasicQuery.new()
         |> BasicQuery.dispatch(return: :context)
       end)

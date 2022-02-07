@@ -23,9 +23,10 @@ defmodule Cqrs.QueryTest.Protocol.CreatePersonHandler do
 
   alias Cqrs.Repo
   alias Cqrs.QueryTest.ReadModel.Person
+  alias Cqrs.QueryTest.Protocol.CreatePerson
 
   @impl true
-  def handle_dispatch(%{id: id, name: name}, _context) do
+  def handle_dispatch(%CreatePerson{id: id, name: name}, _context) do
     %{id: id, name: name}
     |> Person.changeset()
     |> Repo.insert()

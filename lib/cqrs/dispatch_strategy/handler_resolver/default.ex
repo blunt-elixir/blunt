@@ -1,6 +1,13 @@
 defmodule Cqrs.DispatchStrategy.HandlerResolver.Default do
   @behaviour Cqrs.DispatchStrategy.HandlerResolver
 
+  @moduledoc """
+  Resolves `CommandHandler`s and `QueryHandler`s by convention.
+
+  Handler modules are meant to be named "Namespace.MessageHandler".
+  That is, the message module with "Handler" appended to the end.
+  """
+
   alias Cqrs.Behaviour
   alias Cqrs.DispatchStrategy.HandlerResolver
 

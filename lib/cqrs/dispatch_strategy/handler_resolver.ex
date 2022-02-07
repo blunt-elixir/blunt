@@ -1,11 +1,4 @@
 defmodule Cqrs.DispatchStrategy.HandlerResolver do
-  @moduledoc """
-  Finds `CommandHandler`s and `QueryHandler`s by convention.
-
-  Handler modules are meant to be named "Namespace.MessageHandler".
-  That is, the message module with "Handler" appended to the end.
-  """
-
   # TODO: Document :cqrs_tools, :handler_resolver
 
   alias Cqrs.DispatchStrategy.Error
@@ -21,12 +14,15 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver do
   @spec get_handler!(context) :: handler
   @spec get_handler(context) :: {:ok, handler} | :error
 
+  @doc false
   def get_handler(%{message_type: :command, message: %{__struct__: module}}),
     do: resolver().resolve(module, CommandHandler)
 
+  @doc false
   def get_handler(%{message_type: :query, message: %{__struct__: module}}),
     do: resolver().resolve(module, QueryHandler)
 
+  @doc false
   def get_handler!(%{message_type: :command, message: command} = context) do
     %{__struct__: module} = command
 
@@ -36,6 +32,7 @@ defmodule Cqrs.DispatchStrategy.HandlerResolver do
     end
   end
 
+  @doc false
   def get_handler!(%{message_type: :query, message: query} = context) do
     %{__struct__: module} = query
 

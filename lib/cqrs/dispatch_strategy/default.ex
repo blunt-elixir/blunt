@@ -6,13 +6,13 @@ defmodule Cqrs.DispatchStrategy.Default do
   alias Cqrs.DispatchStrategy.HandlerResolver
 
   @type context :: Context.t()
-  @type command_context :: Context.command_context()
   @type query_context :: Context.query_context()
+  @type command_context :: Context.command_context()
 
   @spec dispatch(command_context() | query_context()) ::
           {:error, context()} | {:ok, context() | any}
 
-  @doc """
+  @moduledoc """
   Receives an `DispatchContext`, locates the message handler, and runs the handler pipeline.
 
   ## CommandHandler Pipeline

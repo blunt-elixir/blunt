@@ -20,6 +20,9 @@ defmodule Cqrs.Message.Field do
   end
 
   def embedded?(module) do
-    function_exported?(module, :__schema__, 2)
+    case Code.ensure_compiled(module) do
+      {:module, module} -> function_exported?(module, :__schema__, 2)
+      _ -> false
+    end
   end
 end

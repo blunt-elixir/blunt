@@ -67,4 +67,10 @@ defmodule Cqrs.Command do
 
   @spec errors(Context.command_context()) :: map()
   def errors(context), do: Context.errors(context)
+
+  @spec user_supplied_fields(Context.command_context()) :: map()
+  def user_supplied_fields(context), do: Context.user_supplied_fields(context)
+
+  @spec take_user_supplied_data(Context.command_context()) :: map()
+  def take_user_supplied_data(context), do: Context.take_user_supplied_data(context)
 end

@@ -16,6 +16,7 @@ defmodule Cqrs.DispatchContext do
     :async,
     :user,
     :last_pipeline_step,
+    user_supplied_fields: [],
     private: %{},
     opts: [],
     message_opts: [],
@@ -28,6 +29,7 @@ defmodule Cqrs.DispatchContext do
   @spec new(message :: struct(), map(), keyword) :: {:error, context} | {:ok, context}
   def new(%{__struct__: message_module} = message, discarded_data, opts) do
     {async, opts} = Keyword.pop(opts, :async, false)
+    {user_supplied_fields, opts} = Keyword.pop(opts, :user_supplied_fields, [])
 
     read_opts(%__MODULE__{
       opts: opts,
@@ -37,6 +39,7 @@ defmodule Cqrs.DispatchContext do
       discarded_data: discarded_data,
       created_at: DateTime.utc_now(),
       last_pipeline_step: :read_opts,
+      user_supplied_fields: user_supplied_fields,
       message_type: message_module.__message_type__()
     })
   end
@@ -110,9 +113,22 @@ defmodule Cqrs.DispatchContext do
     |> Map.get(key)
   end
 
-  @spec get_last_pipeline(Cqrs.DispatchContext.t()) :: any | nil
+  @spec get_last_pipeline(context) :: any | nil
   def get_last_pipeline(%__MODULE__{last_pipeline_step: step} = context),
     do: get_pipeline(context, step)
+
+  @spec user_supplied_fields(context) :: map()
+  def user_supplied_fields(%{user_supplied_fields: user_supplied_fields}), do: user_supplied_fields
+
+  @spec take_user_supplied_data(context) :: map()
+  def take_user_supplied_data(%{message: nil}),
+    do: %{}
+
+  def take_user_supplied_data(%{message: command, user_supplied_fields: user_supplied_fields}) do
+    command
+    |> Map.from_struct()
+    |> Map.take(user_supplied_fields)
+  end
 
   def ship(%__MODULE__{} = context),
     do: Shipper.ship(context)

@@ -28,11 +28,13 @@ defmodule Cqrs.DispatchContext do
 
   @spec new(message :: struct(), map(), keyword) :: {:error, context} | {:ok, context}
   def new(%{__struct__: message_module} = message, discarded_data, opts) do
+    {user, opts} = Keyword.pop(opts, :user)
     {async, opts} = Keyword.pop(opts, :async, false)
     {user_supplied_fields, opts} = Keyword.pop(opts, :user_supplied_fields, [])
 
     read_opts(%__MODULE__{
       opts: opts,
+      user: user,
       async: async,
       message: message,
       message_module: message_module,
@@ -121,8 +123,7 @@ defmodule Cqrs.DispatchContext do
   def user_supplied_fields(%{user_supplied_fields: user_supplied_fields}), do: user_supplied_fields
 
   @spec take_user_supplied_data(context) :: map()
-  def take_user_supplied_data(%{message: nil}),
-    do: %{}
+  def take_user_supplied_data(%{message: nil}), do: %{}
 
   def take_user_supplied_data(%{message: command, user_supplied_fields: user_supplied_fields}) do
     command

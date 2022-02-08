@@ -50,7 +50,6 @@ defmodule Cqrs.DispatchStrategy.Default do
       # put the query into the context
       query = Context.get_last_pipeline(context)
       context = Context.put_private(context, :query, query)
-      opts = Context.options(context)
 
       # -  If `execution` is set to false, just return the query;
       #     otherwise, execute `handle_dispatch`
@@ -59,6 +58,8 @@ defmodule Cqrs.DispatchStrategy.Default do
           return_final(query, context)
 
         true ->
+          opts = Context.options(context)
+
           with {:ok, context} <- execute({pipeline, :handle_dispatch, [query, context, opts]}, context) do
             return_last_pipeline(context)
           end

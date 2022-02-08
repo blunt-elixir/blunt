@@ -119,6 +119,17 @@ defmodule Cqrs.DispatchContext do
   def put_private(%__MODULE__{private: private} = context, key, value) when is_atom(key),
     do: %{context | private: Map.put(private, key, value)}
 
+  @type current_context :: t() | {:ok, any(), t()}
+  @spec push_private(current_context, atom(), any()) :: {:ok, any(), t()}
+
+  def push_private({:ok, _value, context}, key, value),
+    do: push_private(context, key, value)
+
+  def push_private(%{private: private} = context, key, value) do
+    context = %{context | private: Map.put(private, key, value)}
+    {:ok, value, context}
+  end
+
   @spec get_private(context) :: map()
   def get_private(%__MODULE__{private: private}), do: private
 

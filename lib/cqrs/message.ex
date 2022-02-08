@@ -1,6 +1,6 @@
 defmodule Cqrs.Message do
   alias Cqrs.Config
-  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Metadata, Reflection, Schema}
+  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Metadata, Reflection, Schema, Version}
 
   @type changeset :: Ecto.Changeset.t()
 
@@ -13,6 +13,8 @@ defmodule Cqrs.Message do
       message_type = Keyword.get(unquote(opts), :message_type, :message)
       create_jason_encoders? = Config.create_jason_encoders?(unquote(opts))
       require_all_fields? = Keyword.get(unquote(opts), :require_all_fields?, false)
+
+      Version.register(__MODULE__, unquote(opts))
 
       Module.register_attribute(__MODULE__, :schema_fields, accumulate: true)
       Module.register_attribute(__MODULE__, :required_fields, accumulate: true)
@@ -53,6 +55,7 @@ defmodule Cqrs.Message do
     quote location: :keep do
       require Cqrs.Message.{Changeset, Dispatch, Reflection, Schema}
 
+      Version.generate(__MODULE__)
       Module.eval_quoted(__MODULE__, unquote(constructor))
 
       Schema.generate()
@@ -62,12 +65,6 @@ defmodule Cqrs.Message do
       if @dispatch? do
         Dispatch.generate()
       end
-
-      Module.delete_attribute(__MODULE__, :dispatch?)
-      Module.delete_attribute(__MODULE__, :schema_fields)
-      Module.delete_attribute(__MODULE__, :required_fields)
-      Module.delete_attribute(__MODULE__, :require_all_fields?)
-      Module.delete_attribute(__MODULE__, :create_jason_encoders?)
     end
   end
 

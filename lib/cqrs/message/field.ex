@@ -19,6 +19,12 @@ defmodule Cqrs.Message.Field do
     end
   end
 
+  def internal_fields(fields) do
+    Enum.filter(fields, fn {_name, _type, config} ->
+      Keyword.fetch!(config, :internal) == true
+    end)
+  end
+
   def embedded?(module) do
     case Code.ensure_compiled(module) do
       {:module, module} -> function_exported?(module, :__schema__, 2)

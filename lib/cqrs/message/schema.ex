@@ -1,6 +1,8 @@
 defmodule Cqrs.Message.Schema do
   @moduledoc false
 
+  alias Cqrs.Message.Field
+
   defmacro generate do
     quote do
       use Ecto.Schema
@@ -8,11 +10,11 @@ defmodule Cqrs.Message.Schema do
       alias Cqrs.Message.{Field, MessageType}
 
       if Module.get_attribute(__MODULE__, :create_jason_encoders?) and Code.ensure_loaded?(Jason) do
-        @derive Jason.Encoder
+        @derive {Jason.Encoder, except: Field.internal_fields(@schema_fields)}
       end
 
       if Mix.env() == :prod do
-        @derive Inspect
+        @derive {Inspect, except: Field.internal_fields(@schema_fields)}
       end
 
       @primary_key false

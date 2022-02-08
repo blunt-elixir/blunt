@@ -1,5 +1,11 @@
-* Ideas [1/2]
+* Ideas [1/5]
 ** TODO add result_mapper function option to command and query macros
 This will require a way to store a Function ref in an Ecto type. ~:any~ would probably be fine. Just have to manually validate it in Message.Option.
 
 ** DONE +put message_opts property in DispatchContext+
+
+** TODO support {m,f,a} for default field values
+** TODO persist options, remove __options__
+** TODO allow for putting values into context pipelines and returning them back with the context.
+ie. something like this
+    {:ok, {value, context}} = Context.put_pipeline(context, :my_step, value)

@@ -15,7 +15,7 @@ defmodule Cqrs.DispatchStrategy.Default do
           {:error, context()} | {:ok, context() | any}
 
   @moduledoc """
-  Receives a `DispatchContext`, locates a message pipeline, and runs the pipeline's pipeline.
+  Receives a `DispatchContext`, locates a message pipeline, and runs the pipeline's ...uh pipeline.
 
   ## CommandPipeline Pipeline
 

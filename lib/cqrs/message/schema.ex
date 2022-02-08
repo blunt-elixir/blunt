@@ -10,11 +10,11 @@ defmodule Cqrs.Message.Schema do
       alias Cqrs.Message.{Field, MessageType}
 
       if Module.get_attribute(__MODULE__, :create_jason_encoders?) and Code.ensure_loaded?(Jason) do
-        @derive {Jason.Encoder, except: Field.internal_fields(@schema_fields)}
+        @derive {Jason.Encoder, except: Field.internal_field_names(@schema_fields)}
       end
 
       if Mix.env() == :prod do
-        @derive {Inspect, except: Field.internal_fields(@schema_fields)}
+        @derive {Inspect, except: Field.internal_field_names(@schema_fields)}
       end
 
       @primary_key false

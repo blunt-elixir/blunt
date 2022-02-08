@@ -19,10 +19,10 @@ defmodule Cqrs.Message.Field do
     end
   end
 
-  def internal_fields(fields) do
-    Enum.filter(fields, fn {_name, _type, config} ->
-      Keyword.fetch!(config, :internal) == true
-    end)
+  def internal_field_names(fields) do
+    fields
+    |> Enum.filter(fn {_name, _type, config} -> Keyword.fetch!(config, :internal) == true end)
+    |> Enum.map(&elem(&1, 0))
   end
 
   def embedded?(module) do

@@ -18,12 +18,14 @@ defmodule Cqrs.DispatchStrategy do
     |> Behaviour.validate!(__MODULE__)
   end
 
+  @spec return_last_pipeline(context()) :: {:ok, any}
   def return_last_pipeline(context) do
     context
     |> DispatchContext.get_last_pipeline()
     |> return_final(context)
   end
 
+  @spec return_final(any, context()) :: {:ok, any}
   def return_final(value, context) do
     case DispatchContext.get_return(context) do
       :context -> {:ok, context}
@@ -31,6 +33,7 @@ defmodule Cqrs.DispatchStrategy do
     end
   end
 
+  @spec execute({atom, atom, list}, context()) :: {:error, context()} | {:ok, context()}
   def execute({pipeline, callback, args}, context) do
     case apply(pipeline, callback, args) do
       {:error, error} ->

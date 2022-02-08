@@ -139,4 +139,17 @@ defmodule Cqrs.CommandTest do
              } = events
     end
   end
+
+  describe "metadata" do
+    alias Protocol.CommandWithMeta
+
+    assert {:ok, context} = CommandWithMeta.new() |> CommandWithMeta.dispatch(return: :context)
+
+    metadata = Command.get_metadata(context, :auth)
+
+    refute is_nil(metadata)
+
+    assert [:owner, :collaborator] == metadata[:user_roles]
+    assert [:broker, :carrier] == metadata[:account_types]
+  end
 end

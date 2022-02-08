@@ -56,4 +56,12 @@ defmodule Cqrs.CommandTest.Protocol do
       field :date, :date
     end
   end
+
+  defmodule CommandWithMeta do
+    use Cqrs.Command
+
+    metadata :auth,
+      user_roles: [:owner, :collaborator],
+      account_types: [:broker, :carrier]
+  end
 end

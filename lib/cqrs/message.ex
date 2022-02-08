@@ -1,5 +1,6 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Reflection, Schema}
+  alias Cqrs.Config
+  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Metadata, Reflection, Schema}
 
   @type changeset :: Ecto.Changeset.t()
 
@@ -10,11 +11,12 @@ defmodule Cqrs.Message do
     quote do
       dispatch? = Keyword.get(unquote(opts), :dispatch?, false)
       message_type = Keyword.get(unquote(opts), :message_type, :message)
-      create_jason_encoders? = Cqrs.Message.create_jason_encoders?(unquote(opts))
+      create_jason_encoders? = Config.create_jason_encoders?(unquote(opts))
       require_all_fields? = Keyword.get(unquote(opts), :require_all_fields?, false)
 
       Module.register_attribute(__MODULE__, :schema_fields, accumulate: true)
       Module.register_attribute(__MODULE__, :required_fields, accumulate: true)
+      Module.register_attribute(__MODULE__, :metadata, accumulate: true, persist: true)
 
       Module.put_attribute(__MODULE__, :dispatch?, dispatch?)
       Module.put_attribute(__MODULE__, :message_type, message_type)
@@ -73,6 +75,10 @@ defmodule Cqrs.Message do
   defmacro field(name, type, opts \\ []),
     do: Field.record(name, type, opts)
 
+  @spec metadata(atom(), any()) :: any()
+  defmacro metadata(name, value),
+    do: Metadata.record(name, value)
+
   @spec internal_field(name :: atom(), type :: atom(), keyword()) :: any()
   defmacro internal_field(name, type, opts \\ []) do
     opts =
@@ -81,13 +87,5 @@ defmodule Cqrs.Message do
       |> Keyword.put(:required, false)
 
     Field.record(name, type, opts)
-  end
-
-  @doc false
-  def create_jason_encoders?(opts) do
-    explicit = Keyword.get(opts, :create_jason_encoders?, true)
-    configured = Application.get_env(:cqrs_tools, :create_jason_encoders, true)
-
-    explicit && configured
   end
 end

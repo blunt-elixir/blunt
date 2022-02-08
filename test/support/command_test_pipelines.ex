@@ -37,3 +37,11 @@ defmodule Cqrs.CommandTest.Protocol.CommandWithEventDerivationsPipeline do
     }
   end
 end
+
+defmodule Cqrs.CommandTest.Protocol.CommandWithMetaPipeline do
+  use Cqrs.CommandPipeline
+
+  def handle_dispatch(_command, _context) do
+    :ok
+  end
+end

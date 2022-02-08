@@ -1,5 +1,4 @@
 defmodule Cqrs.DispatchContext do
-  # TODO: Document :cqrs_tools, :context_shipper
   alias Cqrs.Message.Option
   alias Cqrs.DispatchContext.Shipper
 
@@ -9,6 +8,7 @@ defmodule Cqrs.DispatchContext do
 
   defstruct [
     :message,
+    :metadata,
     :message_module,
     :discarded_data,
     :message_type,
@@ -39,8 +39,18 @@ defmodule Cqrs.DispatchContext do
     }
 
     context
+    |> add_metadata()
     |> populate_from_opts()
     |> parse_message_opts()
+  end
+
+  defp add_metadata(%{message_module: message_module} = context) do
+    metadata =
+      message_module.__info__(:attributes)
+      |> Keyword.get_values(:metadata)
+      |> List.flatten()
+
+    %{context | metadata: metadata}
   end
 
   defp populate_from_opts(%{opts: opts} = base_context) do
@@ -147,6 +157,10 @@ defmodule Cqrs.DispatchContext do
     |> Map.from_struct()
     |> Map.take(user_supplied_fields)
   end
+
+  @spec get_metadata(context, atom, any) :: any | nil
+  def get_metadata(%{metadata: metadata}, key, default \\ nil),
+    do: Keyword.get(metadata, key, default)
 
   def ship(%__MODULE__{} = context),
     do: Shipper.ship(context)

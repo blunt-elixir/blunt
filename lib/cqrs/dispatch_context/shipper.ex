@@ -2,10 +2,10 @@ defmodule Cqrs.DispatchContext.Shipper do
   @type context :: Cqrs.DispatchContext.t()
   @callback ship(context()) :: :ok
 
-  alias Cqrs.Behaviour
+  alias Cqrs.{Config, Behaviour}
 
   def ship(context) do
-    case Application.get_env(:cqrs_tools, :context_shipper) do
+    case Config.context_shipper() do
       nil ->
         :ok
 

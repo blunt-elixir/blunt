@@ -73,4 +73,7 @@ defmodule Cqrs.Command do
 
   @spec take_user_supplied_data(Context.command_context()) :: map()
   def take_user_supplied_data(context), do: Context.take_user_supplied_data(context)
+
+  @spec get_metadata(Context.command_context(), atom, any) :: any | nil
+  defdelegate get_metadata(context, key, default \\ nil), to: Context
 end

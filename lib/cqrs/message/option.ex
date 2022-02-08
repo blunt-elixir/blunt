@@ -7,6 +7,8 @@ defmodule Cqrs.Message.Option do
 
   require Logger
 
+  alias Cqrs.Message.Changeset, as: MessageChangeset
+
   def record(name, type, opts) do
     quote do
       opts =
@@ -77,30 +79,23 @@ defmodule Cqrs.Message.Option do
 
     params = Enum.into(parsed_opts, %{})
 
-    {data, types}
-    |> Ecto.Changeset.cast(params, Map.keys(types))
-    |> Ecto.Changeset.validate_required(required)
-    |> validate_changeset()
-  end
+    changeset =
+      {data, types}
+      |> Ecto.Changeset.cast(params, Map.keys(types))
+      |> Ecto.Changeset.validate_required(required)
 
-  defp validate_changeset(%{valid?: true} = changset) do
-    validated =
-      changset
-      |> Ecto.Changeset.apply_changes()
-      |> Map.to_list()
+    case changeset do
+      %{valid?: false} ->
+        {:error, MessageChangeset.format_errors(changeset)}
 
-    {:ok, validated}
-  end
+      %{valid?: true} = changset ->
+        validated =
+          changset
+          |> Ecto.Changeset.apply_changes()
+          |> Map.to_list()
 
-  defp validate_changeset(changeset),
-    do: {:error, format_errors(changeset)}
-
-  defp format_errors(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {message, opts} ->
-      Regex.replace(~r"%{(\w+)}", message, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
+        {:ok, validated}
+    end
   end
 
   [

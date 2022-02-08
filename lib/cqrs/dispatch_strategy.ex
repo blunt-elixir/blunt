@@ -2,8 +2,12 @@ defmodule Cqrs.DispatchStrategy do
   alias Cqrs.{Behaviour, DispatchContext}
 
   @type context :: DispatchContext.t()
+  @type dispatch_return :: {:ok, context() | any()} | {:error, context()}
 
-  @callback dispatch(context()) :: {:ok, any()} | {:error, context()}
+  @callback dispatch(context()) :: dispatch_return()
+
+  @spec dispatch(context()) :: dispatch_return()
+
   def dispatch(context) do
     get_strategy().dispatch(context)
   end

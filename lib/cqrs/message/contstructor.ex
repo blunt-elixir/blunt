@@ -4,6 +4,7 @@ defmodule Cqrs.Message.Contstructor do
   alias Ecto.Changeset
   alias Cqrs.Message.Input
   alias __MODULE__, as: Constructor
+  alias Cqrs.Message.Changeset, as: MessageChangeset
 
   def generate(%{name: name, has_fields?: true, has_required_fields?: true}) do
     quote do
@@ -50,16 +51,8 @@ defmodule Cqrs.Message.Contstructor do
   end
 
   def handle_changeset({%{valid?: false} = changeset, _discarded_data}),
-    do: {:error, format_errors(changeset)}
+    do: {:error, MessageChangeset.format_errors(changeset)}
 
   def handle_changeset({changeset, discarded_data}),
     do: {:ok, Changeset.apply_action!(changeset, :create), discarded_data}
-
-  defp format_errors(changeset) do
-    Changeset.traverse_errors(changeset, fn {message, opts} ->
-      Regex.replace(~r"%{(\w+)}", message, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
-  end
 end

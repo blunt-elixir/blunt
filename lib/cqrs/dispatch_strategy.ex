@@ -25,7 +25,7 @@ defmodule Cqrs.DispatchStrategy do
   end
 
   def return_final(value, context) do
-    case DispatchContext.get_option(context, :return) do
+    case DispatchContext.get_return(context) do
       :context -> {:ok, context}
       _ -> {:ok, value}
     end

@@ -21,6 +21,7 @@ defmodule Cqrs.DispatchContext do
     opts: [],
     message_opts: [],
     errors: [],
+    return: :response,
     pipeline: []
   ]
 
@@ -28,25 +29,38 @@ defmodule Cqrs.DispatchContext do
 
   @spec new(message :: struct(), map(), keyword) :: {:error, context} | {:ok, context}
   def new(%{__struct__: message_module} = message, discarded_data, opts) do
-    {user, opts} = Keyword.pop(opts, :user)
-    {async, opts} = Keyword.pop(opts, :async, false)
-    {user_supplied_fields, opts} = Keyword.pop(opts, :user_supplied_fields, [])
-
-    read_opts(%__MODULE__{
+    context = %__MODULE__{
       opts: opts,
-      user: user,
-      async: async,
       message: message,
       message_module: message_module,
       discarded_data: discarded_data,
       created_at: DateTime.utc_now(),
-      last_pipeline_step: :read_opts,
-      user_supplied_fields: user_supplied_fields,
       message_type: message_module.__message_type__()
-    })
+    }
+
+    context
+    |> populate_from_opts()
+    |> parse_message_opts()
   end
 
-  defp read_opts(%{message_module: message_module, opts: opts} = base_context) do
+  defp populate_from_opts(%{opts: opts} = base_context) do
+    {user, opts} = Keyword.pop(opts, :user)
+    {async, opts} = Keyword.pop(opts, :async, false)
+    {user_supplied_fields, opts} = Keyword.pop(opts, :user_supplied_fields, [])
+    {return, opts} = Keyword.pop(opts, :return, :response)
+
+    %{
+      base_context
+      | user: user,
+        opts: opts,
+        async: async,
+        return: return,
+        last_pipeline_step: :read_opts,
+        user_supplied_fields: user_supplied_fields
+    }
+  end
+
+  defp parse_message_opts(%{message_module: message_module, opts: opts} = base_context) do
     context =
       case Option.parse_message_opts(message_module, opts) do
         {:ok, message_opts, opts} -> %{base_context | opts: opts, message_opts: message_opts}
@@ -70,6 +84,9 @@ defmodule Cqrs.DispatchContext do
 
   @spec get_option(context, atom, any | nil) :: any | nil
   def get_option(%__MODULE__{opts: opts}, key, default \\ nil) when is_atom(key), do: Keyword.get(opts, key, default)
+
+  @spec get_return(context) :: :response | :context
+  def get_return(%__MODULE__{return: return}), do: return
 
   @spec user(context) :: map() | nil
   def user(%__MODULE__{user: user}), do: user

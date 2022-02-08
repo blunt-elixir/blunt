@@ -54,8 +54,7 @@ defmodule Cqrs.CustomDispatchStrategyTest do
              |> CreatePerson.new()
              |> CreatePerson.dispatch(return: :context)
 
-    assert %{before_dispatch: :ok, handle_authorize: :ok, handle_dispatch: :success!} =
-             Context.get_pipeline(context) |> Enum.into(%{})
+    assert %{before_dispatch: :ok, handle_authorize: :ok, handle_dispatch: :success!} = Context.get_pipeline(context)
 
     assert :success! == Command.results(context)
   end

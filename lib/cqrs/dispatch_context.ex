@@ -1,6 +1,5 @@
 defmodule Cqrs.DispatchContext do
   alias Cqrs.Message.Option
-  alias Cqrs.DispatchContext.Shipper
 
   @type t :: %__MODULE__{message_type: atom(), message: struct(), errors: list()}
   @type command_context :: %__MODULE__{message_type: :command, message: struct(), errors: list()}
@@ -172,7 +171,4 @@ defmodule Cqrs.DispatchContext do
   @spec get_metadata(context, atom, any) :: any | nil
   def get_metadata(%{metadata: metadata}, key, default \\ nil),
     do: Keyword.get(metadata, key, default)
-
-  def ship(%__MODULE__{} = context),
-    do: Shipper.ship(context)
 end

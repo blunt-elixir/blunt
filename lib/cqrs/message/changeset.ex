@@ -16,20 +16,20 @@ defmodule Cqrs.Message.Changeset do
         do: changeset(message, values)
 
       def changeset(message, values) when is_list(values) or is_map(values),
-        do: MessageChangeset.create(message, values, @required_fields)
+        do: MessageChangeset.create(message, values)
     end
   end
 
   @type message :: atom()
   @type discarded_data :: map()
   @type changeset :: Ecto.Changeset.t()
-  @type required_fields :: atom() | list
   @type values :: maybe_improper_list | map | struct
 
-  @spec create(message(), values(), required_fields) :: {changeset, discarded_data}
+  @spec create(message(), values()) :: {changeset, discarded_data}
 
-  def create(message, values, required_fields) do
+  def create(message, values) do
     values = Input.normalize(values, message)
+    required_fields = message.__required_fields__()
 
     embeds = message.__schema__(:embeds)
     fields = message.__schema__(:fields)

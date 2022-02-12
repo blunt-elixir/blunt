@@ -15,7 +15,7 @@ defmodule Cqrs.Message.Version do
       data =
         quote do
           @metadata version: unquote(version)
-          @schema_fields {:version, :integer, default: unquote(version)}
+          @schema_fields {:version, :decimal, default: unquote(version)}
         end
 
       Module.eval_quoted(module, data)

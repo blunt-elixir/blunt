@@ -8,22 +8,13 @@ defmodule Cqrs.DispatchStrategy.PipelineResolver.Default do
   That is, the message module with "Pipeline" appended to the end.
   """
 
-  alias Cqrs.Behaviour
-
-  @type pipeline :: atom()
+  @type pipeline_module :: atom()
   @type message_module :: atom()
-  @type behaviour_module :: atom()
 
-  @spec resolve(message_module(), behaviour_module()) :: {:ok, pipeline()} | :error
+  @spec resolve(message_module()) :: {:ok, pipeline_module()} | :error
 
-  def resolve(message_module, behaviour_module) do
-    with {:ok, pipeline_module} <- resolve_module(message_module) do
-      Behaviour.validate(pipeline_module, behaviour_module)
-    end
-  end
-
-  defp resolve_module(module) do
-    {:ok, String.to_existing_atom(to_string(module) <> "Pipeline")}
+  def resolve(message_module) do
+    {:ok, String.to_existing_atom(to_string(message_module) <> "Pipeline")}
   rescue
     _ -> :error
   end

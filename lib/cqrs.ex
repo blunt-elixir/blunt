@@ -32,4 +32,11 @@ defmodule Cqrs do
       unquote(body)
     end
   end
+
+  defmacro defentity(opts \\ [], do: body) do
+    quote do
+      use Cqrs.Entity, unquote(opts)
+      unquote(body)
+    end
+  end
 end

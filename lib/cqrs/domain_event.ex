@@ -4,8 +4,8 @@ defmodule Cqrs.DomainEvent do
       use Cqrs.Message,
           [require_all_fields?: false]
           |> Keyword.merge(unquote(opts))
-          |> Keyword.put(:message_type, :event)
           |> Keyword.put(:versioned?, true)
+          |> Keyword.put(:message_type, :event)
 
       @type values :: Cqrs.Message.Input.t()
       @type overrides :: Cqrs.Message.Input.t()

@@ -6,8 +6,6 @@ defmodule Cqrs.DispatchStrategy do
 
   @callback dispatch(context()) :: dispatch_return()
 
-  @spec dispatch(context()) :: dispatch_return()
-
   def dispatch(context) do
     get_strategy().dispatch(context)
   end
@@ -27,6 +25,8 @@ defmodule Cqrs.DispatchStrategy do
 
   @spec return_final(any, context()) :: {:ok, any}
   def return_final(value, context) do
+    DispatchContext.Shipper.ship(context)
+
     case DispatchContext.get_return(context) do
       :context -> {:ok, context}
       _ -> {:ok, value}

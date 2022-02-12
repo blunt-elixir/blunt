@@ -2,6 +2,8 @@ defmodule Cqrs.Message do
   alias Cqrs.Config
   alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Metadata, Reflection, Schema, Version}
 
+  import Cqrs.Message.Opts
+
   @type changeset :: Ecto.Changeset.t()
 
   @callback handle_validate(changeset()) :: changeset()
@@ -9,6 +11,7 @@ defmodule Cqrs.Message do
 
   defmacro __using__(opts \\ []) do
     quote do
+      primary_key = primary_key(unquote(opts))
       dispatch? = Keyword.get(unquote(opts), :dispatch?, false)
       message_type = Keyword.get(unquote(opts), :message_type, :message)
       create_jason_encoders? = Config.create_jason_encoders?(unquote(opts))
@@ -22,6 +25,7 @@ defmodule Cqrs.Message do
 
       Module.put_attribute(__MODULE__, :dispatch?, dispatch?)
       Module.put_attribute(__MODULE__, :message_type, message_type)
+      Module.put_attribute(__MODULE__, :primary_key_type, primary_key)
       Module.put_attribute(__MODULE__, :require_all_fields?, require_all_fields?)
       Module.put_attribute(__MODULE__, :create_jason_encoders?, create_jason_encoders?)
 
@@ -47,8 +51,8 @@ defmodule Cqrs.Message do
       quote do
         Contstructor.generate(%{
           name: :new,
-          has_fields?: Enum.count(@schema_fields) > 0,
-          has_required_fields?: Enum.count(@required_fields) > 0
+          has_fields?: @primary_key_type != false || Enum.count(@schema_fields) > 0,
+          has_required_fields?: @primary_key_type != false || Enum.count(@required_fields) > 0
         })
       end
 

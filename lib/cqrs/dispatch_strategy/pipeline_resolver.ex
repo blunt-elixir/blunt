@@ -5,19 +5,21 @@ defmodule Cqrs.DispatchStrategy.PipelineResolver do
     defexception [:message]
   end
 
-  @type pipeline :: atom()
+  @type pipeline_module :: atom()
   @type message_module :: atom()
   @type behaviour_module :: atom()
   @type context :: DispatchContext.command_context() | DispatchContext.query_context()
 
-  @callback resolve(message_module, behaviour_module) :: {:ok, pipeline} | :error
+  @callback resolve(message_module) :: {:ok, pipeline_module} | :error
 
-  @spec get_pipeline!(context, behaviour_module) :: pipeline
-  @spec get_pipeline(context, behaviour_module) :: {:ok, pipeline} | {:error, any()} | :error
+  @spec get_pipeline!(context, behaviour_module) :: pipeline_module
+  @spec get_pipeline(context, behaviour_module) :: {:ok, pipeline_module} | {:error, String.t()} | :error
 
   @doc false
   def get_pipeline(%{message: %{__struct__: module}}, behaviour_module) do
-    resolver().resolve(module, behaviour_module)
+    with {:ok, pipeline_module} <- resolver().resolve(module) do
+      Behaviour.validate(pipeline_module, behaviour_module)
+    end
   end
 
   @doc false
@@ -29,7 +31,7 @@ defmodule Cqrs.DispatchStrategy.PipelineResolver do
     end
   end
 
-  defp resolver do
+  def resolver do
     :cqrs_tools
     |> Application.get_env(:pipeline_resolver, __MODULE__.Default)
     |> Behaviour.validate!(__MODULE__)

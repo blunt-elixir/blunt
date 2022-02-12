@@ -11,4 +11,12 @@ defmodule Cqrs.DomainEventTest.Protocol do
 
     field :user, :string
   end
+
+  defmodule EventWithSetVersionAsDecimal do
+    use Cqrs.DomainEvent
+
+    @version 2.3
+
+    field :user, :string
+  end
 end

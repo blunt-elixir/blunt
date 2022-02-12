@@ -6,12 +6,9 @@ defmodule Cqrs.Entity.Identity do
   alias Cqrs.Entity.Error
 
   def pop(opts) do
-    {identity, opts} =
-      opts
-      |> Keyword.update(:identity, @default, &ensure/1)
-      |> Keyword.pop!(:identity)
-
-    {identity, opts}
+    opts
+    |> Keyword.update(:identity, @default, &ensure/1)
+    |> Keyword.pop!(:identity)
   end
 
   def ensure({name, type}), do: {name, type, []}

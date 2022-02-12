@@ -1,6 +1,9 @@
 defmodule Cqrs.Config do
-  @moduledoc false
+  # TODO: Document configuration
 
+  alias Cqrs.{Behaviour, DispatchStrategy, DispatchContext.Shipper}
+
+  @doc false
   def create_jason_encoders?(opts) do
     explicit = Keyword.get(opts, :create_jason_encoders?, true)
     configured = get(:create_jason_encoders, true)
@@ -8,7 +11,20 @@ defmodule Cqrs.Config do
     explicit && configured
   end
 
-  def context_shipper, do: get(:context_shipper)
+  @doc false
+  def dispatch_strategy! do
+    :dispatch_strategy
+    |> get(DispatchStrategy.Default)
+    |> Behaviour.validate!(DispatchStrategy)
+  end
+
+  @doc false
+  def context_shipper! do
+    case get(:context_shipper) do
+      nil -> nil
+      shipper -> Behaviour.validate!(shipper, Shipper)
+    end
+  end
 
   defp get(key, default \\ nil), do: Application.get_env(:cqrs_tools, key, default)
 end

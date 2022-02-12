@@ -30,7 +30,7 @@ defmodule Cqrs.Behaviour do
     end
   end
 
-  # A reasonable subset of Ecto.Repo callbacks. Some Repos are not reporting back some of the callbacks.
+  # A reasonable subset of Ecto.Repo callbacks. Some Repos (Etso in particular) are not reporting back some of the callbacks.
   @ecto_repo_callbacks [
     __adapter__: 0,
     all: 1,

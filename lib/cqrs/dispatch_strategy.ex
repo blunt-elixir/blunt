@@ -1,5 +1,5 @@
 defmodule Cqrs.DispatchStrategy do
-  alias Cqrs.{Behaviour, DispatchContext}
+  alias Cqrs.{Config, DispatchContext}
 
   @type context :: DispatchContext.t()
   @type dispatch_return :: {:ok, context() | any()} | {:error, context()}
@@ -7,13 +7,7 @@ defmodule Cqrs.DispatchStrategy do
   @callback dispatch(context()) :: dispatch_return()
 
   def dispatch(context) do
-    get_strategy().dispatch(context)
-  end
-
-  defp get_strategy do
-    :cqrs_tools
-    |> Application.get_env(:dispatch_strategy, __MODULE__.Default)
-    |> Behaviour.validate!(__MODULE__)
+    Config.dispatch_strategy!().dispatch(context)
   end
 
   @spec return_last_pipeline(context()) :: {:ok, any}

@@ -1,5 +1,5 @@
 defmodule Cqrs.DispatchStrategy.PipelineResolver do
-  alias Cqrs.{Behaviour, DispatchContext}
+  alias Cqrs.{Behaviour, Config, DispatchContext}
 
   defmodule Error do
     defexception [:message]
@@ -17,7 +17,7 @@ defmodule Cqrs.DispatchStrategy.PipelineResolver do
 
   @doc false
   def get_pipeline(%{message: %{__struct__: module}}, behaviour_module) do
-    with {:ok, pipeline_module} <- resolver().resolve(module) do
+    with {:ok, pipeline_module} <- Config.pipeline_resolver!().resolve(module) do
       Behaviour.validate(pipeline_module, behaviour_module)
     end
   end
@@ -29,11 +29,5 @@ defmodule Cqrs.DispatchStrategy.PipelineResolver do
       {:error, reason} -> raise Error, message: reason
       :error -> raise Error, message: "No #{inspect(behaviour_module)} found for query: #{inspect(module)}"
     end
-  end
-
-  def resolver do
-    :cqrs_tools
-    |> Application.get_env(:pipeline_resolver, __MODULE__.Default)
-    |> Behaviour.validate!(__MODULE__)
   end
 end

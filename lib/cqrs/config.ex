@@ -1,7 +1,7 @@
 defmodule Cqrs.Config do
   # TODO: Document configuration
 
-  alias Cqrs.{Behaviour, DispatchStrategy, DispatchContext.Shipper}
+  alias Cqrs.{Behaviour, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
 
   @doc false
   def create_jason_encoders?(opts) do
@@ -16,6 +16,12 @@ defmodule Cqrs.Config do
     :dispatch_strategy
     |> get(DispatchStrategy.Default)
     |> Behaviour.validate!(DispatchStrategy)
+  end
+
+  def pipeline_resolver! do
+    :pipeline_resolver
+    |> get(PipelineResolver.Default)
+    |> Behaviour.validate!(PipelineResolver)
   end
 
   @doc false

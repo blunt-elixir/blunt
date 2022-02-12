@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Cqrs.Verify do
   use Mix.Task
 
-  alias Cqrs.DispatchStrategy.PipelineResolver
+  alias Cqrs.Config
 
   @options strict: [namespace: :string],
            aliases: [n: :namespace]
@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Cqrs.Verify do
   end
 
   defp find_messages_without_pipelines(namespace) do
-    resolver = PipelineResolver.resolver()
+    resolver = Config.pipeline_resolver!()
 
     namespace
     |> find_messages()

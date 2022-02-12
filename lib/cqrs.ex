@@ -12,30 +12,9 @@ defmodule Cqrs do
     end
   end
 
-  defmacro defevent(opts \\ [], do: body) do
-    quote do
-      use Cqrs.DomainEvent, unquote(opts)
-      unquote(body)
-    end
-  end
-
   defmacro defquery(opts \\ [], do: body) do
     quote do
       use Cqrs.Query, unquote(opts)
-      unquote(body)
-    end
-  end
-
-  defmacro defvalue_object(opts \\ [], do: body) do
-    quote do
-      use Cqrs.ValueObject, unquote(opts)
-      unquote(body)
-    end
-  end
-
-  defmacro defentity(opts \\ [], do: body) do
-    quote do
-      use Cqrs.Entity, unquote(opts)
       unquote(body)
     end
   end

@@ -1,12 +1,14 @@
 defmodule Cqrs.Entity.Identity do
   @moduledoc false
 
+  @default {:id, Ecto.UUID, autogenerate: false}
+
   alias Cqrs.Entity.Error
 
   def pop(opts) do
     {identity, opts} =
       opts
-      |> Keyword.update(:identity, {:id, Ecto.UUID, autogenerate: false}, &ensure/1)
+      |> Keyword.update(:identity, @default, &ensure/1)
       |> Keyword.pop!(:identity)
 
     {identity, opts}

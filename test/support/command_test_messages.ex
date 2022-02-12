@@ -32,31 +32,6 @@ defmodule Cqrs.CommandTest.Protocol do
     option :return_error, :boolean, default: false
   end
 
-  defmodule CommandWithEventDerivations do
-    use Cqrs.Command
-
-    field :name, :string, required: true
-    field :dog, :string, default: "maize"
-
-    derive_event DefaultEvent
-
-    derive_event EventWithExtras do
-      field :date, :date
-    end
-
-    derive_event EventWithDrops, drop: [:dog]
-
-    derive_event EventWithExtrasAndDrops, drop: [:dog] do
-      field :date, :date
-    end
-
-    @event_ns Cqrs.CommandTest.Events
-
-    derive_event NamespacedEventWithExtrasAndDrops, drop: [:dog], ns: @event_ns do
-      field :date, :date
-    end
-  end
-
   defmodule CommandWithMeta do
     use Cqrs.Command
 

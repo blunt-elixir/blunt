@@ -13,6 +13,7 @@ defmodule Cqrs.Message do
     quote do
       primary_key = primary_key(unquote(opts))
       dispatch? = Keyword.get(unquote(opts), :dispatch?, false)
+      constructor = Keyword.get(unquote(opts), :constructor, :new)
       message_type = Keyword.get(unquote(opts), :message_type, :message)
       create_jason_encoders? = Config.create_jason_encoders?(unquote(opts))
       require_all_fields? = Keyword.get(unquote(opts), :require_all_fields?, false)
@@ -24,6 +25,7 @@ defmodule Cqrs.Message do
       Module.register_attribute(__MODULE__, :metadata, accumulate: true, persist: true)
 
       Module.put_attribute(__MODULE__, :dispatch?, dispatch?)
+      Module.put_attribute(__MODULE__, :constructor, constructor)
       Module.put_attribute(__MODULE__, :message_type, message_type)
       Module.put_attribute(__MODULE__, :primary_key_type, primary_key)
       Module.put_attribute(__MODULE__, :require_all_fields?, require_all_fields?)
@@ -50,7 +52,7 @@ defmodule Cqrs.Message do
     constructor =
       quote do
         Contstructor.generate(%{
-          name: :new,
+          name: @constructor,
           has_fields?: @primary_key_type != false || Enum.count(@schema_fields) > 0,
           has_required_fields?: @primary_key_type != false || Enum.count(@required_fields) > 0
         })

@@ -20,24 +20,6 @@ defmodule Cqrs.CommandTest.Protocol.DispatchWithPipelinePipeline do
   end
 end
 
-defmodule Cqrs.CommandTest.Protocol.CommandWithEventDerivationsPipeline do
-  use Cqrs.CommandPipeline
-
-  alias Cqrs.CommandTest.Protocol.{DefaultEvent, EventWithExtras, EventWithDrops, EventWithExtrasAndDrops}
-  alias alias Cqrs.CommandTest.Events.NamespacedEventWithExtrasAndDrops
-
-  @impl true
-  def handle_dispatch(command, _context) do
-    %{
-      default_event: DefaultEvent.create(command),
-      event_with_drops: EventWithDrops.create(command),
-      event_with_extras: EventWithExtras.create(command, date: Date.utc_today()),
-      event_with_extras_and_drops: EventWithExtrasAndDrops.create(command, date: Date.utc_today()),
-      namespaced_event_with_extras_and_drops: NamespacedEventWithExtrasAndDrops.create(command, date: Date.utc_today())
-    }
-  end
-end
-
 defmodule Cqrs.CommandTest.Protocol.CommandWithMetaPipeline do
   use Cqrs.CommandPipeline
 

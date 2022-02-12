@@ -91,4 +91,14 @@ defmodule Cqrs.Message do
 
     Field.record(name, type, opts)
   end
+
+  def dispatchable?(%{__struct__: module}) do
+    case Cqrs.Behaviour.validate(module, __MODULE__) do
+      {:ok, module} ->
+        function_exported?(module, :dispatch, 2)
+
+      _ ->
+        false
+    end
+  end
 end

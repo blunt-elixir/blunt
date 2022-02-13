@@ -3,7 +3,8 @@ defmodule Cqrs.Message.Field do
 
   def record(name, type, opts \\ []) do
     quote do
-      required = Keyword.get(unquote(opts), :required, @require_all_fields?)
+      internal = Keyword.get(unquote(opts), :internal, false)
+      required = internal == false and Keyword.get(unquote(opts), :required, @require_all_fields?)
 
       opts =
         [default: nil]

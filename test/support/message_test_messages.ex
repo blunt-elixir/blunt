@@ -12,4 +12,10 @@ defmodule Cqrs.MessageTest.Protocol do
     field :dog, :string, default: "maize"
     field :gender, :enum, values: [:m, :f]
   end
+
+  defmodule MessageWithInternalField do
+    use Cqrs.Message
+
+    internal_field :id, :binary_id, required: true
+  end
 end

@@ -26,6 +26,15 @@ defmodule Cqrs.MessageTest do
     end
   end
 
+  test "internal fields are never required" do
+    alias Protocol.MessageWithInternalField, as: Msg
+
+    assert [:id] == Msg.__schema__(:fields)
+
+    required_fields = Msg.__required_fields__()
+    refute Enum.member?(required_fields, :id)
+  end
+
   describe "field options" do
     alias Protocol.FieldOptions
 

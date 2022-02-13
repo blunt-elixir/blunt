@@ -103,6 +103,6 @@ defmodule Cqrs.ExMachinaTest do
   factory PlainStruct
 
   test "can use plain structs" do
-    assert %PlainStruct{} = build(:plain_struct)
+    assert %PlainStruct{name: "chris"} = build(:plain_struct, name: "chris")
   end
 end

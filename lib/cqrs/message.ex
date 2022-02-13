@@ -35,6 +35,7 @@ defmodule Cqrs.Message do
 
       @behaviour Cqrs.Message
       @before_compile Cqrs.Message
+      @metadata dispatchable?: dispatch?
 
       @impl true
       def handle_validate(changeset),
@@ -92,13 +93,13 @@ defmodule Cqrs.Message do
     Field.record(name, type, opts)
   end
 
-  def dispatchable?(%{__struct__: module}) do
-    case Cqrs.Behaviour.validate(module, __MODULE__) do
-      {:ok, module} ->
-        function_exported?(module, :dispatch, 2)
+  def dispatchable?(%{__struct__: module}),
+    do: dispatchable?(module)
 
-      _ ->
-        false
+  def dispatchable?(module) do
+    case Cqrs.Behaviour.validate(module, __MODULE__) do
+      {:ok, module} -> Metadata.fetch!(module, :dispatchable?)
+      _ -> false
     end
   end
 end

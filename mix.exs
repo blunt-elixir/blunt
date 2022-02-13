@@ -27,7 +27,7 @@ defmodule Cqrs.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Cqrs.Application, []},
+      mod: {Cqrs, []},
       extra_applications: [:logger]
     ]
   end

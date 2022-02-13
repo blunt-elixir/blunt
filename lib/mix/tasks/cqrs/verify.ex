@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Cqrs.Verify do
     namespace
     |> find_messages()
     |> Stream.filter(&(Cqrs.Message in behaviours(&1)))
+    |> Stream.filter(&Cqrs.Message.dispatchable?/1)
     |> Stream.map(&{&1, resolver.resolve(&1)})
     |> Stream.filter(&match?({_, :error}, &1))
     |> Stream.map(&elem(&1, 0))

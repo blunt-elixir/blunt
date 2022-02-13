@@ -1,5 +1,5 @@
 defmodule Cqrs.DispatchContext do
-  alias Cqrs.Message.Option
+  alias Cqrs.Message.{Metadata, Option}
 
   @type t :: %__MODULE__{message_type: atom(), message: struct(), errors: list()}
   @type command_context :: %__MODULE__{message_type: :command, message: struct(), errors: list()}
@@ -44,11 +44,7 @@ defmodule Cqrs.DispatchContext do
   end
 
   defp add_metadata(%{message_module: message_module} = context) do
-    metadata =
-      message_module.__info__(:attributes)
-      |> Keyword.get_values(:metadata)
-      |> List.flatten()
-
+    metadata = Metadata.get_all(message_module)
     %{context | metadata: metadata}
   end
 

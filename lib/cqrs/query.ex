@@ -75,6 +75,9 @@ defmodule Cqrs.Query do
   @spec message(Cqrs.DispatchContext.query_context()) :: struct()
   def message(%{message: message}), do: message
 
+  @spec preload(Cqrs.DispatchContext.query_context()) :: list()
+  def preload(context), do: Context.get_option(context, :preload)
+
   @spec results(Cqrs.DispatchContext.query_context()) :: any | nil
   defdelegate results(context), to: Context, as: :get_last_pipeline
 

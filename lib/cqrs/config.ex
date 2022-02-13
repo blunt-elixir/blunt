@@ -3,6 +3,9 @@ defmodule Cqrs.Config do
 
   alias Cqrs.{Behaviour, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
 
+  def create_jason_encoders?,
+    do: get(:create_jason_encoders, true)
+
   @doc false
   def create_jason_encoders?(opts) do
     explicit = Keyword.get(opts, :create_jason_encoders?, true)

@@ -1,9 +1,14 @@
 defmodule Cqrs.DispatchContext do
+  alias Cqrs.Config
   alias Cqrs.Message.{Metadata, Option}
 
   @type t :: %__MODULE__{message_type: atom(), message: struct(), errors: list()}
   @type command_context :: %__MODULE__{message_type: :command, message: struct(), errors: list()}
   @type query_context :: %__MODULE__{message_type: :query, message: struct(), errors: list()}
+
+  if Code.ensure_loaded?(Jason) && Config.create_jason_encoders?() do
+    @derive Jason.Encoder
+  end
 
   defstruct [
     :message,

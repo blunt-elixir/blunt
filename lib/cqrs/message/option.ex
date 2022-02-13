@@ -7,6 +7,7 @@ defmodule Cqrs.Message.Option do
 
   require Logger
 
+  alias Cqrs.Config
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
   def record(name, type, opts) do
@@ -24,7 +25,7 @@ defmodule Cqrs.Message.Option do
   def return_option do
     values = [:context, :response]
 
-    value = Application.get_env(:cqrs, :dispatch_return, :response)
+    value = Config.dispatch_return()
 
     unless value in values do
       raise Error,

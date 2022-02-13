@@ -12,6 +12,11 @@ defmodule Cqrs.Config do
   end
 
   @doc false
+  def dispatch_return do
+    get(:dispatch_return, :response)
+  end
+
+  @doc false
   def dispatch_strategy! do
     :dispatch_strategy
     |> get(DispatchStrategy.Default)

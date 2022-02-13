@@ -18,6 +18,7 @@ defmodule Cqrs.Config do
     |> Behaviour.validate!(DispatchStrategy)
   end
 
+  @doc false
   def pipeline_resolver! do
     :pipeline_resolver
     |> get(PipelineResolver.Default)

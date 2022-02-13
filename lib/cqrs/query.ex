@@ -76,7 +76,7 @@ defmodule Cqrs.Query do
   def message(%{message: message}), do: message
 
   @spec results(Cqrs.DispatchContext.query_context()) :: any | nil
-  def results(context), do: Context.get_last_pipeline(context)
+  defdelegate results(context), to: Context, as: :get_last_pipeline
 
   @spec get_metadata(Context.command_context(), atom, any) :: any | nil
   defdelegate get_metadata(context, key, default \\ nil), to: Context

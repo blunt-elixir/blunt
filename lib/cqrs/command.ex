@@ -35,19 +35,19 @@ defmodule Cqrs.Command do
   end
 
   @spec results(Context.command_context()) :: any | nil
-  def results(context), do: Context.get_last_pipeline(context)
+  defdelegate results(context), to: Context, as: :get_last_pipeline
 
   @spec private(Context.command_context()) :: map()
-  def private(context), do: Context.get_private(context)
+  defdelegate private(context), to: Context, as: :get_private
 
   @spec errors(Context.command_context()) :: map()
-  def errors(context), do: Context.errors(context)
+  defdelegate errors(context), to: Context
 
   @spec user_supplied_fields(Context.command_context()) :: map()
-  def user_supplied_fields(context), do: Context.user_supplied_fields(context)
+  defdelegate user_supplied_fields(context), to: Context
 
   @spec take_user_supplied_data(Context.command_context()) :: map()
-  def take_user_supplied_data(context), do: Context.take_user_supplied_data(context)
+  defdelegate take_user_supplied_data(context), to: Context
 
   @spec get_metadata(Context.command_context(), atom, any) :: any | nil
   defdelegate get_metadata(context, key, default \\ nil), to: Context

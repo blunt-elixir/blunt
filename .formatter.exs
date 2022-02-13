@@ -15,7 +15,11 @@ locals_without_parens = [
   value_object: 2,
   derive_event: 1,
   derive_event: 2,
-  metadata: 2
+  metadata: 2,
+
+  # ex_machina macros
+  factory: 1,
+  factory: 2
 ]
 
 [

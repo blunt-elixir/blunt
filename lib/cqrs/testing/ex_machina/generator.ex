@@ -33,6 +33,10 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
             |> generate_fake_data(message)
             |> populate_data_from_opts(opts)
 
+          if Keyword.get(opts, :debug, false) do
+            IO.inspect(data, label: inspect(message))
+          end
+
           case message.new(data) do
             {:ok, message, _discarded_data} ->
               message
@@ -55,6 +59,14 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       |> Enum.reduce(attrs, fn
         {field, path}, acc when is_list(path) ->
           value = get_in(attrs, path)
+          Map.put(acc, field, value)
+
+        {field, func}, acc when is_function(func, 0) ->
+          value = func.()
+          Map.put(acc, field, value)
+
+        {field, func}, acc when is_function(func, 1) ->
+          value = func.(attrs)
           Map.put(acc, field, value)
 
         _, acc ->

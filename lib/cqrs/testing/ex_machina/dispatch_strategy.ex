@@ -16,6 +16,13 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         raise Error, message: "#{inspect(module)} is not a dispatchable message"
       end
 
+      user_supplied_fields = Map.get(message, :user_supplied_fields, [])
+
+      dispatch_opts =
+        dispatch_opts
+        |> Keyword.put(:dispatched_from, :ex_machina)
+        |> Keyword.put(:user_supplied_fields, user_supplied_fields)
+
       module.dispatch({:ok, message, %{}}, dispatch_opts)
     end
   end

@@ -51,6 +51,9 @@ defmodule Cqrs.DispatchStrategy do
       {:ok, response} ->
         {:ok, DispatchContext.put_pipeline(context, callback, response)}
 
+      %DispatchContext{} = context ->
+        {:ok, context}
+
       response ->
         {:ok, DispatchContext.put_pipeline(context, callback, response)}
     end

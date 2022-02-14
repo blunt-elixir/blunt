@@ -37,6 +37,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
             IO.inspect(data, label: inspect(message))
           end
 
+          user_supplied_fields = Map.keys(data)
+
           case message.new(data) do
             {:ok, message, _discarded_data} ->
               message
@@ -50,6 +52,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
             message ->
               message
           end
+          |> Map.put(:user_supplied_fields, user_supplied_fields)
       end
     end
 

@@ -52,7 +52,7 @@ defmodule Cqrs.Message.Option do
 
     case validate_options(parsed, message_opts) do
       {:ok, parsed} ->
-        {:ok, message_opts, Keyword.merge(unparsed, parsed)}
+        {:ok, Keyword.merge(unparsed, parsed)}
 
       {:error, errors} ->
         {:error, errors}

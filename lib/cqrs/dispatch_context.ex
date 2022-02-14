@@ -23,7 +23,6 @@ defmodule Cqrs.DispatchContext do
     user_supplied_fields: [],
     private: %{},
     opts: [],
-    message_opts: [],
     errors: [],
     return: :response,
     pipeline: []
@@ -75,7 +74,7 @@ defmodule Cqrs.DispatchContext do
   defp parse_message_opts(%{message_module: message_module, opts: opts} = base_context) do
     context =
       case Option.parse_message_opts(message_module, opts) do
-        {:ok, message_opts, opts} -> %{base_context | opts: opts, message_opts: message_opts}
+        {:ok, opts} -> %{base_context | opts: opts}
         {:error, error} -> %{base_context | errors: [error]}
       end
 

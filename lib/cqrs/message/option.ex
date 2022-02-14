@@ -8,6 +8,7 @@ defmodule Cqrs.Message.Option do
   require Logger
 
   alias Cqrs.Config
+  alias Cqrs.Message.Metadata
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
   def record(name, type, opts) do
@@ -37,7 +38,7 @@ defmodule Cqrs.Message.Option do
   end
 
   def parse_message_opts(message_module, opts) do
-    message_opts = message_module.__options__()
+    message_opts = Metadata.get(message_module, :options, [])
 
     %{parsed: parsed, unparsed: unparsed} =
       Enum.reduce(

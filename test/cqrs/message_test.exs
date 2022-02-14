@@ -1,5 +1,6 @@
 defmodule Cqrs.MessageTest do
   use ExUnit.Case, async: true
+  alias Cqrs.Message.Metadata
   alias Cqrs.MessageTest.Protocol
 
   describe "simple message" do
@@ -21,17 +22,17 @@ defmodule Cqrs.MessageTest do
       assert [0, 1, 2] == Simple.__info__(:functions) |> Keyword.get_values(:new)
     end
 
-    test "has __message_type__ function" do
-      assert :message == Simple.__message_type__()
+    test "has message_type" do
+      assert :message == Metadata.message_type(Simple)
     end
   end
 
   test "internal fields are never required" do
     alias Protocol.MessageWithInternalField, as: Msg
 
-    assert [:id] == Msg.__schema__(:fields)
+    assert [:id] == Metadata.field_names(Msg)
 
-    required_fields = Msg.__required_fields__()
+    required_fields = Metadata.required_fields(Msg)
     refute Enum.member?(required_fields, :id)
   end
 

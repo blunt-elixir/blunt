@@ -1,5 +1,5 @@
 defmodule Cqrs.Command do
-  alias Cqrs.Message.Option
+  alias Cqrs.Message.{Metadata, Option}
   alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
@@ -28,8 +28,7 @@ defmodule Cqrs.Command do
 
   defmacro __before_compile__(_env) do
     quote do
-      def __options__, do: @options
-
+      @metadata options: @options
       Module.delete_attribute(__MODULE__, :options)
     end
   end
@@ -51,4 +50,7 @@ defmodule Cqrs.Command do
 
   @spec get_metadata(Context.command_context(), atom, any) :: any | nil
   defdelegate get_metadata(context, key, default \\ nil), to: Context
+
+  @spec options(Context.command_context()) :: list()
+  def options(%{message_module: module}), do: Metadata.get(module, :options)
 end

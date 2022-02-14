@@ -2,7 +2,7 @@ defmodule Cqrs.Message.Changeset do
   @moduledoc false
 
   alias Ecto.Changeset
-  alias Cqrs.Message.Input
+  alias Cqrs.Message.{Input, Metadata}
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
   defmacro generate do
@@ -29,7 +29,7 @@ defmodule Cqrs.Message.Changeset do
 
   def create(message, values) do
     values = Input.normalize(values, message)
-    required_fields = message.__required_fields__()
+    required_fields = Metadata.required_fields(message)
 
     embeds = message.__schema__(:embeds)
     fields = message.__schema__(:fields)

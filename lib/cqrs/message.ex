@@ -1,6 +1,6 @@
 defmodule Cqrs.Message do
   alias Cqrs.Config
-  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Metadata, Reflection, Schema, Version}
+  alias Cqrs.Message.{Changeset, Contstructor, Dispatch, Field, Metadata, Schema, Version}
 
   import Cqrs.Message.Opts
 
@@ -60,14 +60,24 @@ defmodule Cqrs.Message do
       end
 
     quote location: :keep do
-      require Cqrs.Message.{Changeset, Dispatch, Reflection, Schema}
+      require Cqrs.Message.{Changeset, Dispatch, Schema, Metadata}
+
+      unless @primary_key_type == false do
+        {name, type, opts} = @primary_key_type
+
+        opts =
+          opts
+          |> Keyword.put(:required, true)
+          |> Keyword.put(:primary_key, true)
+
+        @schema_fields {name, type, opts}
+      end
 
       Version.generate(__MODULE__)
       Module.eval_quoted(__MODULE__, unquote(constructor))
-
       Schema.generate()
       Changeset.generate()
-      Reflection.generate()
+      Metadata.generate()
 
       if @dispatch? do
         Dispatch.generate()

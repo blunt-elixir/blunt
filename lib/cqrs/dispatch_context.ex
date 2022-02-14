@@ -33,13 +33,15 @@ defmodule Cqrs.DispatchContext do
 
   @spec new(message :: struct(), map(), keyword) :: {:error, context} | {:ok, context}
   def new(%{__struct__: message_module} = message, discarded_data, opts) do
+    message_type = Metadata.message_type(message_module)
+
     context = %__MODULE__{
       opts: opts,
       message: message,
+      message_type: message_type,
       message_module: message_module,
       discarded_data: discarded_data,
-      created_at: DateTime.utc_now(),
-      message_type: message_module.__message_type__()
+      created_at: DateTime.utc_now()
     }
 
     context

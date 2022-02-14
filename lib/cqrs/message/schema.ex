@@ -17,7 +17,7 @@ defmodule Cqrs.Message.Schema do
         @derive Inspect
       end
 
-      @primary_key @primary_key_type
+      @primary_key false
       embedded_schema do
         Enum.map(@schema_fields, fn
           {name, {:array, :enum}, opts} ->

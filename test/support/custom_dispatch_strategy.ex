@@ -43,10 +43,8 @@ defmodule Cqrs.CustomDispatchStrategy do
   end
 
   def dispatch(%{message_type: :query, message: filter_map} = context) do
-    %{__struct__: query_module} = filter_map
-
     user = Context.user(context)
-    bindings = query_module.__bindings__()
+    bindings = Query.bindings(context)
     filter_list = Query.create_filter_list(context)
     pipeline = PipelineResolver.get_pipeline!(context, CustomQueryPipeline)
 

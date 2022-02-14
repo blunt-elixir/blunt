@@ -1,5 +1,5 @@
 defmodule Cqrs.Query do
-  alias Cqrs.Message.Option
+  alias Cqrs.Message.{Metadata, Option}
   alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
@@ -40,11 +40,8 @@ defmodule Cqrs.Query do
 
   defmacro __before_compile__(_env) do
     quote do
-      def __options__, do: @options
-      def __bindings__, do: @bindings
-
-      Module.delete_attribute(__MODULE__, :options)
-      Module.delete_attribute(__MODULE__, :bindings)
+      @metadata options: Module.delete_attribute(__MODULE__, :options)
+      @metadata bindings: Module.delete_attribute(__MODULE__, :bindings)
     end
   end
 
@@ -63,9 +60,6 @@ defmodule Cqrs.Query do
   defp reject_nil_filters(filters, _opts),
     do: filters
 
-  @spec bindings(Cqrs.DispatchContext.query_context()) :: map()
-  def bindings(context), do: Context.get_private(context, :bindings)
-
   @spec query(Cqrs.DispatchContext.query_context()) :: any | nil
   def query(context), do: Context.get_private(context, :query)
 
@@ -81,6 +75,12 @@ defmodule Cqrs.Query do
   @spec results(Cqrs.DispatchContext.query_context()) :: any | nil
   defdelegate results(context), to: Context, as: :get_last_pipeline
 
-  @spec get_metadata(Context.command_context(), atom, any) :: any | nil
+  @spec get_metadata(Context.query_context(), atom, any) :: any | nil
   defdelegate get_metadata(context, key, default \\ nil), to: Context
+
+  @spec options(Context.query_context()) :: list()
+  def options(%{message_module: module}), do: Metadata.get(module, :options, [])
+
+  @spec bindings(Context.query_context()) :: list()
+  def bindings(%{message_module: module}), do: Metadata.get(module, :bindings, [])
 end

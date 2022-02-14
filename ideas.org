@@ -5,5 +5,4 @@ This will require a way to store a Function ref in an Ecto type. ~:any~ would pr
 ** DONE +put message_opts property in DispatchContext+
 
 ** TODO support {m,f,a} for default field values
-** TODO persist options, remove __options__
 ** DONE allow for putting values into context and returning them back with the context.

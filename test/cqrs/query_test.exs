@@ -2,6 +2,7 @@ defmodule Cqrs.QueryTest do
   use ExUnit.Case, async: true
 
   alias Cqrs.Query
+  alias Cqrs.Message.Metadata
   alias Cqrs.QueryTest.Protocol
 
   describe "basics" do
@@ -9,7 +10,7 @@ defmodule Cqrs.QueryTest do
     alias Cqrs.DispatchStrategy.PipelineResolver
 
     test "predefined options" do
-      options = BasicQuery.__options__() |> Enum.into(%{})
+      options = Metadata.get(BasicQuery, :options, []) |> Enum.into(%{})
 
       assert %{
                allow_nil_filters: [type: :boolean, default: false, required: true],
@@ -25,7 +26,7 @@ defmodule Cqrs.QueryTest do
     end
 
     test "no predefined bindings" do
-      assert [] == BasicQuery.__bindings__()
+      assert [] == Metadata.get(BasicQuery, :bindings)
     end
 
     test "no pipeline" do

@@ -1,13 +1,14 @@
 defmodule Cqrs.CommandTest do
   use ExUnit.Case, async: true
 
+  alias Cqrs.Message.Metadata
   alias Cqrs.CommandTest.Protocol
   alias Cqrs.{Command, DispatchContext}
   alias Cqrs.DispatchStrategy.PipelineResolver
 
   test "command options" do
     alias Protocol.CommandOptions
-    options = CommandOptions.__options__() |> Enum.into(%{})
+    options = Metadata.get(CommandOptions, :options, []) |> Enum.into(%{})
 
     assert %{
              audit: [{:type, :boolean}, {:required, false}, {:default, true}],
@@ -32,7 +33,7 @@ defmodule Cqrs.CommandTest do
     alias Protocol.DispatchWithPipeline
 
     test "options" do
-      options = DispatchWithPipeline.__options__() |> Enum.into(%{})
+      options = Metadata.get(DispatchWithPipeline, :options, []) |> Enum.into(%{})
 
       assert %{
                reply_to: [type: :pid, default: nil, required: true],

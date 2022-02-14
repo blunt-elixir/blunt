@@ -28,8 +28,7 @@ defmodule Cqrs.Command do
 
   defmacro __before_compile__(_env) do
     quote do
-      @metadata options: @options
-      Module.delete_attribute(__MODULE__, :options)
+      @metadata options: Module.delete_attribute(__MODULE__, :options)
     end
   end
 

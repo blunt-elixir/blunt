@@ -2,7 +2,7 @@ defmodule Cqrs.Message.Schema do
   @moduledoc false
 
   alias Cqrs.Config
-  alias Cqrs.Message.Field
+  alias Cqrs.Message.Schema.Fields
 
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
@@ -21,8 +21,6 @@ defmodule Cqrs.Message.Schema do
     quote do
       use Ecto.Schema
 
-      alias Cqrs.Message.{Field, MessageType}
-
       if Module.get_attribute(__MODULE__, :create_jason_encoders?) and Code.ensure_loaded?(Jason) do
         @derive Jason.Encoder
       end
@@ -38,7 +36,7 @@ defmodule Cqrs.Message.Schema do
             Ecto.Schema.field(name, {:array, Ecto.Enum}, opts)
 
           {name, {:array, type}, opts} ->
-            if Field.embedded?(type),
+            if Fields.embedded?(type),
               do: Ecto.Schema.embeds_many(name, type),
               else: Ecto.Schema.field(name, {:array, type}, opts)
 
@@ -49,7 +47,7 @@ defmodule Cqrs.Message.Schema do
             Ecto.Schema.field(name, Ecto.UUID, opts)
 
           {name, type, opts} ->
-            if Field.embedded?(type),
+            if Fields.embedded?(type),
               do: Ecto.Schema.embeds_one(name, type),
               else: Ecto.Schema.field(name, type, opts)
         end)

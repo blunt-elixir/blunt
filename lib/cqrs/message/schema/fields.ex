@@ -1,22 +1,22 @@
-defmodule Cqrs.Message.Field do
+defmodule Cqrs.Message.Schema.Fields do
   @moduledoc false
 
   def record(name, type, opts \\ []) do
-    quote do
-      internal = Keyword.get(unquote(opts), :internal, false)
-      required = internal == false and Keyword.get(unquote(opts), :required, @require_all_fields?)
+    quote bind_quoted: [name: name, type: type, opts: opts] do
+      internal = Keyword.get(opts, :internal, false)
+      required = internal == false and Keyword.get(opts, :required, @require_all_fields?)
 
       opts =
         [default: nil]
-        |> Keyword.merge(unquote(opts))
+        |> Keyword.merge(opts)
         |> Keyword.put(:required, required)
         |> Keyword.put_new(:internal, false)
 
       if required do
-        @required_fields unquote(name)
+        @required_fields name
       end
 
-      @schema_fields {unquote(name), unquote(type), opts}
+      @schema_fields {name, type, opts}
     end
   end
 

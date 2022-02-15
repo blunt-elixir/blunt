@@ -1,41 +1,5 @@
-defmodule Cqrs.Message.Option do
-  @moduledoc false
-
-  defmodule Error do
-    defexception [:message]
-  end
-
-  require Logger
-
-  alias Cqrs.Config
-  alias Cqrs.Message.Metadata
-  alias Cqrs.Message.Changeset, as: MessageChangeset
-
-  def record(name, type, opts) do
-    quote do
-      opts =
-        unquote(opts)
-        |> Keyword.put_new(:default, nil)
-        |> Keyword.put_new(:required, false)
-        |> Keyword.put(:type, unquote(type))
-
-      @options {unquote(name), opts}
-    end
-  end
-
-  def return_option do
-    values = [:context, :response]
-
-    value = Config.dispatch_return()
-
-    unless value in values do
-      raise Error,
-        message:
-          "Invalid :cqrs, :dispatch_return value: `#{value}`. Value must be one of the following: #{inspect(values)}"
-    end
-
-    {:return, [type: :enum, values: values, default: value, required: true]}
-  end
+defmodule Cqrs.Message.Options.Parser do
+  alias Cqrs.Message.{Changeset, Metadata}
 
   def parse_message_opts(message_module, opts) do
     message_opts = Metadata.get(message_module, :options, [])
@@ -88,7 +52,7 @@ defmodule Cqrs.Message.Option do
 
     case changeset do
       %{valid?: false} ->
-        {:error, MessageChangeset.format_errors(changeset)}
+        {:error, Changeset.format_errors(changeset)}
 
       %{valid?: true} = changset ->
         validated =

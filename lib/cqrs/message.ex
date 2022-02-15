@@ -1,5 +1,5 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Constructor, Dispatch, Field, Metadata, PrimaryKey, Schema, Version}
+  alias Cqrs.Message.{Changeset, Constructor, Documentation, Dispatch, Field, Metadata, PrimaryKey, Schema, Version}
 
   @type changeset :: Ecto.Changeset.t()
 
@@ -20,7 +20,7 @@ defmodule Cqrs.Message do
 
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
-      require Cqrs.Message.{Constructor, Changeset, Dispatch, Schema, Metadata, PrimaryKey, Version}
+      require Cqrs.Message.{Changeset, Constructor, Documentation, Dispatch, Schema, Metadata, PrimaryKey, Version}
 
       Metadata.register(opts)
       Schema.register(opts)
@@ -48,6 +48,7 @@ defmodule Cqrs.Message do
 
   defmacro __before_compile__(_env) do
     quote location: :keep do
+      Documentation.generate()
       Version.generate()
       PrimaryKey.generate()
       Constructor.generate()

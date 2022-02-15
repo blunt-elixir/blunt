@@ -1,4 +1,5 @@
 defmodule Cqrs.Message.PrimaryKey do
+  @moduledoc false
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
       primary_key =

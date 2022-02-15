@@ -6,11 +6,15 @@ defmodule Cqrs.MessageTest.Protocol do
   end
 
   defmodule FieldOptions do
+    @moduledoc """
+    Hi
+    """
     use Cqrs.Message
 
-    field :name, :string, required: true
-    field :dog, :string, default: "maize"
-    field :gender, :enum, values: [:m, :f]
+    field :name, :string, required: true, desc: "your name"
+    field :dog, :string, default: "maize", desc: "your dog's name"
+    field :gender, :enum, values: [:m, :f], desc: "your gender"
+    field :other, {:array, :enum}, values: [:one, :two_three], desc: "just guess"
   end
 
   defmodule MessageWithInternalField do

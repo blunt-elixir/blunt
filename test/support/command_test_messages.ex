@@ -23,7 +23,10 @@ defmodule Cqrs.CommandTest.Protocol do
   end
 
   defmodule DispatchWithPipeline do
-    use Cqrs.Command
+    @moduledoc """
+    This command has a pipeline that it will be dispatched to
+    """
+    use Cqrs.Command, require_all_fields?: false
 
     field :name, :string, required: true
     field :dog, :string, default: "maize"

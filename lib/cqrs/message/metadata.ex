@@ -1,4 +1,11 @@
 defmodule Cqrs.Message.Metadata do
+  defmacro register(opts) do
+    quote bind_quoted: [opts: opts] do
+      Module.register_attribute(__MODULE__, :metadata, accumulate: true, persist: true)
+      @metadata message_type: Keyword.get(opts, :message_type, :message)
+    end
+  end
+
   def record(name, value) do
     quote do
       @metadata {unquote(name), unquote(value)}
@@ -24,6 +31,9 @@ defmodule Cqrs.Message.Metadata do
 
   def is_command?(module),
     do: is_message_type?(module, :command)
+
+  def dispatchable?(module),
+    do: fetch!(module, :dispatchable?)
 
   def primary_key(module) do
     case fetch!(module, :primary_key) do

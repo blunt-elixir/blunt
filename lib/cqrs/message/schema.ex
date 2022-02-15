@@ -1,7 +1,21 @@
 defmodule Cqrs.Message.Schema do
   @moduledoc false
 
+  alias Cqrs.Config
   alias Cqrs.Message.Field
+
+  defmacro register(opts) do
+    quote bind_quoted: [opts: opts] do
+      create_jason_encoders? = Config.create_jason_encoders?(opts)
+      Module.put_attribute(__MODULE__, :create_jason_encoders?, create_jason_encoders?)
+
+      require_all_fields? = Keyword.get(opts, :require_all_fields?, false)
+      Module.put_attribute(__MODULE__, :require_all_fields?, require_all_fields?)
+
+      Module.register_attribute(__MODULE__, :schema_fields, accumulate: true)
+      Module.register_attribute(__MODULE__, :required_fields, accumulate: true)
+    end
+  end
 
   defmacro generate do
     quote do

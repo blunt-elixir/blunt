@@ -3,13 +3,23 @@ defmodule Cqrs.Message.Dispatch do
 
   alias Cqrs.{DispatchContext, DispatchStrategy, Message.Dispatch}
 
+  defmacro register(opts) do
+    quote bind_quoted: [opts: opts] do
+      dispatch? = Keyword.get(opts, :dispatch?, false)
+      Module.put_attribute(__MODULE__, :dispatch?, dispatch?)
+      @metadata dispatchable?: dispatch?
+    end
+  end
+
   defmacro generate do
     quote do
-      def dispatch(message, opts \\ []),
-        do: Dispatch.apply(message, opts)
+      if @dispatch? do
+        def dispatch(message, opts \\ []),
+          do: Dispatch.apply(message, opts)
 
-      def dispatch_async(message, opts \\ []),
-        do: Dispatch.apply(message, Keyword.put(opts, :async, true))
+        def dispatch_async(message, opts \\ []),
+          do: Dispatch.apply(message, Keyword.put(opts, :async, true))
+      end
     end
   end
 

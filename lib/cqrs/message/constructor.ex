@@ -1,4 +1,4 @@
-defmodule Cqrs.Message.Contstructor do
+defmodule Cqrs.Message.Constructor do
   @moduledoc false
 
   alias Ecto.Changeset
@@ -6,7 +6,26 @@ defmodule Cqrs.Message.Contstructor do
   alias __MODULE__, as: Constructor
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
-  def generate(%{name: name, has_fields?: true, has_required_fields?: true}) do
+  defmacro register(opts) do
+    quote bind_quoted: [opts: opts] do
+      constructor = Keyword.get(opts, :constructor, :new)
+      Module.put_attribute(__MODULE__, :constructor, constructor)
+    end
+  end
+
+  defmacro generate do
+    quote do
+      constructor_info = %{
+        name: @constructor,
+        has_fields?: @primary_key_type != false || Enum.count(@schema_fields) > 0,
+        has_required_fields?: @primary_key_type != false || Enum.count(@required_fields) > 0
+      }
+
+      Module.eval_quoted(__MODULE__, Constructor.do_generate(constructor_info))
+    end
+  end
+
+  def do_generate(%{name: name, has_fields?: true, has_required_fields?: true}) do
     quote do
       @type constructor_values :: Input.t()
       @type constructor_overrides :: Input.t()
@@ -18,7 +37,7 @@ defmodule Cqrs.Message.Contstructor do
     end
   end
 
-  def generate(%{name: name, has_fields?: true}) do
+  def do_generate(%{name: name, has_fields?: true}) do
     quote do
       @type constructor_values :: Input.t()
       @type constructor_overrides :: Input.t()
@@ -30,7 +49,7 @@ defmodule Cqrs.Message.Contstructor do
     end
   end
 
-  def generate(%{name: name}) do
+  def do_generate(%{name: name}) do
     quote do
       @spec unquote(name)() :: {:ok, struct(), map()} | {:error, any()}
 

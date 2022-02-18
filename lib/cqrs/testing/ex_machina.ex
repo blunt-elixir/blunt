@@ -16,8 +16,10 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     end
 
     defmacro factory(message, opts \\ []) do
-      quote do
-        @messages {unquote(message), unquote(opts)}
+      opts = Keyword.update(opts, :values, [], &Macro.escape/1)
+
+      quote bind_quoted: [message: message, opts: opts] do
+        @messages {message, opts}
       end
     end
 

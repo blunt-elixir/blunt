@@ -1,5 +1,5 @@
 defmodule Cqrs.Command do
-  alias Cqrs.Message.{Metadata, Option}
+  alias Cqrs.Message.{Metadata, Options}
   alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
@@ -10,13 +10,13 @@ defmodule Cqrs.Command do
       |> Keyword.put(:message_type, :command)
 
     quote do
+      require Cqrs.Message.Options
+
       use Cqrs.Message, unquote(opts)
 
-      Module.register_attribute(__MODULE__, :options, accumulate: true)
+      Options.register()
 
       import Cqrs.Command, only: :macros
-
-      @options Option.return_option()
 
       @before_compile Cqrs.Command
     end
@@ -24,11 +24,11 @@ defmodule Cqrs.Command do
 
   @spec option(name :: atom(), type :: any(), keyword()) :: any()
   defmacro option(name, type, opts \\ []) when is_atom(name) and is_list(opts),
-    do: Option.record(name, type, opts)
+    do: Options.record(name, type, opts)
 
   defmacro __before_compile__(_env) do
     quote do
-      @metadata options: Module.delete_attribute(__MODULE__, :options)
+      Options.generate()
     end
   end
 

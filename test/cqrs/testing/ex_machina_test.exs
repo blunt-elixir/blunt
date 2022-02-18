@@ -82,18 +82,24 @@ defmodule Cqrs.ExMachinaTest do
     use Cqrs.Message
 
     field :id, :binary_id
+    field :name, :string
+    field :dog, :string
   end
 
   factory FactoryOptionsMessage,
     as: :my_message,
     values: [
-      id: [:person, :id]
+      id: [:person, :id],
+      dog: fn -> "maize" end,
+      name: fn %{person: %{name: name}} -> name end
     ]
 
   test "can set factory values from values option" do
     id = UUID.uuid4()
 
-    assert %FactoryOptionsMessage{id: ^id} = build(:my_message, person: %{id: id})
+    person = %{id: id, name: "chris", dog: "maize"}
+
+    assert %FactoryOptionsMessage{id: ^id, name: "chris", dog: "maize"} = build(:my_message, person: person)
   end
 
   defmodule PlainStruct do
@@ -104,5 +110,38 @@ defmodule Cqrs.ExMachinaTest do
 
   test "can use plain structs" do
     assert %PlainStruct{name: "chris"} = build(:plain_struct, name: "chris")
+  end
+
+  alias Support.Testing.FactoryComposition.{CreatePolicyFee, CreatePolicy, CreateProduct}
+
+  factory CreatePolicyFee,
+    values: [policy_id: [:policy, :id]],
+    deps: [
+      product: CreateProduct,
+      policy: {CreatePolicy, values: [product_id: [:product, :id]]}
+    ]
+
+  test "factory composition" do
+    fee_id = UUID.uuid4()
+
+    assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = dispatch(:create_policy_fee, id: fee_id)
+
+    assert {:ok, _} = UUID.info(policy_id)
+  end
+
+  defmodule NonDispatchable do
+  end
+
+  factory CreatePolicyFee,
+    as: :create_policy_fee2,
+    values: [policy_id: [:policy, :id]],
+    deps: [
+      policy: {NonDispatchable, values: [product_id: [:product, :id]]}
+    ]
+
+  test "can not use a non-dispatchable message as a dependency" do
+    fee_id = UUID.uuid4()
+
+    assert_raise Cqrs.Testing.ExMachina.DispatchStrategy.Error, fn -> dispatch(:create_policy_fee2, id: fee_id) end
   end
 end

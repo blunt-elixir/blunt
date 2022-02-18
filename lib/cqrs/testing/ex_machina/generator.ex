@@ -10,6 +10,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       end
     end
 
+    alias Cqrs.Message.Metadata
+    alias Cqrs.{DispatchContext, Message}
     alias Cqrs.Testing.ExMachina.Generator
 
     def generate({message, opts}) do
@@ -30,6 +32,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         {:ok, message} ->
           data =
             attrs
+            |> satisfy_dependencies(opts)
             |> generate_fake_data(message)
             |> populate_data_from_opts(opts)
 
@@ -72,22 +75,22 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           value = func.(attrs)
           Map.put(acc, field, value)
 
-        _, acc ->
-          acc
+        {field, value}, acc ->
+          Map.put(acc, field, value)
       end)
     end
 
     def generate_fake_data(attrs, message) do
       fake_data =
-        for field when not is_map_key(attrs, field) <- message.__schema__(:fields), into: %{} do
-          type = message.__schema__(:type, field)
-          {field, fake(type)}
+        for {name, type, _config} when not is_map_key(attrs, name) <- Metadata.fields(message), into: %{} do
+          {name, fake(type)}
         end
 
       Map.merge(fake_data, attrs)
     end
 
     def fake({:array, _}), do: []
+    def fake(:binary_id), do: UUID.uuid4()
     def fake(Ecto.UUID), do: UUID.uuid4()
     def fake(:id), do: Enum.random(1..1000)
     def fake(:integer), do: Enum.random(1..1000)
@@ -126,6 +129,40 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           |> Macro.underscore()
           |> Kernel.<>("_factory")
           |> String.to_atom()
+      end
+    end
+
+    defp satisfy_dependencies(attrs, opts) do
+      opts
+      |> Keyword.get(:deps, [])
+      |> Enum.reduce(%{}, &dispatch_dependency(&1, &2))
+      |> Map.merge(attrs)
+    end
+
+    require Logger
+
+    defp dispatch_dependency({key, module}, attrs) when is_atom(module) do
+      dispatch_dependency({key, {module, []}}, attrs)
+    end
+
+    defp dispatch_dependency({key, {module, opts}}, attrs) when is_atom(module) do
+      unless Message.dispatchable?(module) do
+        raise Cqrs.Testing.ExMachina.DispatchStrategy.Error,
+          message: "#{inspect(module)} is not dispatchable. It can not be used as a factory dependency"
+      end
+
+      attrs
+      |> populate_data_from_opts(opts)
+      |> generate_fake_data(module)
+      |> module.new()
+      |> module.dispatch(return: :context)
+      |> case do
+        {:ok, context} ->
+          result = DispatchContext.get_last_pipeline(context)
+          Map.put(attrs, key, result)
+
+        {:error, context} ->
+          raise Error, errors: DispatchContext.errors(context)
       end
     end
   end

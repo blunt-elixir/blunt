@@ -1,6 +1,6 @@
 defmodule Cqrs.DispatchContext do
   alias Cqrs.Config
-  alias Cqrs.Message.{Metadata, Option}
+  alias Cqrs.Message.{Metadata, Options}
 
   @type t :: %__MODULE__{message_type: atom(), message: struct(), errors: list()}
   @type command_context :: %__MODULE__{message_type: :command, message: struct(), errors: list()}
@@ -73,7 +73,7 @@ defmodule Cqrs.DispatchContext do
 
   defp parse_message_opts(%{message_module: message_module, opts: opts} = base_context) do
     context =
-      case Option.parse_message_opts(message_module, opts) do
+      case Options.Parser.parse_message_opts(message_module, opts) do
         {:ok, opts} -> %{base_context | opts: opts}
         {:error, error} -> %{base_context | errors: [error]}
       end

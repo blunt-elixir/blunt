@@ -11,10 +11,14 @@ defmodule Cqrs.MessageTest.Protocol do
     """
     use Cqrs.Message
 
-    field :name, :string, required: true, desc: "your name"
-    field :dog, :string, default: "maize", desc: "your dog's name"
-    field :gender, :enum, values: [:m, :f], desc: "your gender"
-    field :other, {:array, :enum}, values: [:one, :two_three], desc: "just guess"
+    field :name, :string, required: true
+    field :dog, :string, default: "maize"
+    field :gender, :enum, values: [:m, :f]
+    field :today, :date, autogenerate: {__MODULE__, :today, []}
+
+    def today do
+      Date.utc_today()
+    end
   end
 
   defmodule MessageWithInternalField do

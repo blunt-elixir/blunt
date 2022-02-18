@@ -1,5 +1,5 @@
 defmodule Cqrs.Query do
-  alias Cqrs.Message.{Metadata, Option}
+  alias Cqrs.Message.{Metadata, Options}
   alias Cqrs.DispatchContext, as: Context
 
   defmacro __using__(opts) do
@@ -10,26 +10,44 @@ defmodule Cqrs.Query do
       |> Keyword.put(:message_type, :query)
 
     quote do
+      require Cqrs.Message.Options
+
       use Cqrs.Message, unquote(opts)
 
-      Module.register_attribute(__MODULE__, :options, accumulate: true)
+      Options.register()
+
+      @options {:execute,
+                [
+                  type: :boolean,
+                  default: true,
+                  required: true
+                ]}
+
+      @options {:preload,
+                [
+                  type: {:array, :any},
+                  default: [],
+                  required: true
+                ]}
+
+      @options {:allow_nil_filters,
+                [
+                  type: :boolean,
+                  default: false,
+                  required: true
+                ]}
+
       Module.register_attribute(__MODULE__, :bindings, accumulate: true)
 
       @before_compile Cqrs.Query
 
       import Cqrs.Query, only: :macros
-
-      @options Option.return_option()
-
-      @options {:execute, [type: :boolean, default: true, required: true]}
-      @options {:preload, [type: {:array, :any}, default: [], required: true]}
-      @options {:allow_nil_filters, [type: :boolean, default: false, required: true]}
     end
   end
 
   @spec option(name :: atom(), type :: any(), keyword()) :: any()
   defmacro option(name, type, opts \\ []) when is_atom(name) and is_list(opts),
-    do: Option.record(name, type, opts)
+    do: Options.record(name, type, opts)
 
   @spec binding(atom(), atom()) :: any()
   defmacro binding(name, target_schema) do
@@ -40,7 +58,7 @@ defmodule Cqrs.Query do
 
   defmacro __before_compile__(_env) do
     quote do
-      @metadata options: Module.delete_attribute(__MODULE__, :options)
+      Options.generate()
       @metadata bindings: Module.delete_attribute(__MODULE__, :bindings)
     end
   end

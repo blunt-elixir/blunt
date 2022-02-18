@@ -14,14 +14,8 @@ defmodule Cqrs.Message.Version do
     quote do
       if Module.delete_attribute(__MODULE__, :versioned?) do
         version = Module.delete_attribute(__MODULE__, :version) || 1
-
-        data =
-          quote do
-            @metadata version: unquote(version)
-            @schema_fields {:version, :decimal, default: unquote(version), required: false}
-          end
-
-        Module.eval_quoted(__MODULE__, data)
+        @metadata version: version
+        @schema_fields {:version, :decimal, default: version, required: false}
       end
     end
   end

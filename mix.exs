@@ -15,7 +15,8 @@ defmodule Cqrs.MixProject do
         links: %{"GitHub" => "https://github.com/elixir-cqrs/cqrs_tools"}
       ],
       dialyzer: [
-        plt_add_deps: :apps_direct
+        plt_add_deps: :apps_direct,
+        plt_add_apps: [:faker, :mix]
       ],
       elixirc_paths: elixirc_paths(Mix.env())
     ]

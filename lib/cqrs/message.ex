@@ -1,5 +1,9 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Constructor, Documentation, Dispatch, Field, Metadata, PrimaryKey, Schema, Version}
+  alias Cqrs.Message.{Changeset, Constructor, Dispatch, Metadata, PrimaryKey, Schema, Schema.Fields, Version}
+
+  defmodule Error do
+    defexception [:message]
+  end
 
   @type changeset :: Ecto.Changeset.t()
 
@@ -20,7 +24,17 @@ defmodule Cqrs.Message do
 
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
-      require Cqrs.Message.{Changeset, Constructor, Documentation, Dispatch, Schema, Metadata, PrimaryKey, Version}
+      require Cqrs.Message.{
+        Constructor,
+        Changeset,
+        Dispatch,
+        Documentation,
+        Schema,
+        Schema.Fields,
+        Metadata,
+        PrimaryKey,
+        Version
+      }
 
       Metadata.register(opts)
       Schema.register(opts)
@@ -61,7 +75,7 @@ defmodule Cqrs.Message do
 
   @spec field(name :: atom(), type :: atom(), keyword()) :: any()
   defmacro field(name, type, opts \\ []),
-    do: Field.record(name, type, opts)
+    do: Fields.record(name, type, opts)
 
   @spec metadata(atom(), any()) :: any()
   defmacro metadata(name, value),
@@ -74,7 +88,7 @@ defmodule Cqrs.Message do
       |> Keyword.put(:internal, true)
       |> Keyword.put(:required, false)
 
-    Field.record(name, type, opts)
+    Fields.record(name, type, opts)
   end
 
   def dispatchable?(%{__struct__: module}),

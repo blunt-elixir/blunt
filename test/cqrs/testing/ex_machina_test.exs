@@ -128,4 +128,20 @@ defmodule Cqrs.ExMachinaTest do
 
     assert {:ok, _} = UUID.info(policy_id)
   end
+
+  defmodule NonDispatchable do
+  end
+
+  factory CreatePolicyFee,
+    as: :create_policy_fee2,
+    values: [policy_id: [:policy, :id]],
+    deps: [
+      policy: {NonDispatchable, values: [product_id: [:product, :id]]}
+    ]
+
+  test "can not use a non-dispatchable message as a dependency" do
+    fee_id = UUID.uuid4()
+
+    assert_raise Cqrs.Testing.ExMachina.DispatchStrategy.Error, fn -> dispatch(:create_policy_fee2, id: fee_id) end
+  end
 end

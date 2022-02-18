@@ -147,7 +147,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defp dispatch_dependency({key, {module, opts}}, attrs) when is_atom(module) do
       unless Message.dispatchable?(module) do
-        raise Error, message: "#{inspect(module)} is not dispatchable. It can not be used as a factory dependency"
+        raise Cqrs.Testing.ExMachina.DispatchStrategy.Error,
+          message: "#{inspect(module)} is not dispatchable. It can not be used as a factory dependency"
       end
 
       attrs

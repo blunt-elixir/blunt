@@ -82,18 +82,24 @@ defmodule Cqrs.ExMachinaTest do
     use Cqrs.Message
 
     field :id, :binary_id
+    field :name, :string
+    field :dog, :string
   end
 
   factory FactoryOptionsMessage,
     as: :my_message,
     values: [
-      id: [:person, :id]
+      id: [:person, :id],
+      dog: fn -> "maize" end,
+      name: fn %{person: %{name: name}} -> name end
     ]
 
   test "can set factory values from values option" do
     id = UUID.uuid4()
 
-    assert %FactoryOptionsMessage{id: ^id} = build(:my_message, person: %{id: id})
+    person = %{id: id, name: "chris", dog: "maize"}
+
+    assert %FactoryOptionsMessage{id: ^id, name: "chris", dog: "maize"} = build(:my_message, person: person)
   end
 
   defmodule PlainStruct do

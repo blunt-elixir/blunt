@@ -124,6 +124,8 @@ defmodule Cqrs.ExMachinaTest do
   test "factory composition" do
     fee_id = UUID.uuid4()
 
-    assert {:ok, %{id: ^fee_id}} = dispatch(:create_policy_fee, id: fee_id)
+    assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = dispatch(:create_policy_fee, id: fee_id)
+
+    assert {:ok, _} = UUID.info(policy_id)
   end
 end

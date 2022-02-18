@@ -34,7 +34,7 @@ end
 defmodule Support.Testing.FactoryComposition.CreatePolicyFeePipeline do
   use Cqrs.CommandPipeline
 
-  def handle_dispatch(%{id: id}, _context) do
-    %{id: id}
+  def handle_dispatch(command, _context) do
+    command
   end
 end

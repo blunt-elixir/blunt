@@ -135,34 +135,33 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     defp satisfy_dependencies(attrs, opts) do
       opts
       |> Keyword.get(:deps, [])
-      |> Enum.reduce(%{}, &execute_dependency(&1, &2))
+      |> Enum.reduce(%{}, &dispatch_dependency(&1, &2))
       |> Map.merge(attrs)
     end
 
     require Logger
 
-    defp execute_dependency({key, module}, attrs) when is_atom(module) do
-      execute_dependency({key, {module, []}}, attrs)
+    defp dispatch_dependency({key, module}, attrs) when is_atom(module) do
+      dispatch_dependency({key, {module, []}}, attrs)
     end
 
-    defp execute_dependency({key, {module, opts}}, attrs) when is_atom(module) do
-      if Message.dispatchable?(module) do
-        attrs
-        |> populate_data_from_opts(opts)
-        |> generate_fake_data(module)
-        |> module.new()
-        |> module.dispatch(return: :context)
-        |> case do
-          {:ok, context} ->
-            result = DispatchContext.get_last_pipeline(context)
-            Map.put(attrs, key, result)
+    defp dispatch_dependency({key, {module, opts}}, attrs) when is_atom(module) do
+      unless Message.dispatchable?(module) do
+        raise Error, message: "#{inspect(module)} is not dispatchable. It can not be used as a factory dependency"
+      end
 
-          {:error, context} ->
-            raise Error, errors: DispatchContext.errors(context)
-        end
-      else
-        Logger.warn("#{inspect(module)} is not dispatchable. It will not be used as a factory dependency")
-        attrs
+      attrs
+      |> populate_data_from_opts(opts)
+      |> generate_fake_data(module)
+      |> module.new()
+      |> module.dispatch(return: :context)
+      |> case do
+        {:ok, context} ->
+          result = DispatchContext.get_last_pipeline(context)
+          Map.put(attrs, key, result)
+
+        {:error, context} ->
+          raise Error, errors: DispatchContext.errors(context)
       end
     end
   end

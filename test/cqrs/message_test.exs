@@ -43,6 +43,11 @@ defmodule Cqrs.MessageTest do
       assert {:ok, _, %{"weed" => :yes}} = FieldOptions.new(name: "chris", weed: :yes)
     end
 
+    test "autogenerate field" do
+      today = Date.utc_today()
+      assert {:ok, %FieldOptions{today: ^today}, _} = FieldOptions.new(name: "chris", weed: :yes)
+    end
+
     test "name is required" do
       assert {:error, %{name: ["can't be blank"]}} = FieldOptions.new(%{})
       assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(%{name: "chris"})

@@ -1,6 +1,10 @@
 defmodule Cqrs.Message do
   alias Cqrs.Message.{Changeset, Constructor, Dispatch, Metadata, PrimaryKey, Schema, Schema.Fields, Version}
 
+  defmodule Error do
+    defexception [:message]
+  end
+
   @type changeset :: Ecto.Changeset.t()
 
   @callback handle_validate(changeset()) :: changeset()

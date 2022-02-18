@@ -105,4 +105,19 @@ defmodule Cqrs.ExMachinaTest do
   test "can use plain structs" do
     assert %PlainStruct{name: "chris"} = build(:plain_struct, name: "chris")
   end
+
+  alias Support.Testing.FactoryComposition.{CreatePolicyFee, CreatePolicy, CreateProduct}
+
+  factory CreatePolicyFee,
+    values: [policy_id: [:policy, :id]],
+    deps: [
+      product: CreateProduct,
+      policy: {CreatePolicy, values: [product_id: [:product, :id]]}
+    ]
+
+  test "factory composition" do
+    fee_id = UUID.uuid4()
+
+    assert {:ok, %{id: ^fee_id}} = dispatch(:create_policy_fee, id: fee_id)
+  end
 end

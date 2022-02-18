@@ -1,8 +1,8 @@
-* Ideas [2/5]
+* Ideas [2/4]
 ** TODO add result_mapper function option to command and query macros
-This will require a way to store a Function ref in an Ecto type. ~:any~ would probably be fine. Just have to manually validate it in Message.Option.
+This will require a way to store a Function ref in an Ecto type. ~:any~ would probably be fine. Just have to manually validate it in Message.Options.
 
 ** DONE +put message_opts property in DispatchContext+
 
-** TODO support {m,f,a} for default field values
+** STRT support {m,f,a} for default field values
 ** DONE allow for putting values into context and returning them back with the context.

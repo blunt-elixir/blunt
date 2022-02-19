@@ -64,7 +64,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       |> Keyword.get(:values, [])
       |> Enum.reduce(attrs, fn
         {field, path}, acc when is_list(path) ->
-          value = get_in(attrs, path)
+          keys = Enum.map(path, &Access.key!/1)
+          value = get_in(attrs, keys)
           Map.put(acc, field, value)
 
         {field, func}, acc when is_function(func, 0) ->

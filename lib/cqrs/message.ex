@@ -46,7 +46,7 @@ defmodule Cqrs.Message do
       def after_validate(message),
         do: message
 
-      defoverridable after_validate: 1
+      defoverridable handle_validate: 1, after_validate: 1
     end
   end
 

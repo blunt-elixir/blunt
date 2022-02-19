@@ -2,12 +2,12 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Cqrs.Testing.ExMachina do
     alias Cqrs.Testing.ExMachina.Generator
 
-    defmacro __using__(_opts) do
+    defmacro __using__(opts) do
       quote do
         Module.register_attribute(__MODULE__, :messages, accumulate: true)
 
-        use ExMachina
         use Cqrs.Testing.ExMachina.DispatchStrategy
+        use ExMachina.Ecto, repo: Keyword.get(unquote(opts), :repo)
 
         import Cqrs.Testing.ExMachina, only: :macros
 

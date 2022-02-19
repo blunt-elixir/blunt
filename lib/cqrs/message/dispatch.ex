@@ -15,22 +15,25 @@ defmodule Cqrs.Message.Dispatch do
     quote do
       if @dispatch? do
         def dispatch(message, opts \\ []),
-          do: Dispatch.apply(message, opts)
+          do: Dispatch.dispatch(message, opts)
 
         def dispatch_async(message, opts \\ []),
-          do: Dispatch.apply(message, Keyword.put(opts, :async, true))
+          do: Dispatch.dispatch_async(message)
       end
     end
   end
 
-  def apply({:ok, message, discarded_data}, opts) do
+  def dispatch_async(message, opts),
+    do: dispatch(message, Keyword.put(opts, :async, true))
+
+  def dispatch({:error, error}, _opts),
+    do: {:error, error}
+
+  def dispatch({:ok, message, discarded_data}, opts) do
     with {:ok, context} <- DispatchContext.new(message, discarded_data, opts) do
       if DispatchContext.async?(context),
         do: Task.async(fn -> DispatchStrategy.dispatch(context) end),
         else: DispatchStrategy.dispatch(context)
     end
   end
-
-  def apply({:error, error}, _opts),
-    do: {:error, error}
 end

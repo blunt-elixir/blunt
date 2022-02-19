@@ -1,5 +1,15 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Constructor, Dispatch, Metadata, PrimaryKey, Schema, Schema.Fields, Version}
+  alias Cqrs.Message.{
+    Changeset,
+    Constructor,
+    Dispatch,
+    Documentation,
+    Metadata,
+    PrimaryKey,
+    Schema,
+    Schema.Fields,
+    Version
+  }
 
   defmodule Error do
     defexception [:message]

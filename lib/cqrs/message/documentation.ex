@@ -6,6 +6,8 @@ defmodule Cqrs.Message.Documentation do
     quote do
       {line, moduledoc} = Module.get_attribute(__MODULE__, :moduledoc) || {nil, ""}
 
+      @metadata shortdocs: moduledoc
+
       field_docs = FieldAndOptionDocs.field_docs(@schema_fields)
 
       option_docs =

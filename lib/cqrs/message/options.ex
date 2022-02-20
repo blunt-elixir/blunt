@@ -59,9 +59,17 @@ defmodule Cqrs.Message.Options do
       `:response` - returns the value returned from dispatch.
 
       `:query` - returns the fully constructed query without executing it.
+
+      `:query_context` -  returns the `DispatchContext` from dispatch without executing the query.
     ]
 
     {:return, :enum,
-     [values: [:context, :response, :query], default: configured_value, required: false, desc: desc, notes: notes]}
+     [
+       values: [:context, :response, :query, :query_context],
+       default: configured_value,
+       required: false,
+       desc: desc,
+       notes: notes
+     ]}
   end
 end

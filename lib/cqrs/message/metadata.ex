@@ -20,6 +20,17 @@ defmodule Cqrs.Message.Metadata do
     end
   end
 
+  def shortdocs(module) do
+    fetch!(module, :shortdocs)
+  end
+
+  def docs(module) do
+    case Code.fetch_docs(module) do
+      {:docs_v1, _anno, _lang, _format, %{"en" => docs}, _meta, _inner_docs} -> docs
+      _ -> nil
+    end
+  end
+
   def message_type(module),
     do: fetch!(module, :message_type)
 

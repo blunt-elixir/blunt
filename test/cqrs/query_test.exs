@@ -17,7 +17,7 @@ defmodule Cqrs.QueryTest do
                preload: [type: {:array, :any}, default: [], required: false],
                return: [
                  type: :enum,
-                 values: [:context, :response, :query],
+                 values: [:context, :response, :query, :query_context],
                  default: :response,
                  required: false
                ]

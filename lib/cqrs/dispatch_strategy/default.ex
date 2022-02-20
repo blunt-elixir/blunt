@@ -47,6 +47,9 @@ defmodule Cqrs.DispatchStrategy.Default do
       context = DispatchContext.put_private(context, :query, query)
 
       case DispatchContext.get_return(context) do
+        :query_context ->
+          {:ok, context}
+
         :query ->
           return_final(query, context)
 

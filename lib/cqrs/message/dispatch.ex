@@ -1,7 +1,7 @@
 defmodule Cqrs.Message.Dispatch do
   @moduledoc false
 
-  alias Cqrs.{DispatchContext, DispatchStrategy, Message.Dispatch}
+  alias Cqrs.{DispatchContext, DispatchStrategy, Message.Dispatch, Message.Documentation}
 
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
@@ -14,9 +14,11 @@ defmodule Cqrs.Message.Dispatch do
   defmacro generate do
     quote do
       if @dispatch? do
+        @doc Documentation.generate_dispatch_docs()
         def dispatch(message, opts \\ []),
           do: Dispatch.dispatch(message, opts)
 
+        @doc "Same as `dispatch` but asynchronously"
         def dispatch_async(message, opts \\ []),
           do: Dispatch.dispatch_async(message, opts)
       end

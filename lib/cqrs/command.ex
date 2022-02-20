@@ -15,6 +15,7 @@ defmodule Cqrs.Command do
       use Cqrs.Message, unquote(opts)
 
       Options.register()
+      @options Options.return_option()
 
       import Cqrs.Command, only: :macros
 

@@ -1,8 +1,5 @@
-* Ideas [3/4]
+* Ideas [0/2]
 ** TODO add result_mapper function option to command and query macros
-This will require a way to store a Function ref in an Ecto type. ~:any~ would probably be fine. Just have to manually validate it in Message.Options.
+** IDEA Support desc on enum values for documentation.
 
-** DONE +put message_opts property in DispatchContext+
-
-** DONE support {m,f,a} for default field values
-** DONE allow for putting values into context and returning them back with the context.
+Probably just an option on Field like =value_desc: [value: "description"]=

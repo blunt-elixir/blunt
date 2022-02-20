@@ -10,17 +10,16 @@ defmodule Cqrs.QueryTest do
     alias Cqrs.DispatchStrategy.PipelineResolver
 
     test "predefined options" do
-      options = Metadata.get(BasicQuery, :options, []) |> Enum.into(%{})
+      options = Metadata.options(BasicQuery)
 
       assert %{
-               allow_nil_filters: [type: :boolean, default: false, required: true],
-               execute: [type: :boolean, default: true, required: true],
-               preload: [type: {:array, :any}, default: [], required: true],
+               allow_nil_filters: [type: :boolean, default: false, required: false],
+               preload: [type: {:array, :any}, default: [], required: false],
                return: [
                  type: :enum,
-                 values: [:context, :response],
+                 values: [:context, :response, :query],
                  default: :response,
-                 required: true
+                 required: false
                ]
              } = options
     end
@@ -56,6 +55,13 @@ defmodule Cqrs.QueryTest do
       assert %{id: sarah_id} = create_person("sarah")
 
       %{chris_id: chris_id, sarah_id: sarah_id}
+    end
+
+    test "can create query without executing it", %{chris_id: chris_id} do
+      assert {:ok, %Ecto.Query{}} =
+               %{id: chris_id}
+               |> GetPerson.new()
+               |> GetPerson.dispatch(return: :query)
     end
 
     test "with id filter", %{chris_id: chris_id} do

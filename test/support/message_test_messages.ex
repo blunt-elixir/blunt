@@ -6,6 +6,9 @@ defmodule Cqrs.MessageTest.Protocol do
   end
 
   defmodule FieldOptions do
+    @moduledoc """
+    Hi
+    """
     use Cqrs.Message
 
     field :name, :string, required: true

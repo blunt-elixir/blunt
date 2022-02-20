@@ -1,5 +1,15 @@
 defmodule Cqrs.Message do
-  alias Cqrs.Message.{Changeset, Constructor, Dispatch, Metadata, PrimaryKey, Schema, Schema.Fields, Version}
+  alias Cqrs.Message.{
+    Changeset,
+    Constructor,
+    Dispatch,
+    Documentation,
+    Metadata,
+    PrimaryKey,
+    Schema,
+    Schema.Fields,
+    Version
+  }
 
   defmodule Error do
     defexception [:message]
@@ -24,7 +34,17 @@ defmodule Cqrs.Message do
 
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
-      require Cqrs.Message.{Constructor, Changeset, Dispatch, Schema, Schema.Fields, Metadata, PrimaryKey, Version}
+      require Cqrs.Message.{
+        Constructor,
+        Changeset,
+        Dispatch,
+        Documentation,
+        Schema,
+        Schema.Fields,
+        Metadata,
+        PrimaryKey,
+        Version
+      }
 
       Metadata.register(opts)
       Schema.register(opts)
@@ -57,8 +77,9 @@ defmodule Cqrs.Message do
       Constructor.generate()
       Schema.generate()
       Changeset.generate()
-      Metadata.generate()
       Dispatch.generate()
+      Documentation.generate_module_docs()
+      Metadata.generate()
     end
   end
 

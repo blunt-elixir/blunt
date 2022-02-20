@@ -23,7 +23,7 @@ defmodule Cqrs.Message.Options.Parser do
     end
   end
 
-  defp parse_option({name, config}, provided_opts) do
+  defp parse_option({name, _type, config}, provided_opts) do
     default = Keyword.fetch!(config, :default)
     {name, Keyword.get(provided_opts, name, default)}
   end
@@ -31,15 +31,14 @@ defmodule Cqrs.Message.Options.Parser do
   defp validate_options(parsed_opts, supported_opts) do
     required =
       supported_opts
-      |> Keyword.filter(fn {_, config} -> Keyword.fetch!(config, :required) == true end)
-      |> Keyword.keys()
+      |> Enum.filter(fn {_, _type, config} -> Keyword.fetch!(config, :required) == true end)
+      |> Enum.map(&elem(&1, 0))
       |> Enum.uniq()
 
     data = %{}
 
     types =
-      Enum.into(supported_opts, %{}, fn {name, config} ->
-        type = Keyword.fetch!(config, :type)
+      Enum.into(supported_opts, %{}, fn {name, type, config} ->
         {name, ecto_type(type, config)}
       end)
 

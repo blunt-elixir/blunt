@@ -1,6 +1,10 @@
 defmodule Cqrs.Config do
   # TODO: Document configuration
 
+  defmodule ConfigError do
+    defexception [:message]
+  end
+
   alias Cqrs.{Behaviour, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
 
   def create_jason_encoders?,
@@ -16,7 +20,16 @@ defmodule Cqrs.Config do
 
   @doc false
   def dispatch_return do
-    get(:dispatch_return, :response)
+    valid_values = [:context, :response]
+    value = get(:dispatch_return, :response)
+
+    unless Enum.member?(valid_values, value) do
+      raise ConfigError,
+        message:
+          "Invalid :cqrs, :dispatch_return value: `#{value}`. Value must be one of the following: #{inspect(valid_values)}"
+    end
+
+    value
   end
 
   @doc false

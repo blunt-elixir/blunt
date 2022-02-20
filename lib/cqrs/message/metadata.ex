@@ -35,6 +35,14 @@ defmodule Cqrs.Message.Metadata do
   def dispatchable?(module),
     do: fetch!(module, :dispatchable?)
 
+  def options(module) do
+    module
+    |> fetch!(:options)
+    |> Enum.into(%{}, fn {name, type, config} ->
+      {name, Keyword.put(config, :type, type)}
+    end)
+  end
+
   def primary_key(module) do
     case fetch!(module, :primary_key) do
       {name, type, opts} -> {name, type, Keyword.put(opts, :required, true)}

@@ -8,13 +8,13 @@ defmodule Cqrs.CommandTest do
 
   test "command options" do
     alias Protocol.CommandOptions
-    options = Metadata.get(CommandOptions, :options, []) |> Enum.into(%{})
+    options = Metadata.options(CommandOptions)
 
     assert %{
-             audit: [{:type, :boolean}, {:required, false}, {:default, true}],
-             debug: [{:type, :boolean}, {:required, false}, {:default, false}],
-             return: [type: :enum, values: [:context, :response], default: :response, required: true]
-           } == options
+             audit: [type: :boolean, required: false, default: true],
+             debug: [type: :boolean, required: false, default: false],
+             return: [type: :enum, values: [:context, :response], default: :response, required: false]
+           } = options
   end
 
   test "dispatch with no pipeline" do
@@ -33,11 +33,11 @@ defmodule Cqrs.CommandTest do
     alias Protocol.DispatchWithPipeline
 
     test "options" do
-      options = Metadata.get(DispatchWithPipeline, :options, []) |> Enum.into(%{})
+      options = Metadata.options(DispatchWithPipeline)
 
       assert %{
                reply_to: [type: :pid, default: nil, required: true],
-               return: [type: :enum, values: [:context, :response], default: :response, required: true],
+               return: [type: :enum, values: [:context, :response], default: :response, required: false],
                return_error: [type: :boolean, required: false, default: false]
              } = options
     end

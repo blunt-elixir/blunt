@@ -2,8 +2,8 @@ defmodule Cqrs.Message.Constructor do
   @moduledoc false
 
   alias Ecto.Changeset
-  alias Cqrs.Message.Input
   alias __MODULE__, as: Constructor
+  alias Cqrs.Message.{Documentation, Input}
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
   defmacro register(opts) do
@@ -17,6 +17,7 @@ defmodule Cqrs.Message.Constructor do
     quote do
       constructor_info = %{
         name: @constructor,
+        docs: Documentation.generate_constructor_docs(),
         has_fields?: @primary_key_type != false || Enum.count(@schema_fields) > 0,
         has_required_fields?: @primary_key_type != false || Enum.count(@required_fields) > 0
       }
@@ -25,34 +26,34 @@ defmodule Cqrs.Message.Constructor do
     end
   end
 
-  def do_generate(%{name: name, has_fields?: true, has_required_fields?: true}) do
+  def do_generate(%{has_fields?: true, has_required_fields?: true, name: name, docs: docs}) do
     quote do
       @type constructor_values :: Input.t()
       @type constructor_overrides :: Input.t()
 
       @spec unquote(name)(constructor_values, constructor_overrides) :: {:ok, struct(), map()} | {:error, any()}
-
+      @doc unquote(docs)
       def unquote(name)(values, overrides \\ []) when is_list(values) or is_map(values),
         do: Constructor.apply(__MODULE__, values, overrides)
     end
   end
 
-  def do_generate(%{name: name, has_fields?: true}) do
+  def do_generate(%{has_fields?: true, name: name, docs: docs}) do
     quote do
       @type constructor_values :: Input.t()
       @type constructor_overrides :: Input.t()
 
       @spec unquote(name)(constructor_values, constructor_overrides) :: {:ok, struct(), map()} | {:error, any()}
-
+      @doc unquote(docs)
       def unquote(name)(values \\ %{}, overrides \\ []) when is_list(values) or is_map(values),
         do: Constructor.apply(__MODULE__, values, overrides)
     end
   end
 
-  def do_generate(%{name: name}) do
+  def do_generate(%{name: name, docs: docs}) do
     quote do
       @spec unquote(name)() :: {:ok, struct(), map()} | {:error, any()}
-
+      @doc unquote(docs)
       def unquote(name)(),
         do: Constructor.apply(__MODULE__, %{}, %{})
     end

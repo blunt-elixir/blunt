@@ -72,14 +72,14 @@ defmodule Cqrs.Message do
 
   defmacro __before_compile__(_env) do
     quote location: :keep do
-      Documentation.generate()
       Version.generate()
       PrimaryKey.generate()
       Constructor.generate()
       Schema.generate()
       Changeset.generate()
-      Metadata.generate()
       Dispatch.generate()
+      Documentation.generate_module_docs()
+      Metadata.generate()
     end
   end
 

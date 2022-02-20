@@ -16,25 +16,20 @@ defmodule Cqrs.Query do
 
       Options.register()
 
-      @options {:execute,
-                [
-                  type: :boolean,
-                  default: true,
-                  required: true
-                ]}
+      @options Options.query_return_option()
 
-      @options {:preload,
+      @options {:preload, {:array, :any},
                 [
-                  type: {:array, :any},
                   default: [],
-                  required: true
+                  required: false,
+                  desc: "A list of preloads to append to the query"
                 ]}
 
-      @options {:allow_nil_filters,
+      @options {:allow_nil_filters, :boolean,
                 [
-                  type: :boolean,
                   default: false,
-                  required: true
+                  required: false,
+                  notes: "If `false`, all fields with a value of `nil` will be removed from the filters"
                 ]}
 
       Module.register_attribute(__MODULE__, :bindings, accumulate: true)

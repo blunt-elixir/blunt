@@ -2,6 +2,10 @@ defmodule Cqrs.QueryTest.Protocol do
   defmodule BasicQuery do
     use Cqrs.Query
 
+    @moduledoc """
+    Illustrates the basic idea of a Query
+    """
+
     field :id, :binary_id
     field :name, :string
   end

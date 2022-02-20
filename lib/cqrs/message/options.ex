@@ -1,19 +1,13 @@
 defmodule Cqrs.Message.Options do
   @moduledoc false
 
-  defmodule Error do
-    defexception [:message]
-  end
-
   require Logger
 
   alias Cqrs.Config
-  alias Cqrs.Message.Options
 
   defmacro register do
     quote do
       Module.register_attribute(__MODULE__, :options, accumulate: true)
-      @options Options.return_option()
     end
   end
 
@@ -23,29 +17,51 @@ defmodule Cqrs.Message.Options do
         opts
         |> Keyword.put_new(:default, nil)
         |> Keyword.put_new(:required, false)
-        |> Keyword.put(:type, type)
 
-      @options {name, opts}
+      @options {name, type, opts}
     end
   end
 
   defmacro generate do
     quote do
-      @metadata options: Module.delete_attribute(__MODULE__, :options)
+      options =
+        __MODULE__
+        |> Module.delete_attribute(:options)
+        |> Enum.map(fn {name, type, config} -> {name, type, Keyword.drop(config, [:desc, :notes])} end)
+
+      @metadata options: options
     end
   end
 
   def return_option do
-    values = [:context, :response]
+    configured_value = Config.dispatch_return()
 
-    value = Config.dispatch_return()
+    desc = "Determines what will be returned from a call to `dispatch`"
 
-    unless value in values do
-      raise Error,
-        message:
-          "Invalid :cqrs, :dispatch_return value: `#{value}`. Value must be one of the following: #{inspect(values)}"
-    end
+    notes = ~s[
+      `:context` - returns the `DispatchContext` from dispatch.
 
-    {:return, [type: :enum, values: values, default: value, required: true]}
+      `:response` - returns the value returned from dispatch.
+    ]
+
+    {:return, :enum,
+     [values: [:context, :response], default: configured_value, required: false, desc: desc, notes: notes]}
+  end
+
+  def query_return_option do
+    configured_value = Config.dispatch_return()
+
+    desc = "Determines what will be returned from a call to `dispatch`"
+
+    notes = ~s[
+      `:context` - returns the `DispatchContext` from dispatch.
+
+      `:response` - returns the value returned from dispatch.
+
+      `:query` - returns the fully constructed query without executing it.
+    ]
+
+    {:return, :enum,
+     [values: [:context, :response, :query], default: configured_value, required: false, desc: desc, notes: notes]}
   end
 end

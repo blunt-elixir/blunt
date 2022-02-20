@@ -3,16 +3,13 @@ defmodule Cqrs.DispatchStrategy.Default do
 
   import Cqrs.DispatchStrategy
 
-  alias Cqrs.DispatchContext, as: Context
+  alias Cqrs.DispatchContext
   alias Cqrs.DispatchStrategy.PipelineResolver
   alias Cqrs.{CommandPipeline, Query, QueryPipeline}
 
-  @type context :: Context.t()
-  @type query_context :: Context.query_context()
-  @type command_context :: Context.command_context()
+  @type context :: DispatchContext.t()
 
-  @spec dispatch(command_context() | query_context()) ::
-          {:error, context()} | {:ok, context() | any}
+  @spec dispatch(context()) :: {:ok, context() | any()} | {:error, context()}
 
   @moduledoc """
   Receives a `DispatchContext`, locates a message pipeline, and runs the pipeline's ...uh pipeline.
@@ -41,20 +38,20 @@ defmodule Cqrs.DispatchStrategy.Default do
 
     context =
       context
-      |> Context.put_private(:bindings, bindings)
-      |> Context.put_private(:filters, Enum.into(filter_list, %{}))
+      |> DispatchContext.put_private(:bindings, bindings)
+      |> DispatchContext.put_private(:filters, Enum.into(filter_list, %{}))
 
     with {:ok, context} <- execute({pipeline, :create_query, [filter_list, context]}, context) do
       # put the query into the context
-      query = Context.get_last_pipeline(context)
-      context = Context.put_private(context, :query, query)
+      query = DispatchContext.get_last_pipeline(context)
+      context = DispatchContext.put_private(context, :query, query)
 
-      case Context.get_return(context) do
+      case DispatchContext.get_return(context) do
         :query ->
           return_final(query, context)
 
         _ ->
-          opts = Context.options(context)
+          opts = DispatchContext.options(context)
 
           with {:ok, context} <- execute({pipeline, :handle_dispatch, [query, context, opts]}, context) do
             return_last_pipeline(context)

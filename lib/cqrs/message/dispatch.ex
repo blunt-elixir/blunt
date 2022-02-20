@@ -18,7 +18,7 @@ defmodule Cqrs.Message.Dispatch do
           do: Dispatch.dispatch(message, opts)
 
         def dispatch_async(message, opts \\ []),
-          do: Dispatch.dispatch_async(message)
+          do: Dispatch.dispatch_async(message, opts)
       end
     end
   end

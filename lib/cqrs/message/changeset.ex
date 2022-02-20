@@ -6,17 +6,9 @@ defmodule Cqrs.Message.Changeset do
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
   defmacro generate do
-    quote do
-      def changeset(message \\ %__MODULE__{}, values)
-
-      def changeset(message, values) when is_struct(values),
-        do: changeset(message, Map.from_struct(values))
-
-      def changeset(%{__struct__: message}, values) when is_list(values) or is_map(values),
-        do: changeset(message, values)
-
-      def changeset(message, values) when is_list(values) or is_map(values),
-        do: MessageChangeset.create(message, values)
+    quote location: :keep do
+      def changeset(message \\ %__MODULE__{}, values) when is_list(values) or is_map(values) or is_struct(values),
+        do: MessageChangeset.changeset(message, values)
     end
   end
 
@@ -25,9 +17,15 @@ defmodule Cqrs.Message.Changeset do
   @type changeset :: Ecto.Changeset.t()
   @type values :: maybe_improper_list | map | struct
 
-  @spec create(message(), values()) :: {changeset, discarded_data}
+  @spec changeset(message(), values()) :: {changeset, discarded_data}
 
-  def create(message, values) do
+  def changeset(message, values) when is_struct(values),
+    do: changeset(message, Map.from_struct(values))
+
+  def changeset(%{__struct__: message}, values) when is_list(values) or is_map(values),
+    do: changeset(message, values)
+
+  def changeset(message, values) when is_list(values) or is_map(values) do
     values =
       values
       |> Input.normalize(message)

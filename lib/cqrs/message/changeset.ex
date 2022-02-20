@@ -6,7 +6,8 @@ defmodule Cqrs.Message.Changeset do
   alias Cqrs.Message.Changeset, as: MessageChangeset
 
   defmacro generate do
-    quote location: :keep do
+    quote location: :keep, generated: true do
+      @doc false
       def changeset(message \\ %__MODULE__{}, values) when is_list(values) or is_map(values) or is_struct(values),
         do: MessageChangeset.changeset(message, values)
     end

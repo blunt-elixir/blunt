@@ -40,58 +40,48 @@ defmodule Cqrs.Message.Documentation.FieldAndOptionDocs do
   end
 
   def field_docs(:required, field) do
-    base_field_docs(field) <> notes(field)
+    base_field_docs(field) <> "\n\n" <> field_hints(field, render_default: false)
   end
 
   def field_docs(:optional, field) do
-    base_field_docs(field) <> optional_field_docs(field) <> notes(field)
+    base_field_docs(field) <> "\n\n" <> field_hints(field, render_default: true)
   end
 
-  defp optional_field_docs({_name, type, config}) when type in [:enum, {:array, :enum}] do
-    default = Keyword.fetch!(config, :default)
-    possible_values = Keyword.fetch!(config, :values) |> inspect()
+  defp field_hints({_name, type, config}, render_default: render_default) do
+    default =
+      if render_default do
+        value = Keyword.fetch!(config, :default)
+        "\t * default value: **#{inspect(value)}**\n\n"
+      end
 
-    """
+    possible_values =
+      if type in [:enum, {:array, :enum}] do
+        values =
+          Keyword.fetch!(config, :values)
+          |> Enum.map(&"**#{inspect(&1)}**")
+          |> Enum.join(", ")
 
-    \t * default value: `#{inspect(default)}`
+        " \t * possible values: #{values}\n"
+      end
 
-    \t * possible values: `#{possible_values}`
-    """
-  end
-
-  defp optional_field_docs({_name, _type, config}) do
-    default = Keyword.fetch!(config, :default)
-
-    """
-
-    \t * default value: `#{inspect(default)}`
-    """
+    to_string(default) <> to_string(possible_values)
   end
 
   defp base_field_docs({name, type, config}) do
     docs =
       case Keyword.get(config, :desc) do
-        nil -> nil
-        desc -> " - #{desc}"
+        nil ->
+          nil
+
+        desc ->
+          doc =
+            desc
+            |> String.trim()
+            |> String.trim_trailing(".")
+
+          " - #{doc <> ". "}"
       end
 
-    "* `#{name}` _#{inspect(type)}_#{docs}"
-  end
-
-  defp notes({_name, _type, config}) do
-    case Keyword.get(config, :notes) do
-      nil ->
-        ""
-
-      notes ->
-        notes =
-          notes
-          |> String.split("\n")
-          |> Enum.reject(&(&1 == ""))
-          |> Enum.map(fn line -> "\t" <> String.trim(line) end)
-          |> Enum.join("\n\n")
-
-        "\n" <> notes
-    end
+    "* **#{name}** *#{inspect(type)}*#{docs}"
   end
 end

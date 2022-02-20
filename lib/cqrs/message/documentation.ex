@@ -18,6 +18,8 @@ defmodule Cqrs.Message.Documentation do
 
       metadata_docs = MetadataDocs.generate(@metadata)
 
+      # File.write!("tmp/#{inspect(__MODULE__)}.md", moduledoc <> field_docs <> option_docs <> metadata_docs)
+
       Module.put_attribute(__MODULE__, :moduledoc, {line || 1, moduledoc <> field_docs <> option_docs <> metadata_docs})
     end
   end

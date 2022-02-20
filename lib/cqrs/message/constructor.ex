@@ -28,10 +28,9 @@ defmodule Cqrs.Message.Constructor do
 
   def do_generate(%{has_fields?: true, has_required_fields?: true, name: name, docs: docs}) do
     quote do
-      @type constructor_values :: Input.t()
-      @type constructor_overrides :: Input.t()
+      @type input :: map() | struct() | keyword()
 
-      @spec unquote(name)(constructor_values, constructor_overrides) :: {:ok, struct(), map()} | {:error, any()}
+      @spec unquote(name)(input, input) :: {:ok, struct(), map()} | {:error, any()}
       @doc unquote(docs)
       def unquote(name)(values, overrides \\ []) when is_list(values) or is_map(values),
         do: Constructor.apply(__MODULE__, values, overrides)
@@ -40,10 +39,9 @@ defmodule Cqrs.Message.Constructor do
 
   def do_generate(%{has_fields?: true, name: name, docs: docs}) do
     quote do
-      @type constructor_values :: Input.t()
-      @type constructor_overrides :: Input.t()
+      @type input :: map() | struct() | keyword()
 
-      @spec unquote(name)(constructor_values, constructor_overrides) :: {:ok, struct(), map()} | {:error, any()}
+      @spec unquote(name)(input, input) :: {:ok, struct(), map()} | {:error, any()}
       @doc unquote(docs)
       def unquote(name)(values \\ %{}, overrides \\ []) when is_list(values) or is_map(values),
         do: Constructor.apply(__MODULE__, values, overrides)

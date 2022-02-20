@@ -27,7 +27,7 @@ defmodule Cqrs.Message.Options do
       options =
         __MODULE__
         |> Module.delete_attribute(:options)
-        |> Enum.map(fn {name, type, config} -> {name, type, Keyword.drop(config, [:desc, :notes])} end)
+        |> Enum.map(fn {name, type, config} -> {name, type, Keyword.drop(config, [:desc])} end)
 
       @metadata options: options
     end
@@ -36,40 +36,28 @@ defmodule Cqrs.Message.Options do
   def return_option do
     configured_value = Config.dispatch_return()
 
-    desc = "Determines what will be returned from a call to `dispatch`"
+    desc = "Determines the value to be returned from `dispatch/2`. "
+    desc = desc <> "If the value is `:context` the dispatch context will be returned. "
+    desc = desc <> "If the value is`:response` the value will be returned. "
 
-    notes = ~s[
-      `:context` - returns the `DispatchContext` from dispatch.
-
-      `:response` - returns the value returned from dispatch.
-    ]
-
-    {:return, :enum,
-     [values: [:context, :response], default: configured_value, required: false, desc: desc, notes: notes]}
+    {:return, :enum, [values: [:context, :response], default: configured_value, required: false, desc: desc]}
   end
 
   def query_return_option do
     configured_value = Config.dispatch_return()
 
-    desc = "Determines what will be returned from a call to `dispatch`"
-
-    notes = ~s[
-      `:context` - returns the `DispatchContext` from dispatch.
-
-      `:response` - returns the value returned from dispatch.
-
-      `:query` - returns the fully constructed query without executing it.
-
-      `:query_context` -  returns the `DispatchContext` from dispatch without executing the query.
-    ]
+    desc = "Determines the value to be returned from `dispatch/2`. "
+    desc = desc <> "If the value is `:context` the dispatch context will be returned. "
+    desc = desc <> "If the value is`:response` the value will be returned. "
+    desc = desc <> "If the value is`:query` the query will be returned without executing it. "
+    desc = desc <> "If the value is`:query_context` the dispatch context will be returned without executing the query. "
 
     {:return, :enum,
      [
        values: [:context, :response, :query, :query_context],
        default: configured_value,
        required: false,
-       desc: desc,
-       notes: notes
+       desc: desc
      ]}
   end
 end

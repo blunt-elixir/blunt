@@ -29,7 +29,7 @@ defmodule Cqrs.Query do
                 [
                   default: false,
                   required: false,
-                  notes: "If `false`, all fields with a value of `nil` will be removed from the filters"
+                  desc: "If `false`, all fields with a value of `nil` will be removed from the filters"
                 ]}
 
       Module.register_attribute(__MODULE__, :bindings, accumulate: true)

@@ -1,8 +1,6 @@
 defmodule Cqrs.Message.Input do
   @moduledoc false
 
-  @type t :: map() | struct() | keyword()
-
   require Logger
   require Decimal
 

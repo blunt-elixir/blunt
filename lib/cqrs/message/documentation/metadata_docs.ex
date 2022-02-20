@@ -2,7 +2,7 @@ defmodule Cqrs.Message.Documentation.MetadataDocs do
   def generate(metadata) do
     metadata
     |> List.flatten()
-    |> Keyword.drop([:dispatchable?, :message_type, :primary_key, :schema_fields])
+    |> Keyword.drop([:dispatchable?, :message_type, :primary_key, :schema_fields, :shortdocs])
     |> create_docs_section()
   end
 

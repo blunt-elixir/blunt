@@ -2,6 +2,7 @@ import Config
 
 config :cqrs_tools,
   context_shipper: nil,
+  log_when_compiling: false,
   dispatch_return: :response,
   create_jason_encoders: false,
   dispatch_strategy: Cqrs.DispatchStrategy.Default,

@@ -7,6 +7,7 @@ defmodule Cqrs.CommandPipeline do
 
   defmacro __using__(_opts) do
     quote do
+      use Cqrs.Message.Compilation
       @behaviour Cqrs.CommandPipeline
     end
   end

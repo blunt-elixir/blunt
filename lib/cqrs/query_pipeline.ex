@@ -10,6 +10,7 @@ defmodule Cqrs.QueryPipeline do
   defmacro __using__(_opts) do
     quote do
       import Ecto.Query
+      use Cqrs.Message.Compilation
 
       @behaviour Cqrs.QueryPipeline
     end

@@ -7,6 +7,9 @@ defmodule Cqrs.Config do
 
   alias Cqrs.{Behaviour, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
 
+  def log_when_compiling?,
+    do: get(:log_when_compiling, false)
+
   def create_jason_encoders?,
     do: get(:create_jason_encoders, true)
 

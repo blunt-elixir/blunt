@@ -1,4 +1,6 @@
 defmodule Cqrs.Message do
+  require Logger
+
   alias Cqrs.Message.{
     Changeset,
     Constructor,
@@ -34,6 +36,8 @@ defmodule Cqrs.Message do
 
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
+      use Cqrs.Message.Compilation
+
       require Cqrs.Message.{
         Constructor,
         Changeset,
@@ -110,4 +114,6 @@ defmodule Cqrs.Message do
       _ -> false
     end
   end
+
+  defdelegate compile_start(message_module), to: Cqrs.Message.Compilation
 end

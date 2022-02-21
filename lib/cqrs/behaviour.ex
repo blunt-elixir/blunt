@@ -30,35 +30,12 @@ defmodule Cqrs.Behaviour do
     end
   end
 
-  # A reasonable subset of Ecto.Repo callbacks. Some Repos (Etso in particular) are not reporting back some of the callbacks.
-  @ecto_repo_callbacks [
-    __adapter__: 0,
-    all: 1,
-    checkout: 1,
-    config: 0,
-    delete: 1,
-    delete!: 1,
-    delete_all: 1,
-    exists?: 1,
-    get: 2,
-    get!: 2,
-    get_by: 2,
-    get_by!: 2,
-    insert: 1,
-    insert_all: 2,
-    one: 1
-  ]
-  defp has_all_callbacks?(module, Ecto.Repo) do
-    Enum.all?(@ecto_repo_callbacks, fn {name, arity} ->
-      function_exported?(module, name, arity)
-    end)
-  end
-
   defp has_all_callbacks?(module, behaviour_module) do
     callbacks = behaviour_module.behaviour_info(:callbacks)
+    optional_callbacks = behaviour_module.behaviour_info(:optional_callbacks) |> Keyword.keys()
 
-    Enum.all?(callbacks, fn {name, arity} ->
-      function_exported?(module, name, arity)
-    end)
+    callbacks
+    |> Enum.reject(fn {name, _arity} -> Enum.member?(optional_callbacks, name) end)
+    |> Enum.all?(fn {name, arity} -> function_exported?(module, name, arity) end)
   end
 end

@@ -1,45 +1,78 @@
 defmodule Cqrs.Message.Documentation do
   @moduledoc false
+  alias Cqrs.Message.Documentation
   alias Cqrs.Message.Documentation.{FieldAndOptionDocs, MetadataDocs}
 
-  defmacro generate_module_docs do
-    quote do
-      {line, moduledoc} = Module.get_attribute(__MODULE__, :moduledoc) || {nil, ""}
+  defstruct [:message_module, :moduledoc, :shortdoc, :fielddoc, :optiondoc, :metadatadoc]
 
-      @metadata shortdocs: moduledoc
+  def make(module) do
+    case Module.get_attribute(module, :moduledoc) do
+      false ->
+        %Documentation{}
 
-      field_docs = FieldAndOptionDocs.field_docs(@schema_fields)
+      {line, shortdoc} ->
+        do_make(module, {line, shortdoc})
 
-      option_docs =
-        case Module.get_attribute(__MODULE__, :options) do
-          nil -> ""
-          options -> FieldAndOptionDocs.option_docs(options)
-        end
-
-      metadata_docs = MetadataDocs.generate(@metadata)
-
-      # File.write!("tmp/#{inspect(__MODULE__)}.md", moduledoc <> field_docs <> option_docs <> metadata_docs)
-
-      Module.put_attribute(__MODULE__, :moduledoc, {line || 1, moduledoc <> field_docs <> option_docs <> metadata_docs})
+      nil ->
+        do_make(module, {1, ""})
     end
   end
 
-  defmacro generate_constructor_docs do
+  defp do_make(module, {line, shortdoc}) do
+    options = Module.get_attribute(module, :options)
+    metadata = Module.get_attribute(module, :metadata)
+    schema_fields = Module.get_attribute(module, :schema_fields)
+
+    metadatadoc = MetadataDocs.generate(metadata)
+    fielddoc = FieldAndOptionDocs.field_docs(schema_fields)
+    optiondoc = if options, do: FieldAndOptionDocs.option_docs(options), else: ""
+
+    %Documentation{
+      shortdoc: shortdoc,
+      fielddoc: fielddoc,
+      optiondoc: optiondoc,
+      message_module: module,
+      metadatadoc: metadatadoc,
+      moduledoc: {line || 1, shortdoc <> fielddoc <> optiondoc <> metadatadoc}
+    }
+  end
+
+  def generate_module_doc(%{module: module}) do
+    docs = Documentation.make(module)
+    Module.put_attribute(module, :moduledoc, docs.moduledoc)
+    generate_doc_functions(docs)
+  end
+
+  defp generate_doc_functions(%{shortdoc: shortdoc, fielddoc: fielddoc, optiondoc: optiondoc, metadatadoc: metadatadoc}) do
+    shortdoc = shortdoc || ""
+    fielddoc = fielddoc || ""
+    optiondoc = optiondoc || ""
+    metadatadoc = metadatadoc || ""
+
     quote do
-      message = __MODULE__ |> Module.split() |> List.last()
-      docs = "Safely constructs a `#{inspect(message)}`"
-      docs <> "\n\n" <> FieldAndOptionDocs.field_docs(@schema_fields)
+      def __doc__(:short), do: unquote(shortdoc)
+      def __doc__(:field), do: unquote(fielddoc)
+      def __doc__(:option), do: unquote(optiondoc)
+      def __doc__(:metadata), do: unquote(metadatadoc)
     end
   end
 
-  defmacro generate_dispatch_docs do
+  defmacro generate_constructor_doc do
     quote do
-      message = __MODULE__ |> Module.split() |> List.last()
-      docs = "Dispatches a validated `#{inspect(message)}`"
+      %{message_module: message_module, fielddoc: fielddoc} = Documentation.make(__MODULE__)
+      docs = "Safely constructs a `#{inspect(message_module)}`"
+      docs <> "\n\n" <> fielddoc
+    end
+  end
+
+  defmacro generate_dispatch_doc do
+    quote do
+      %{message_module: message_module, optiondoc: optiondoc} = Documentation.make(__MODULE__)
+      docs = "Dispatches a validated `#{inspect(message_module)}`"
 
       case Module.get_attribute(__MODULE__, :options) do
         nil -> docs
-        options -> docs <> "\n\n" <> FieldAndOptionDocs.option_docs(options)
+        options -> docs <> "\n\n" <> optiondoc
       end
     end
   end

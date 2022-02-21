@@ -17,7 +17,7 @@ defmodule Cqrs.Message.Constructor do
     quote do
       constructor_info = %{
         name: @constructor,
-        docs: Documentation.generate_constructor_docs(),
+        docs: Documentation.generate_constructor_doc(),
         has_fields?: @primary_key_type != false || Enum.count(@schema_fields) > 0,
         has_required_fields?: @primary_key_type != false || Enum.count(@required_fields) > 0
       }

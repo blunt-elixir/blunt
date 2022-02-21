@@ -1,6 +1,10 @@
 defmodule Support.Testing.CreatePerson do
   use Cqrs.Command
 
+  @moduledoc """
+  Creates a person.
+  """
+
   field :id, :binary_id
   field :name, :string
 end

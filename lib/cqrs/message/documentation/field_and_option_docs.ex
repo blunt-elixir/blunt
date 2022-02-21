@@ -61,7 +61,7 @@ defmodule Cqrs.Message.Documentation.FieldAndOptionDocs do
           |> Enum.map(&"**#{inspect(&1)}**")
           |> Enum.join(", ")
 
-        " \t * possible values: #{values}\n"
+        " \t * possible values: #{values}\n\n"
       end
 
     to_string(default) <> to_string(possible_values)

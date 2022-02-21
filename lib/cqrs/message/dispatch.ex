@@ -14,7 +14,7 @@ defmodule Cqrs.Message.Dispatch do
   defmacro generate do
     quote do
       if @dispatch? do
-        @doc Documentation.generate_dispatch_docs()
+        @doc Documentation.generate_dispatch_doc()
         def dispatch(message, opts \\ []),
           do: Dispatch.dispatch(message, opts)
 

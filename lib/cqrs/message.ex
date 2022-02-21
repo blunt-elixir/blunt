@@ -74,17 +74,22 @@ defmodule Cqrs.Message do
     end
   end
 
-  defmacro __before_compile__(_env) do
-    quote location: :keep do
-      Version.generate()
-      PrimaryKey.generate()
-      Constructor.generate()
-      Schema.generate()
-      Changeset.generate()
-      Dispatch.generate()
-      Documentation.generate_module_docs()
-      Metadata.generate()
-    end
+  defmacro __before_compile__(env) do
+    # TODO This style of codegen is *very* appealing. Do more.
+    doc = Documentation.generate_module_doc(env)
+
+    rest =
+      quote location: :keep do
+        Version.generate()
+        PrimaryKey.generate()
+        Constructor.generate()
+        Schema.generate()
+        Changeset.generate()
+        Dispatch.generate()
+        Metadata.generate()
+      end
+
+    [doc, rest]
   end
 
   @spec field(name :: atom(), type :: atom(), keyword()) :: any()

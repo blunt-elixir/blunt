@@ -11,7 +11,7 @@ defmodule Cqrs.Message.Dispatch do
     end
   end
 
-  defmacro generate do
+  def generate do
     quote do
       if @dispatch? do
         @doc Documentation.generate_dispatch_doc()

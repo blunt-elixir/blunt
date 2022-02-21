@@ -13,17 +13,21 @@ defmodule Cqrs.Message.Constructor do
     end
   end
 
-  defmacro generate do
-    quote do
-      constructor_info = %{
-        name: @constructor,
-        docs: Documentation.generate_constructor_doc(),
-        has_fields?: @primary_key_type != false || Enum.count(@schema_fields) > 0,
-        has_required_fields?: @primary_key_type != false || Enum.count(@required_fields) > 0
-      }
+  def generate(%{module: module}) do
+    constructor = Module.get_attribute(module, :constructor)
+    doc = Documentation.generate_constructor_doc(module)
+    pk_type = Module.get_attribute(module, :primary_key_type)
+    schema_fields = Module.get_attribute(module, :schema_fields)
+    required_fields = Module.get_attribute(module, :required_fields)
 
-      Module.eval_quoted(__MODULE__, Constructor.do_generate(constructor_info))
-    end
+    constructor_info = %{
+      name: constructor,
+      docs: doc,
+      has_fields?: pk_type != false || Enum.count(schema_fields) > 0,
+      has_required_fields?: pk_type != false || Enum.count(required_fields) > 0
+    }
+
+    Constructor.do_generate(constructor_info)
   end
 
   def do_generate(%{has_fields?: true, has_required_fields?: true, name: name, docs: docs}) do

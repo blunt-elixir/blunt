@@ -40,10 +40,10 @@ defmodule Cqrs.Message.Documentation do
   def generate_module_doc(%{module: module}) do
     docs = Documentation.make(module)
     Module.put_attribute(module, :moduledoc, docs.moduledoc)
-    generate_doc_functions(docs)
+    doc_functions(docs)
   end
 
-  defp generate_doc_functions(%{shortdoc: shortdoc, fielddoc: fielddoc, optiondoc: optiondoc, metadatadoc: metadatadoc}) do
+  defp doc_functions(%{shortdoc: shortdoc, fielddoc: fielddoc, optiondoc: optiondoc, metadatadoc: metadatadoc}) do
     shortdoc = shortdoc || ""
     fielddoc = fielddoc || ""
     optiondoc = optiondoc || ""
@@ -57,12 +57,10 @@ defmodule Cqrs.Message.Documentation do
     end
   end
 
-  defmacro generate_constructor_doc do
-    quote do
-      %{message_module: message_module, fielddoc: fielddoc} = Documentation.make(__MODULE__)
-      docs = "Safely constructs a `#{inspect(message_module)}`"
-      docs <> "\n\n" <> fielddoc
-    end
+  def generate_constructor_doc(module) do
+    %{message_module: message_module, fielddoc: fielddoc} = Documentation.make(module)
+    docs = "Safely constructs a `#{inspect(message_module)}`"
+    docs <> "\n\n" <> fielddoc
   end
 
   defmacro generate_dispatch_doc do

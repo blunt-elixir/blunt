@@ -12,18 +12,18 @@ defmodule Cqrs.Message.PrimaryKey do
     end
   end
 
-  defmacro generate do
-    quote do
-      unless @primary_key_type == false do
-        {name, type, opts} = @primary_key_type
+  def generate(%{module: module}) do
+    pk_type = Module.get_attribute(module, :primary_key_type)
 
-        opts =
-          opts
-          |> Keyword.put(:required, true)
-          |> Keyword.put(:primary_key, true)
+    unless pk_type == false do
+      {name, type, opts} = pk_type
 
-        @schema_fields {name, type, opts}
-      end
+      opts =
+        opts
+        |> Keyword.put(:required, true)
+        |> Keyword.put(:primary_key, true)
+
+      Module.put_attribute(module, :schema_fields, {name, type, opts})
     end
   end
 end

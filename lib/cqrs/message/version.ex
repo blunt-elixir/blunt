@@ -10,13 +10,11 @@ defmodule Cqrs.Message.Version do
     end
   end
 
-  defmacro generate do
-    quote do
-      if Module.delete_attribute(__MODULE__, :versioned?) do
-        version = Module.delete_attribute(__MODULE__, :version) || 1
-        @metadata version: version
-        @schema_fields {:version, :decimal, default: version, required: false}
-      end
+  def generate(%{module: module}) do
+    if Module.delete_attribute(module, :versioned?) do
+      version = Module.delete_attribute(module, :version) || 1
+      Module.put_attribute(module, :metadata, version: version)
+      Module.put_attribute(module, :schema_fields, {:version, :decimal, default: version, required: false})
     end
   end
 end

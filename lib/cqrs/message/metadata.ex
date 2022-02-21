@@ -12,7 +12,7 @@ defmodule Cqrs.Message.Metadata do
     end
   end
 
-  defmacro generate do
+  def generate do
     quote do
       @metadata message_type: Module.delete_attribute(__MODULE__, :message_type)
       @metadata schema_fields: Module.delete_attribute(__MODULE__, :schema_fields)

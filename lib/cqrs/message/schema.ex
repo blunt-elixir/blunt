@@ -17,11 +17,18 @@ defmodule Cqrs.Message.Schema do
     end
   end
 
-  defmacro generate do
-    quote do
+  def generate(%{module: module}) do
+    schema_fields =
+      module
+      |> Module.get_attribute(:schema_fields)
+      |> Macro.escape()
+
+    jason_encoder? = Module.get_attribute(module, :create_jason_encoders?) and Code.ensure_loaded?(Jason)
+
+    quote bind_quoted: [schema_fields: schema_fields, jason_encoder?: jason_encoder?] do
       use Ecto.Schema
 
-      if Module.get_attribute(__MODULE__, :create_jason_encoders?) and Code.ensure_loaded?(Jason) do
+      if jason_encoder? do
         @derive Jason.Encoder
       end
 
@@ -31,7 +38,7 @@ defmodule Cqrs.Message.Schema do
 
       @primary_key false
       embedded_schema do
-        Enum.map(@schema_fields, fn
+        Enum.map(schema_fields, fn
           {name, {:array, :enum}, opts} ->
             Ecto.Schema.field(name, {:array, Ecto.Enum}, opts)
 

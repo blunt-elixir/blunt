@@ -100,7 +100,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     def fake(:decimal), do: Faker.Commerce.price()
 
     def fake(:boolean), do: Enum.random([true, false])
-    def fake(:string), do: Faker.Cannabis.buzzword()
+    def fake(:string), do: Faker.Company.bullshit()
     def fake(:binary), do: nil
 
     def fake(:map), do: %{}

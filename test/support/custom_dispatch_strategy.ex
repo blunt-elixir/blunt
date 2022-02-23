@@ -66,15 +66,17 @@ defmodule Cqrs.CustomDispatchStrategy do
     # put the query into the context
     query = Context.get_last_pipeline(context)
     context = Context.put_private(context, :query, query)
-    opts = Context.options(context)
 
-    # -  If `execution` is set to false, just return the query;
-    #     otherwise, execute `handle_dispatch`
-    case Context.get_option(context, :execute) do
-      false ->
+    case Context.get_return(context) do
+      :query_context ->
+        {:ok, context}
+
+      :query ->
         return_final(query, context)
 
-      true ->
+      _ ->
+        opts = Context.options(context)
+
         with {:ok, context} <- execute({pipeline, :handle_dispatch, [query, context, opts]}, context) do
           return_last_pipeline(context)
         end

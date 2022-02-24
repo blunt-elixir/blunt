@@ -42,12 +42,14 @@ defmodule Blunt.MixProject do
       {:ecto, "~> 3.7"},
       {:decimal, "~> 1.6 or ~> 2.0"},
 
-      # Test and optional deps.
-      {:etso, "~> 0.1.6", only: [:test]},
+      # Optional deps.
       {:faker, "~> 0.17.0", optional: true},
       {:ex_machina, "~> 2.7", optional: true},
+
+      # For testing
+      {:etso, "~> 0.1.6", only: [:test]},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:elixir_uuid, "~> 1.6", override: true, hex: :uuid_utils},
+      {:elixir_uuid, "~> 1.6", only: [:dev, :test], override: true, hex: :uuid_utils},
 
       # generate docs
       {:ex_doc, "~> 0.28", only: :dev, runtime: false}

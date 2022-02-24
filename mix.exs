@@ -1,18 +1,18 @@
-defmodule Cqrs.MixProject do
+defmodule Blunt.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :cqrs_tools,
+      app: :blunt,
       version: "0.1.0",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      source_url: "https://github.com/elixir-cqrs/cqrs_tools",
+      source_url: "https://github.com/blunt-elixir/blunt",
       package: [
         description: "CQRS Tools for Elixir",
         licenses: ["MIT"],
-        links: %{"GitHub" => "https://github.com/elixir-cqrs/cqrs_tools"}
+        links: %{"GitHub" => "https://github.com/blunt-elixir/blunt"}
       ],
       dialyzer: [
         plt_add_deps: :apps_direct,
@@ -28,7 +28,7 @@ defmodule Cqrs.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Cqrs, []},
+      mod: {Blunt, []},
       extra_applications: [:logger]
     ]
   end

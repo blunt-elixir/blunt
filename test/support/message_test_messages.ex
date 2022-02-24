@@ -1,6 +1,6 @@
-defmodule Cqrs.MessageTest.Protocol do
+defmodule Blunt.MessageTest.Protocol do
   defmodule Simple do
-    use Cqrs.Message
+    use Blunt.Message
 
     field :name, :string
   end
@@ -9,7 +9,7 @@ defmodule Cqrs.MessageTest.Protocol do
     @moduledoc """
     Hi
     """
-    use Cqrs.Message
+    use Blunt.Message
 
     field :name, :string, required: true
     field :dog, :string, default: "maize"
@@ -22,7 +22,7 @@ defmodule Cqrs.MessageTest.Protocol do
   end
 
   defmodule MessageWithInternalField do
-    use Cqrs.Message
+    use Blunt.Message
 
     internal_field :id, :binary_id, required: true
   end

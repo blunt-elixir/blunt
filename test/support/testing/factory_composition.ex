@@ -1,10 +1,10 @@
 defmodule Support.Testing.FactoryComposition.CreateProduct do
-  use Cqrs.Command
+  use Blunt.Command
   field :id, :binary_id
 end
 
 defmodule Support.Testing.FactoryComposition.CreateProductPipeline do
-  use Cqrs.CommandPipeline
+  use Blunt.CommandPipeline
 
   def handle_dispatch(%{id: id}, _context) do
     %{id: id}
@@ -12,13 +12,13 @@ defmodule Support.Testing.FactoryComposition.CreateProductPipeline do
 end
 
 defmodule Support.Testing.FactoryComposition.CreatePolicy do
-  use Cqrs.Command
+  use Blunt.Command
   field :product_id, :binary_id
   field :id, :binary_id
 end
 
 defmodule Support.Testing.FactoryComposition.CreatePolicyPipeline do
-  use Cqrs.CommandPipeline
+  use Blunt.CommandPipeline
 
   def handle_dispatch(%{id: id}, _context) do
     %{id: id}
@@ -26,13 +26,13 @@ defmodule Support.Testing.FactoryComposition.CreatePolicyPipeline do
 end
 
 defmodule Support.Testing.FactoryComposition.CreatePolicyFee do
-  use Cqrs.Command
+  use Blunt.Command
   field :policy_id, :binary_id
   field :id, :binary_id
 end
 
 defmodule Support.Testing.FactoryComposition.CreatePolicyFeePipeline do
-  use Cqrs.CommandPipeline
+  use Blunt.CommandPipeline
 
   def handle_dispatch(command, _context) do
     command

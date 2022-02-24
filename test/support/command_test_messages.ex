@@ -1,20 +1,20 @@
-defmodule Cqrs.CommandTest.Protocol do
+defmodule Blunt.CommandTest.Protocol do
   defmodule CommandOptions do
-    use Cqrs.Command
+    use Blunt.Command
 
     option :debug, :boolean, default: false
     option :audit, :boolean, default: true
   end
 
   defmodule DispatchNoPipeline do
-    use Cqrs.Command
+    use Blunt.Command
 
     field :name, :string, required: true
     field :dog, :string, default: "maize"
   end
 
   defmodule CommandViaCommandMacro do
-    use Cqrs
+    use Blunt
 
     defcommand do
       field :name, :string, required: true
@@ -26,7 +26,7 @@ defmodule Cqrs.CommandTest.Protocol do
     @moduledoc """
     This command has a pipeline that it will be dispatched to
     """
-    use Cqrs.Command, require_all_fields?: false
+    use Blunt.Command, require_all_fields?: false
 
     field :name, :string, required: true
     field :dog, :string, default: "maize"
@@ -36,7 +36,7 @@ defmodule Cqrs.CommandTest.Protocol do
   end
 
   defmodule CommandWithMeta do
-    use Cqrs.Command
+    use Blunt.Command
 
     metadata :auth,
       user_roles: [:owner, :collaborator],

@@ -1,6 +1,6 @@
-defmodule Cqrs.QueryTest.Protocol do
+defmodule Blunt.QueryTest.Protocol do
   defmodule BasicQuery do
-    use Cqrs.Query
+    use Blunt.Query
 
     @moduledoc """
     Illustrates the basic idea of a Query
@@ -11,7 +11,7 @@ defmodule Cqrs.QueryTest.Protocol do
   end
 
   defmodule CreatePerson do
-    use Cqrs.Command
+    use Blunt.Command
 
     field :name, :string
     field :id, :binary_id, required: false
@@ -21,9 +21,9 @@ defmodule Cqrs.QueryTest.Protocol do
   end
 
   defmodule GetPerson do
-    use Cqrs.Query
+    use Blunt.Query
 
-    alias Cqrs.QueryTest.ReadModel.Person
+    alias Blunt.QueryTest.ReadModel.Person
 
     field :id, :binary_id
     field :name, :string

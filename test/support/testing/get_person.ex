@@ -1,5 +1,5 @@
 defmodule Support.Testing.GetPerson do
-  use Cqrs.Query
+  use Blunt.Query
 
   field :id, :binary_id, required: true
 
@@ -7,9 +7,9 @@ defmodule Support.Testing.GetPerson do
 end
 
 defmodule Support.Testing.GetPersonPipeline do
-  use Cqrs.QueryPipeline
+  use Blunt.QueryPipeline
 
-  alias Cqrs.Query
+  alias Blunt.Query
   alias Support.ReadModel.Person
 
   @impl true

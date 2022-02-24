@@ -1,5 +1,5 @@
 defmodule Support.Testing.CreatePerson do
-  use Cqrs.Command
+  use Blunt.Command
 
   @moduledoc """
   Creates a person.
@@ -10,7 +10,7 @@ defmodule Support.Testing.CreatePerson do
 end
 
 defmodule Support.Testing.CreatePersonPipeline do
-  use Cqrs.CommandPipeline
+  use Blunt.CommandPipeline
 
   @impl true
   def handle_dispatch(command, _context) do

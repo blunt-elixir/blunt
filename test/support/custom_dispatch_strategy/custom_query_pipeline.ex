@@ -1,10 +1,10 @@
-defmodule Cqrs.CustomDispatchStrategy.CustomQueryPipeline do
+defmodule Blunt.CustomDispatchStrategy.CustomQueryPipeline do
   @type opts :: keyword()
   @type filters :: struct()
   @type filter_list :: keyword()
   @type user :: struct() | nil
   @type query :: Ecto.Query.t() | any()
-  @type context :: Cqrs.DispatchContext.query_context()
+  @type context :: Blunt.DispatchContext.query_context()
 
   @callback before_dispatch(filters(), context) :: {:ok, context()} | {:error, any()}
   @callback create_query(filter_list(), context()) :: query()
@@ -15,7 +15,7 @@ defmodule Cqrs.CustomDispatchStrategy.CustomQueryPipeline do
     quote do
       import Ecto.Query
 
-      @behaviour Cqrs.CustomDispatchStrategy.CustomQueryPipeline
+      @behaviour Blunt.CustomDispatchStrategy.CustomQueryPipeline
 
       @impl true
       def before_dispatch(_filters, context),

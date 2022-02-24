@@ -1,4 +1,4 @@
-defmodule Cqrs.QueryTest.ReadModel do
+defmodule Blunt.QueryTest.ReadModel do
   defmodule Person do
     use Ecto.Schema
 

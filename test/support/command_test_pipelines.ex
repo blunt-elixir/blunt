@@ -1,6 +1,6 @@
-defmodule Cqrs.CommandTest.Protocol.DispatchWithPipelinePipeline do
-  use Cqrs.CommandPipeline
-  alias Cqrs.DispatchContext, as: Context
+defmodule Blunt.CommandTest.Protocol.DispatchWithPipelinePipeline do
+  use Blunt.CommandPipeline
+  alias Blunt.DispatchContext, as: Context
 
   defp reply(context, pipeline) do
     context
@@ -20,8 +20,8 @@ defmodule Cqrs.CommandTest.Protocol.DispatchWithPipelinePipeline do
   end
 end
 
-defmodule Cqrs.CommandTest.Protocol.CommandWithMetaPipeline do
-  use Cqrs.CommandPipeline
+defmodule Blunt.CommandTest.Protocol.CommandWithMetaPipeline do
+  use Blunt.CommandPipeline
 
   def handle_dispatch(_command, _context) do
     :ok

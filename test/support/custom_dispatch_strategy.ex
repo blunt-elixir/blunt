@@ -1,12 +1,12 @@
-defmodule Cqrs.CustomDispatchStrategy do
-  @behaviour Cqrs.DispatchStrategy
+defmodule Blunt.CustomDispatchStrategy do
+  @behaviour Blunt.DispatchStrategy
 
-  import Cqrs.DispatchStrategy
+  import Blunt.DispatchStrategy
 
-  alias Cqrs.Query
-  alias Cqrs.DispatchContext, as: Context
-  alias Cqrs.DispatchStrategy.PipelineResolver
-  alias Cqrs.CustomDispatchStrategy.{CustomCommandPipeline, CustomQueryPipeline}
+  alias Blunt.Query
+  alias Blunt.DispatchContext, as: Context
+  alias Blunt.DispatchStrategy.PipelineResolver
+  alias Blunt.CustomDispatchStrategy.{CustomCommandPipeline, CustomQueryPipeline}
 
   @type context :: Context.t()
   @type query_context :: Context.query_context()

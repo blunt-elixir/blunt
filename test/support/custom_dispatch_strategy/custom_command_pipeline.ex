@@ -1,7 +1,7 @@
-defmodule Cqrs.CustomDispatchStrategy.CustomCommandPipeline do
+defmodule Blunt.CustomDispatchStrategy.CustomCommandPipeline do
   @type user :: map()
   @type command :: struct()
-  @type context :: Cqrs.DispatchContext.command_context()
+  @type context :: Blunt.DispatchContext.command_context()
 
   @callback before_dispatch(command, context) :: {:ok, context()} | {:error, any()}
   @callback handle_authorize(user, command, context) :: {:ok, context()} | {:error, any()} | :error
@@ -9,7 +9,7 @@ defmodule Cqrs.CustomDispatchStrategy.CustomCommandPipeline do
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Cqrs.CustomDispatchStrategy.CustomCommandPipeline
+      @behaviour Blunt.CustomDispatchStrategy.CustomCommandPipeline
 
       @impl true
       def handle_authorize(_user, _command, context),

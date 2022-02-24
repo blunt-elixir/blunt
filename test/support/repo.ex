@@ -1,3 +1,3 @@
-defmodule Cqrs.Repo do
-  use Ecto.Repo, otp_app: :cqrs_tools, adapter: Etso.Adapter
+defmodule Blunt.Repo do
+  use Ecto.Repo, otp_app: :blunt, adapter: Etso.Adapter
 end

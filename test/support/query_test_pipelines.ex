@@ -1,8 +1,8 @@
-defmodule Cqrs.QueryTest.Protocol.GetPersonPipeline do
-  use Cqrs.QueryPipeline
+defmodule Blunt.QueryTest.Protocol.GetPersonPipeline do
+  use Blunt.QueryPipeline
 
-  alias Cqrs.Repo
-  alias Cqrs.QueryTest.ReadModel.Person
+  alias Blunt.Repo
+  alias Blunt.QueryTest.ReadModel.Person
 
   @impl true
   def create_query(filters, _context) do
@@ -18,12 +18,12 @@ defmodule Cqrs.QueryTest.Protocol.GetPersonPipeline do
   end
 end
 
-defmodule Cqrs.QueryTest.Protocol.CreatePersonPipeline do
-  use Cqrs.CommandPipeline
+defmodule Blunt.QueryTest.Protocol.CreatePersonPipeline do
+  use Blunt.CommandPipeline
 
-  alias Cqrs.Repo
-  alias Cqrs.QueryTest.ReadModel.Person
-  alias Cqrs.QueryTest.Protocol.CreatePerson
+  alias Blunt.Repo
+  alias Blunt.QueryTest.ReadModel.Person
+  alias Blunt.QueryTest.Protocol.CreatePerson
 
   @impl true
   def handle_dispatch(%CreatePerson{id: id, name: name}, _context) do

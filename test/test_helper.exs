@@ -1,3 +1,3 @@
-Cqrs.Repo.start_link([])
+Blunt.Repo.start_link([])
 
 ExUnit.start()

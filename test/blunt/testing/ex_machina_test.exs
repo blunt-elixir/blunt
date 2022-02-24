@@ -9,6 +9,14 @@ defmodule Blunt.ExMachinaTest do
   factory CreatePerson
   factory PlainMessage
 
+  # factory PlainMessage do
+  #   values do
+  #     const(:id, UUID.uuid4())
+  #     lazy(:policy, CreatePolicy)
+  #     prop(:policy_id, [:policy, :id])
+  #   end
+  # end
+
   test "functions" do
     funcs = __MODULE__.__info__(:functions)
 

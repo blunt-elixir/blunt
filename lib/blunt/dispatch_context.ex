@@ -96,7 +96,7 @@ defmodule Blunt.DispatchContext do
   @spec get_option(context, atom, any | nil) :: any | nil
   def get_option(%__MODULE__{opts: opts}, key, default \\ nil) when is_atom(key), do: Keyword.get(opts, key, default)
 
-  @spec get_return(context) :: :response | :context
+  @spec get_return(context) :: atom()
   def get_return(%__MODULE__{return: return}), do: return
 
   @spec user(context) :: map() | nil

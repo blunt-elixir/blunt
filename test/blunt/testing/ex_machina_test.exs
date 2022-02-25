@@ -132,6 +132,14 @@ defmodule Blunt.ExMachinaTest do
 
       assert {:ok, _} = UUID.info(policy_id)
     end
+
+    test "lazy values will not overwrite existing values" do
+      fee_id = UUID.uuid4()
+      policy_id = UUID.uuid4()
+      policy = %{id: policy_id}
+
+      assert {:ok, %{id: ^fee_id, policy_id: ^policy_id}} = dispatch(:create_policy_fee, id: fee_id, policy: policy)
+    end
   end
 
   describe "plain modules" do

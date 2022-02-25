@@ -81,8 +81,14 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           Map.put(acc, field, value)
 
         %Lazy{field: field, factory: factory} ->
-          value = build(factory, acc, [])
-          Map.put(acc, field, value)
+          case Map.get(acc, field) do
+            nil ->
+              value = build(factory, acc, [])
+              Map.put(acc, field, value)
+
+            _value ->
+              acc
+          end
       end
     end
 

@@ -1,5 +1,6 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.ExMachina.DispatchStrategy do
+    @moduledoc false
     use ExMachina.Strategy, function_name: :dispatch
 
     defmodule Error do

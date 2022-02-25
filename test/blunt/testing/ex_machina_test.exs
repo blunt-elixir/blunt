@@ -192,4 +192,18 @@ defmodule Blunt.ExMachinaTest do
       assert_raise Blunt.Testing.ExMachina.Factory.Error, fn -> dispatch(:create_policy_fee2, id: fee_id) end
     end
   end
+
+  describe "fake enum values" do
+    defmodule MessageWithEnum do
+      use Blunt.Message
+      field :pet, :enum, values: [:cat, :dog]
+    end
+
+    factory MessageWithEnum
+
+    test "pet is populated correctly" do
+      assert %MessageWithEnum{pet: pet} = build(:message_with_enum)
+      assert Enum.member?([:cat, :dog], pet)
+    end
+  end
 end

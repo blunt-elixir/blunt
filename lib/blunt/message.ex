@@ -1,6 +1,13 @@
 defmodule Blunt.Message do
   require Logger
 
+  @moduledoc """
+  This is the main building block of all messages.
+
+  I think this should go away and have other messages just compose
+  what they need using the macros in here.
+  """
+
   alias Blunt.Message.{
     Changeset,
     Constructor,

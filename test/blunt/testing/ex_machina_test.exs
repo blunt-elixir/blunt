@@ -152,7 +152,11 @@ defmodule Blunt.ExMachinaTest do
 
     factory CreatePolicyFee, debug: false do
       lazy :product, CreateProduct
-      lazy :policy, CreatePolicy, [prop(:product_id, [:product, :id])]
+
+      lazy :policy, CreatePolicy, [
+        prop(:product_id, [:product, :id])
+      ]
+
       prop :policy_id, [:policy, :id]
     end
 

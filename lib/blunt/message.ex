@@ -6,6 +6,16 @@ defmodule Blunt.Message do
 
   I think this should go away and have other messages just compose
   what they need using the macros in here.
+
+  ## Options
+
+  * message_type - required atom
+  * create_jason_encoders? - default value: `true`
+  * require_all_fields? - default value: `false`
+  * versioned? - default value: `false`
+  * dispatch? - default value: `false`
+  * primary_key - default value: `false`
+  * constructor - default value: `:new`
   """
 
   alias Blunt.Message.{
@@ -28,18 +38,6 @@ defmodule Blunt.Message do
 
   @callback handle_validate(changeset()) :: changeset()
   @callback after_validate(struct()) :: struct()
-
-  @moduledoc """
-  ## Options
-
-  * message_type - required atom
-  * create_jason_encoders? - default value: `true`
-  * require_all_fields? - default value: `false`
-  * versioned? - default value: `false`
-  * dispatch? - default value: `false`
-  * primary_key - default value: `false`
-  * constructor - default value: `:new`
-  """
 
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do

@@ -17,7 +17,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     alias Blunt.Testing.ExMachina.Values.{
       Constant,
-      Fake,
       Lazy,
       Prop
     }
@@ -102,39 +101,41 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defp populate_missing_props(attrs, message) do
       data =
-        for {name, type, _config} when not is_map_key(attrs, name) <- Metadata.fields(message), into: %{} do
-          {name, fake(type)}
+        for {name, type, config} when not is_map_key(attrs, name) <- Metadata.fields(message), into: %{} do
+          {name, fake(type, config)}
         end
 
       Map.merge(data, attrs)
     end
 
-    def fake({:array, _}), do: []
-    def fake(:binary_id), do: UUID.uuid4()
-    def fake(Ecto.UUID), do: UUID.uuid4()
-    def fake(:id), do: Enum.random(1..1000)
-    def fake(:integer), do: Enum.random(1..1000)
+    def fake(type, config) do
+      case type do
+        {:array, type} -> [fake(type, config)]
+        :id -> Enum.random(1..1000)
+        :integer -> Enum.random(1..1000)
+        :float -> Faker.Commerce.price()
+        :decimal -> Faker.Commerce.price()
+        :boolean -> Enum.random([true, false])
+        :string -> Faker.Company.bullshit()
+        :binary -> nil
+        :map -> %{}
+        :utc_datetime -> Faker.DateTime.between(~U[2000-01-01 00:00:00.000000Z], DateTime.utc_now())
+        :utc_datetime_usec -> Faker.DateTime.between(~U[2000-01-01 00:00:00.000000Z], DateTime.utc_now())
+        :naive_datetime -> Faker.DateTime.between(~N[2000-01-01 00:00:00.000000Z], NaiveDateTime.utc_now())
+        :naive_datetime_usec -> Faker.DateTime.between(~N[2000-01-01 00:00:00.000000Z], NaiveDateTime.utc_now())
+        :date -> Faker.Date.between(~D[2000-01-01], Date.utc_today())
+        :time -> nil
+        :time_usec -> nil
+        :any -> Faker.Person.suffix()
+        other -> other_fake(other, config)
+      end
+    end
 
-    def fake(:float), do: Faker.Commerce.price()
-    def fake(:decimal), do: Faker.Commerce.price()
+    defp other_fake(binary_id, _config) when binary_id in [:binary_id, Ecto.UUID], do: UUID.uuid4()
 
-    def fake(:boolean), do: Enum.random([true, false])
-    def fake(:string), do: Faker.Company.bullshit()
-    def fake(:binary), do: nil
-
-    def fake(:map), do: %{}
-
-    def fake(:utc_datetime), do: Faker.DateTime.between(~U[2000-01-01 00:00:00.000000Z], DateTime.utc_now())
-    def fake(:utc_datetime_usec), do: Faker.DateTime.between(~U[2000-01-01 00:00:00.000000Z], DateTime.utc_now())
-
-    def fake(:naive_datetime), do: Faker.DateTime.between(~N[2000-01-01 00:00:00.000000Z], NaiveDateTime.utc_now())
-    def fake(:naive_datetime_usec), do: Faker.DateTime.between(~N[2000-01-01 00:00:00.000000Z], NaiveDateTime.utc_now())
-
-    def fake(:date), do: Faker.Date.between(~D[2000-01-01], Date.utc_today())
-
-    def fake(:time), do: nil
-    def fake(:time_usec), do: nil
-
-    def fake(:any), do: Faker.Person.suffix()
+    defp other_fake(enum, config) when enum in [:enum, Ecto.Enum] do
+      values = Keyword.fetch!(config, :values)
+      Enum.random(values)
+    end
   end
 end

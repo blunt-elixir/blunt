@@ -27,7 +27,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     @doc """
     If the `field` is not supplied to the factory,
     the given `message` will be dispatched with the returned
-    data to be put into the factory source data with the `field` key.
+    data to be put into the factory source data under the `field` key.
     """
     defmacro lazy(field, message, values \\ []) do
       quote do

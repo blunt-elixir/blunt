@@ -102,6 +102,37 @@ defmodule Blunt.ExMachinaTest do
     end
   end
 
+  describe "prop func values" do
+    defmodule MessageWithFakes do
+      defstruct [:name, :id, :name_id]
+    end
+
+    factory MessageWithFakes do
+      prop :name, fn ->
+        send(self(), :name_generated)
+        Faker.Person.name()
+      end
+
+      prop :name_id, fn %{name: name} ->
+        send(self(), :name_id_generated)
+        UUID.uuid5(:oid, name)
+      end
+
+      const :id, 123
+    end
+
+    test "are populated" do
+      assert %MessageWithFakes{id: 123, name: name, name_id: name_id} = build(:message_with_fakes)
+
+      assert_received :name_generated
+      assert_received :name_id_generated
+
+      assert {:ok, _} = UUID.info(name_id)
+
+      refute name == nil
+    end
+  end
+
   describe "plain structs" do
     defmodule PlainStruct do
       defstruct [:id, :name]

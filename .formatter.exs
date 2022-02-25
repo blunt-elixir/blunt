@@ -22,6 +22,7 @@ locals_without_parens = [
   factory: 2,
   factory: 3,
   const: 2,
+  fake: 2,
   lazy: 2,
   lazy: 3,
   prop: 2

@@ -45,19 +45,17 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     defmodule Prop do
       @moduledoc false
       @derive Inspect
-      defstruct [:field, :value_path]
+      defstruct [:field, :value_path_or_func]
     end
 
     @doc """
     The `field` of the factory source data will be assigned
-    to the value of `value_path` in the factory source
+    to the value of `value_path_or_func` in the factory source
     """
-    defmacro prop(field, value_path) do
+    defmacro prop(field, value_path_or_func) do
       quote do
-        %Prop{field: unquote(field), value_path: unquote(value_path)}
+        %Prop{field: unquote(field), value_path_or_func: unquote(value_path_or_func)}
       end
     end
-
-    # def resolve(data, {:const, key, value})
   end
 end

@@ -17,6 +17,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     alias Blunt.Testing.ExMachina.Values.{
       Constant,
+      Fake,
       Lazy,
       Prop
     }
@@ -76,10 +77,16 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         %Constant{field: field, value: value} ->
           Map.put(acc, field, value)
 
-        %Prop{field: field, value_path: path} ->
+        %Prop{field: field, value_path_or_func: path} when is_list(path) ->
           keys = Enum.map(path, &Access.key/1)
           value = get_in(acc, keys)
           Map.put(acc, field, value)
+
+        %Prop{field: field, value_path_or_func: func} when is_function(func, 0) ->
+          Map.put(acc, field, func.())
+
+        %Prop{field: field, value_path_or_func: func} when is_function(func, 1) ->
+          Map.put(acc, field, func.(acc))
 
         %Lazy{field: field, factory: factory} ->
           case Map.get(acc, field) do

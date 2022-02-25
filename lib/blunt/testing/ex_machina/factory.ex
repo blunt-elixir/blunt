@@ -1,6 +1,7 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.ExMachina.Factory do
     @moduledoc false
+    @derive {Inspect, except: [:dispatch?]}
     defstruct [:message, values: [], dispatch?: false]
 
     defmodule Error do
@@ -20,7 +21,11 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       Prop
     }
 
-    def build(%__MODULE__{message: message, values: values, dispatch?: dispatch?}, attrs, opts) do
+    def build(%__MODULE__{message: message, values: values, dispatch?: dispatch?} = factory, attrs, opts) do
+      if Keyword.get(opts, :debug, false) do
+        IO.inspect(factory)
+      end
+
       data = Enum.reduce(values, attrs, &resolve_value/2)
 
       case Blunt.Behaviour.validate(message, Blunt.Message) do
@@ -32,10 +37,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           end
 
         {:ok, message} ->
-          if Keyword.get(opts, :debug, false) do
-            IO.inspect(data, label: inspect(message))
-          end
-
           data = populate_missing_props(data, message)
 
           final_message =

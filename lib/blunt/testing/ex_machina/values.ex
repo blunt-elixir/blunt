@@ -4,6 +4,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defmodule Constant do
       @moduledoc false
+      @derive Inspect
       defstruct [:field, :value]
     end
 
@@ -19,6 +20,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defmodule Lazy do
       @moduledoc false
+      @derive Inspect
       defstruct [:field, :factory]
     end
 
@@ -42,6 +44,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defmodule Prop do
       @moduledoc false
+      @derive Inspect
       defstruct [:field, :value_path]
     end
 

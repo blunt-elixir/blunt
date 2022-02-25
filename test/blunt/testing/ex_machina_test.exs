@@ -119,7 +119,7 @@ defmodule Blunt.ExMachinaTest do
   describe "lazy values" do
     alias Support.Testing.LayzFactoryValueMessages.{CreatePolicyFee, CreatePolicy, CreateProduct}
 
-    factory CreatePolicyFee do
+    factory CreatePolicyFee, debug: false do
       lazy :product, CreateProduct
       lazy :policy, CreatePolicy, [prop(:product_id, [:product, :id])]
       prop :policy_id, [:policy, :id]

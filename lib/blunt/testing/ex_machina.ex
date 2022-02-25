@@ -1,32 +1,73 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.ExMachina do
-    alias Blunt.Testing.ExMachina.Generator
+    alias Blunt.Testing.ExMachina.Factory
 
     defmacro __using__(opts) do
-      quote do
-        Module.register_attribute(__MODULE__, :messages, accumulate: true)
+      repo = Keyword.get(opts, :repo)
 
+      quote do
         use Blunt.Testing.ExMachina.DispatchStrategy
-        use ExMachina.Ecto, repo: Keyword.get(unquote(opts), :repo)
+
+        if unquote(repo) do
+          use ExMachina.Ecto, repo: unquote(repo)
+        else
+          use ExMachina
+        end
 
         import Blunt.Testing.ExMachina, only: :macros
-
-        @before_compile Blunt.Testing.ExMachina
+        import Blunt.Testing.ExMachina.Values, only: :macros
       end
     end
 
-    defmacro factory(message, opts \\ []) do
-      opts = Keyword.update(opts, :values, [], &Macro.escape/1)
-
-      quote bind_quoted: [message: message, opts: opts] do
-        @messages {message, opts}
-      end
+    defmacro factory(message) do
+      factory_name = factory_name(message, [])
+      create_factory(factory_name, message: message, values: [])
     end
 
-    defmacro __before_compile__(_env) do
+    defmacro factory(message, do: body) do
+      values = extract_values(body)
+      factory_name = factory_name(message, [])
+      create_factory(factory_name, message: message, values: values)
+    end
+
+    defmacro factory(message, opts) do
+      factory_name = factory_name(message, opts)
+      create_factory(factory_name, message: message, values: [])
+    end
+
+    defmacro factory(message, opts, do: body) do
+      values = extract_values(body)
+      factory_name = factory_name(message, opts)
+      create_factory(factory_name, message: message, values: values)
+    end
+
+    defp extract_values({:__block__, _meta, elements}), do: elements
+    defp extract_values(nil), do: []
+    defp extract_values(element), do: [element]
+
+    def create_factory(name, opts) do
+      message = Keyword.fetch!(opts, :message)
+      values = Keyword.fetch!(opts, :values)
+
       quote do
-        factories = Enum.map(@messages, &Generator.generate/1)
-        Module.eval_quoted(__MODULE__, factories)
+        def unquote(name)(attrs) do
+          Factory.build(%Factory{message: unquote(message), values: unquote(values)}, attrs, unquote(opts))
+        end
+      end
+    end
+
+    defp factory_name({:__aliases__, _meta, message}, opts) do
+      case Keyword.get(opts, :as, nil) do
+        name when is_atom(name) and not is_nil(name) ->
+          String.to_atom(to_string(name) <> "_factory")
+
+        _ ->
+          message
+          |> List.last()
+          |> to_string()
+          |> Macro.underscore()
+          |> Kernel.<>("_factory")
+          |> String.to_atom()
       end
     end
   end

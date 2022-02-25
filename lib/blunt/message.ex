@@ -115,5 +115,6 @@ defmodule Blunt.Message do
     end
   end
 
+  @doc false
   defdelegate compile_start(message_module), to: Blunt.Message.Compilation
 end

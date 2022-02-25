@@ -9,15 +9,7 @@ defmodule Blunt.ExMachinaTest do
   factory CreatePerson
   factory PlainMessage
 
-  # factory PlainMessage do
-  #   values do
-  #     const(:id, UUID.uuid4())
-  #     lazy(:policy, CreatePolicy)
-  #     prop(:policy_id, [:policy, :id])
-  #   end
-  # end
-
-  test "functions" do
+  test "generated functions" do
     funcs = __MODULE__.__info__(:functions)
 
     assert [1] = Keyword.get_values(funcs, :get_person_factory)
@@ -86,70 +78,75 @@ defmodule Blunt.ExMachinaTest do
     end
   end
 
-  defmodule FactoryOptionsMessage do
-    use Blunt.Message
+  describe "value declarations" do
+    defmodule FactoryWithValuesMessage do
+      use Blunt.Message
 
-    field :id, :binary_id
-    field :name, :string
-    field :dog, :string
+      field :id, :binary_id
+      field :name, :string
+      field :dog, :string
+    end
+
+    factory FactoryWithValuesMessage, as: :my_message do
+      const :dog, "maize"
+      prop :id, [:person, :id]
+      prop :name, [:person, :name]
+    end
+
+    test "factory values" do
+      id = UUID.uuid4()
+
+      person = %{id: id, name: "chris", dog: "maize"}
+
+      assert %FactoryWithValuesMessage{id: ^id, name: "chris", dog: "maize"} = build(:my_message, person: person)
+    end
   end
 
-  factory FactoryOptionsMessage,
-    as: :my_message,
-    values: [
-      id: [:person, :id],
-      dog: fn -> "maize" end,
-      name: fn %{person: %{name: name}} -> name end
-    ]
+  describe "plain structs" do
+    defmodule PlainStruct do
+      defstruct [:id, :name]
+    end
 
-  test "can set factory values from values option" do
-    id = UUID.uuid4()
+    factory PlainStruct do
+      const :id, 138
+    end
 
-    person = %{id: id, name: "chris", dog: "maize"}
-
-    assert %FactoryOptionsMessage{id: ^id, name: "chris", dog: "maize"} = build(:my_message, person: person)
+    test "can be built" do
+      assert %PlainStruct{id: 138, name: "chris"} = build(:plain_struct, name: "chris")
+    end
   end
 
-  defmodule PlainStruct do
-    defstruct [:id, :name]
+  describe "lazy values" do
+    alias Support.Testing.LayzFactoryValueMessages.{CreatePolicyFee, CreatePolicy, CreateProduct}
+
+    factory CreatePolicyFee do
+      lazy :product, CreateProduct
+      lazy :policy, CreatePolicy, [prop(:product_id, [:product, :id])]
+      prop :policy_id, [:policy, :id]
+    end
+
+    test "are evaluated in order of declaration" do
+      fee_id = UUID.uuid4()
+
+      assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = dispatch(:create_policy_fee, id: fee_id)
+
+      assert {:ok, _} = UUID.info(policy_id)
+    end
   end
 
-  factory PlainStruct
+  describe "plain modules" do
+    defmodule NonStruct do
+    end
 
-  test "can use plain structs" do
-    assert %PlainStruct{name: "chris"} = build(:plain_struct, name: "chris")
-  end
+    factory CreatePolicyFee, as: :create_policy_fee2 do
+      lazy :policy, NonStruct, [prop(:product_id, [:product, :id])]
+      prop :policy_id, [:policy, :id]
+    end
 
-  alias Support.Testing.FactoryComposition.{CreatePolicyFee, CreatePolicy, CreateProduct}
+    test "can not be used as a lazy factory" do
+      fee_id = UUID.uuid4()
 
-  factory CreatePolicyFee,
-    values: [policy_id: [:policy, :id]],
-    deps: [
-      product: CreateProduct,
-      policy: {CreatePolicy, values: [product_id: [:product, :id]]}
-    ]
-
-  test "factory composition" do
-    fee_id = UUID.uuid4()
-
-    assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = dispatch(:create_policy_fee, id: fee_id)
-
-    assert {:ok, _} = UUID.info(policy_id)
-  end
-
-  defmodule NonDispatchable do
-  end
-
-  factory CreatePolicyFee,
-    as: :create_policy_fee2,
-    values: [policy_id: [:policy, :id]],
-    deps: [
-      policy: {NonDispatchable, values: [product_id: [:product, :id]]}
-    ]
-
-  test "can not use a non-dispatchable message as a dependency" do
-    fee_id = UUID.uuid4()
-
-    assert_raise Blunt.Testing.ExMachina.DispatchStrategy.Error, fn -> dispatch(:create_policy_fee2, id: fee_id) end
+      assert_raise Blunt.Testing.ExMachina.Factory.Error, fn -> dispatch(:create_policy_fee2, id: fee_id) end
+    end
   end
 end

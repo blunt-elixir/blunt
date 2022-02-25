@@ -19,7 +19,12 @@ locals_without_parens = [
 
   # ex_machina macros
   factory: 1,
-  factory: 2
+  factory: 2,
+  factory: 3,
+  const: 2,
+  lazy: 2,
+  lazy: 3,
+  prop: 2
 ]
 
 [

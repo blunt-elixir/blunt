@@ -21,46 +21,31 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defmacro factory(message) do
       {factory_name, _} = factory_name(message, [])
-      create_factory(factory_name, message: message, values: [])
+      create_factory(factory_name, message, [], [])
     end
 
     defmacro factory(message, do: body) do
       values = extract_values(body)
       {factory_name, _} = factory_name(message, [])
-      create_factory(factory_name, message: message, values: values)
+      create_factory(factory_name, message, values, [])
     end
 
     defmacro factory(message, opts) do
       {factory_name, opts} = factory_name(message, opts)
-
-      opts =
-        opts
-        |> Keyword.put(:message, message)
-        |> Keyword.put(:values, [])
-
-      create_factory(factory_name, opts)
+      create_factory(factory_name, message, [], opts)
     end
 
     defmacro factory(message, opts, do: body) do
       values = extract_values(body)
       {factory_name, opts} = factory_name(message, opts)
-
-      opts =
-        opts
-        |> Keyword.put(:message, message)
-        |> Keyword.put(:values, values)
-
-      create_factory(factory_name, opts)
+      create_factory(factory_name, message, values, opts)
     end
 
     defp extract_values({:__block__, _meta, elements}), do: elements
     defp extract_values(nil), do: []
     defp extract_values(element), do: [element]
 
-    def create_factory(name, opts) do
-      {message, opts} = Keyword.pop!(opts, :message)
-      {values, opts} = Keyword.pop!(opts, :values)
-
+    defp create_factory(name, message, values, opts) do
       quote do
         def unquote(name)(attrs) do
           Factory.build(%Factory{message: unquote(message), values: unquote(values)}, attrs, unquote(opts))

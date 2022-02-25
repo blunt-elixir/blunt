@@ -1,8 +1,6 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.ExMachina.Factory do
     @moduledoc false
-    @derive {Inspect, except: [:dispatch?]}
-    defstruct [:message, values: [], dispatch?: false]
 
     defmodule Error do
       defexception [:errors]
@@ -12,16 +10,13 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       end
     end
 
+    @derive {Inspect, except: [:dispatch?]}
+    defstruct [:message, values: [], dispatch?: false]
+
     alias Blunt.Message
-    alias Blunt.Message.Metadata
+    alias Blunt.Testing.ExMachina.Values.{Constant, Lazy, Prop}
 
-    alias Blunt.Testing.ExMachina.Values.{
-      Constant,
-      Lazy,
-      Prop
-    }
-
-    def build(%__MODULE__{message: message, values: values, dispatch?: dispatch?} = factory, attrs, opts) do
+    def build(%__MODULE__{message: message, values: values} = factory, attrs, opts) do
       if Keyword.get(opts, :debug, false) do
         IO.inspect(factory)
       end
@@ -29,33 +24,39 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       data = Enum.reduce(values, attrs, &resolve_value/2)
 
       case Blunt.Behaviour.validate(message, Blunt.Message) do
-        {:error, _} ->
-          if function_exported?(message, :__struct__, 0) do
-            struct!(message, data)
-          else
-            raise Error, errors: "#{inspect(message)} should be a struct to be used as a factory"
-          end
-
-        {:ok, message} ->
-          data = populate_missing_props(data, message)
-
-          final_message =
-            case message.new(data) do
-              {:ok, message, _discarded_data} ->
-                message
-
-              {:ok, message} ->
-                message
-
-              {:error, errors} ->
-                raise Error, errors: errors
-
-              message ->
-                message
-            end
-
-          if dispatch?, do: dispatch(final_message, opts), else: final_message
+        {:error, _} -> build_struct(message, data)
+        {:ok, _} -> build_blunt_message(factory, data, opts)
       end
+    end
+
+    defp build_struct(message, data) do
+      unless function_exported?(message, :__struct__, 0) do
+        raise Error, errors: "#{inspect(message)} should be a struct to be used as a factory"
+      end
+
+      struct!(message, data)
+    end
+
+    defp build_blunt_message(%{message: message, dispatch?: dispatch?}, data, opts) do
+      final_message =
+        data
+        |> populate_missing_props(message)
+        |> message.new()
+        |> case do
+          {:ok, message, _discarded_data} ->
+            message
+
+          {:ok, message} ->
+            message
+
+          {:error, errors} ->
+            raise Error, errors: errors
+
+          message ->
+            message
+        end
+
+      if dispatch?, do: dispatch(final_message, opts), else: final_message
     end
 
     defp dispatch(%{__struct__: module} = message, opts) do
@@ -101,7 +102,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defp populate_missing_props(attrs, message) do
       data =
-        for {name, type, config} when not is_map_key(attrs, name) <- Metadata.fields(message), into: %{} do
+        for {name, type, config} when not is_map_key(attrs, name) <- Message.Metadata.fields(message), into: %{} do
           {name, fake(type, config)}
         end
 

@@ -1,4 +1,4 @@
-defmodule Blunt.ExMachinaTest do
+defmodule Blunt.Testing.ExMachinaTest do
   use ExUnit.Case, async: true
 
   use Blunt.Testing.ExMachina
@@ -103,11 +103,11 @@ defmodule Blunt.ExMachinaTest do
   end
 
   describe "prop func values" do
-    defmodule MessageWithFakes do
+    defmodule MessageWithPropFuncValues do
       defstruct [:name, :id, :name_id]
     end
 
-    factory MessageWithFakes do
+    factory MessageWithPropFuncValues do
       prop :name, fn ->
         send(self(), :name_generated)
         Faker.Person.name()
@@ -122,7 +122,7 @@ defmodule Blunt.ExMachinaTest do
     end
 
     test "are populated" do
-      assert %MessageWithFakes{id: 123, name: name, name_id: name_id} = build(:message_with_fakes)
+      assert %MessageWithPropFuncValues{id: 123, name: name, name_id: name_id} = build(:message_with_prop_func_values)
 
       assert_received :name_generated
       assert_received :name_id_generated

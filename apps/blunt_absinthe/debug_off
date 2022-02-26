@@ -1,0 +1,5 @@
+# run: 
+# 
+# source ./debug_off 
+
+unset CQRS_ABSINTHE_DEBUG

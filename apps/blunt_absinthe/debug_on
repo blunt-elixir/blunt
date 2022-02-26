@@ -1,0 +1,5 @@
+# run: 
+# 
+# source ./debug_on
+
+export CQRS_ABSINTHE_DEBUG=1

@@ -1,6 +1,3 @@
-[submodule "projects/honeydew"]
-	path = projects/honeydew
-	url = git@github.com:blunt-elixir/honeydew.git
 [submodule "demos/honeydew"]
 	path = demos/honeydew
 	url = git@github.com:blunt-elixir/honeydew.git

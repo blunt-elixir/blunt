@@ -36,10 +36,11 @@ defmodule BluntAbsintheRelay.MixProject do
       {:absinthe_relay, "~> 1.5"},
 
       # Blunt
-      {:blunt, path: "../blunt"},
-      {:blunt_absinthe, path: "../blunt_absinthe"},
-      # {:blunt, "~> 0.1"},
-      # {:blunt_absinthe, "~> 0.1"},
+      # {:blunt, path: "../blunt", override: true},
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+
+      # {:blunt_absinthe, path: "../blunt_absinthe"},
+      {:blunt_absinthe, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_absinthe"},
 
       # For testing
       {:etso, "~> 0.1.6", only: [:test]},

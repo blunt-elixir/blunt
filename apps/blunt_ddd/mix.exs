@@ -34,8 +34,8 @@ defmodule CqrsToolsDdd.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:blunt, path: "../blunt", override: true},
-      # {:blunt, "~> 0.1"},
+      # {:blunt, path: "../blunt", override: true},
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
 
       # For testing
       {:etso, "~> 0.1.6", only: [:test]},

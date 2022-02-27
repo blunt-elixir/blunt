@@ -1,7 +1,7 @@
-defmodule Blunt.Testing.ExMachinaTest do
+defmodule Blunt.Testing.FactoriesTest do
   use ExUnit.Case, async: true
 
-  use Blunt.Testing.ExMachina
+  use Blunt.Testing.Factories
 
   alias Support.Testing.{CreatePerson, GetPerson, PlainMessage, PlainMessage}
 
@@ -15,9 +15,9 @@ defmodule Blunt.Testing.ExMachinaTest do
     assert [1] = Keyword.get_values(funcs, :get_person_factory)
     assert [1] = Keyword.get_values(funcs, :create_person_factory)
 
-    assert [1, 2, 3] = Keyword.get_values(funcs, :dispatch)
-    assert [2, 3, 4] = Keyword.get_values(funcs, :dispatch_list)
-    assert [1, 2, 3] = Keyword.get_values(funcs, :dispatch_pair)
+    assert [1, 2, 3] = Keyword.get_values(funcs, :bispatch)
+    assert [2, 3, 4] = Keyword.get_values(funcs, :bispatch_list)
+    assert [1, 2, 3] = Keyword.get_values(funcs, :bispatch_pair)
   end
 
   describe "queries" do
@@ -31,8 +31,8 @@ defmodule Blunt.Testing.ExMachinaTest do
       assert {:ok, _} = UUID.info(id)
     end
 
-    test "dispatch" do
-      assert {:ok, %{id: id, name: "chris"}} = dispatch(:get_person)
+    test "bispatch" do
+      assert {:ok, %{id: id, name: "chris"}} = bispatch(:get_person)
       assert {:ok, _} = UUID.info(id)
     end
   end
@@ -48,8 +48,8 @@ defmodule Blunt.Testing.ExMachinaTest do
       refute name == nil
     end
 
-    test "dispatch" do
-      assert {:ok, {:dispatched, command}} = dispatch(:create_person)
+    test "bispatch" do
+      assert {:ok, {:dispatched, command}} = bispatch(:create_person)
       assert %CreatePerson{id: id, name: name} = command
       assert {:ok, _} = UUID.info(id)
       refute name == nil
@@ -69,11 +69,11 @@ defmodule Blunt.Testing.ExMachinaTest do
       refute name == nil
     end
 
-    test "dispatch" do
-      alias Blunt.Testing.ExMachina.DispatchStrategy.Error
+    test "bispatch" do
+      alias Blunt.Testing.Factories.DispatchStrategy.Error
 
       assert_raise Error, "Support.Testing.PlainMessage is not a dispatchable message", fn ->
-        dispatch(:plain_message)
+        bispatch(:plain_message)
       end
     end
   end
@@ -151,9 +151,9 @@ defmodule Blunt.Testing.ExMachinaTest do
     alias Support.Testing.LayzFactoryValueMessages.{CreatePolicyFee, CreatePolicy, CreateProduct}
 
     factory CreatePolicyFee, debug: false do
-      lazy :product, CreateProduct
+      lazy_data :product, CreateProduct
 
-      lazy :policy, CreatePolicy, [
+      lazy_data :policy, CreatePolicy, [
         prop(:product_id, [:product, :id])
       ]
 
@@ -163,7 +163,7 @@ defmodule Blunt.Testing.ExMachinaTest do
     test "are evaluated in order of declaration" do
       fee_id = UUID.uuid4()
 
-      assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = dispatch(:create_policy_fee, id: fee_id)
+      assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = bispatch(:create_policy_fee, id: fee_id)
 
       assert {:ok, _} = UUID.info(policy_id)
     end
@@ -173,7 +173,7 @@ defmodule Blunt.Testing.ExMachinaTest do
       policy_id = UUID.uuid4()
       policy = %{id: policy_id}
 
-      assert {:ok, %{id: ^fee_id, policy_id: ^policy_id}} = dispatch(:create_policy_fee, id: fee_id, policy: policy)
+      assert {:ok, %{id: ^fee_id, policy_id: ^policy_id}} = bispatch(:create_policy_fee, id: fee_id, policy: policy)
     end
   end
 
@@ -182,14 +182,14 @@ defmodule Blunt.Testing.ExMachinaTest do
     end
 
     factory CreatePolicyFee, as: :create_policy_fee2 do
-      lazy :policy, NonStruct, [prop(:product_id, [:product, :id])]
+      lazy_data :policy, NonStruct, [prop(:product_id, [:product, :id])]
       prop :policy_id, [:policy, :id]
     end
 
     test "can not be used as a lazy factory" do
       fee_id = UUID.uuid4()
 
-      assert_raise Blunt.Testing.ExMachina.Factory.Error, fn -> dispatch(:create_policy_fee2, id: fee_id) end
+      assert_raise Blunt.Testing.Factories.Factory.Error, fn -> bispatch(:create_policy_fee2, id: fee_id) end
     end
   end
 

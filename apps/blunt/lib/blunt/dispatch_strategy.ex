@@ -26,7 +26,7 @@ defmodule Blunt.DispatchStrategy do
     end
   end
 
-  @spec execute({atom, atom, list}, context()) :: {:error, context()} | {:ok, context()}
+  @spec execute({module :: atom, function :: atom, args :: list}, context()) :: {:error, context()} | {:ok, context()}
   def execute({pipeline, callback, args}, context) do
     case apply(pipeline, callback, args) do
       {:error, error} ->

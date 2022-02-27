@@ -1,5 +1,6 @@
 defmodule Blunt.Absinthe.MutationTest do
   use ExUnit.Case
+  alias Blunt.DispatchContext
   alias Blunt.Absinthe.Test.Schema
 
   setup do
@@ -34,5 +35,13 @@ defmodule Blunt.Absinthe.MutationTest do
 
     assert %{"id" => id, "name" => "chris", "gender" => "MALE"} = person
     assert {:ok, _} = UUID.info(id)
+  end
+
+  test "user is put in the context from absinthe resolution context", %{query: query} do
+    context = %{user: %{name: "chris"}, reply_to: self()}
+
+    _ = Absinthe.run(query, Schema, context: context, variables: %{"name" => "chris", "gender" => "MALE"})
+
+    assert_receive {:context, %DispatchContext{user: %{name: "chris"}}}
   end
 end

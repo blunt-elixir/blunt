@@ -27,7 +27,7 @@ defmodule Blunt.Absinthe.Log do
     |> Process.get([])
     |> Enum.sort_by(& &1.date)
     |> Enum.each(fn %{level: level, message: message} ->
-      if System.get_env("CQRS_ABSINTHE_DEBUG") do
+      if System.get_env("BLUNT_DEBUG") do
         IO.inspect(message, label: "log")
       end
 

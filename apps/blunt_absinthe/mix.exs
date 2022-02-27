@@ -34,8 +34,8 @@ defmodule BluntAbsinthe.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:blunt, path: "../blunt", override: true},
-      {:blunt, "~> 0.1"},
+      {:blunt, path: "../blunt", override: true},
+      # {:blunt, "~> 0.1"},
       {:absinthe, "~> 1.7"},
 
       # For testing

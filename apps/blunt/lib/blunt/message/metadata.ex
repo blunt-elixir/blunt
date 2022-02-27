@@ -14,8 +14,7 @@ defmodule Blunt.Message.Metadata do
 
   def generate do
     quote do
-      @metadata message_type: Module.delete_attribute(__MODULE__, :message_type)
-      @metadata schema_fields: Module.delete_attribute(__MODULE__, :schema_fields)
+      @metadata message_schema: Module.delete_attribute(__MODULE__, :schema_fields)
       @metadata primary_key: Module.delete_attribute(__MODULE__, :primary_key_type)
     end
   end
@@ -63,7 +62,7 @@ defmodule Blunt.Message.Metadata do
   end
 
   def fields(module) do
-    fetch!(module, :schema_fields)
+    fetch!(module, :message_schema)
   end
 
   def field_names(module) do
@@ -91,6 +90,11 @@ defmodule Blunt.Message.Metadata do
     module
     |> fields()
     |> Enum.filter(fn {_name, _type, opts} -> Keyword.fetch!(opts, :required) end)
+  end
+
+  def required_field_names(module) do
+    module
+    |> required_fields()
     |> Enum.map(&elem(&1, 0))
   end
 

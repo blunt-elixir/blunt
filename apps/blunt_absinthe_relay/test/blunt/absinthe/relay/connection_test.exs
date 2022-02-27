@@ -1,6 +1,7 @@
 defmodule Blunt.Absinthe.Relay.ConnectionTest do
   use ExUnit.Case, async: false
 
+  alias Blunt.DispatchContext
   alias Blunt.Absinthe.Relay.Test.{CreatePeople, Schema}
 
   setup_all do
@@ -70,5 +71,13 @@ defmodule Blunt.Absinthe.Relay.ConnectionTest do
     assert edges
            |> Enum.map(&get_in(&1, ["node", "name"]))
            |> Enum.all?(fn name -> name in ["chris", "luke", "michael"] end)
+  end
+
+  test "user is put in the context from absinthe resolution context", %{query: query} do
+    context = %{user: %{name: "chris"}, reply_to: self()}
+
+    _ = Absinthe.run(query, Schema, context: context, variables: %{"gender" => "NOT_SURE"})
+
+    assert_receive {:context, %DispatchContext{user: %{name: "chris"}}}
   end
 end

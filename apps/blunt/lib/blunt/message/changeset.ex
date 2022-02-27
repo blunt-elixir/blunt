@@ -32,7 +32,7 @@ defmodule Blunt.Message.Changeset do
       |> Input.normalize(message)
       |> autogenerate_fields(message)
 
-    required_fields = Metadata.required_fields(message)
+    required_fields = Metadata.required_field_names(message)
 
     embeds = message.__schema__(:embeds)
     fields = message.__schema__(:fields)

@@ -1,5 +1,6 @@
 defmodule Blunt.Message.Documentation do
   @moduledoc false
+  alias Blunt.Config
   alias Blunt.Message.Documentation
   alias Blunt.Message.Documentation.{FieldAndOptionDocs, MetadataDocs}
 
@@ -38,9 +39,29 @@ defmodule Blunt.Message.Documentation do
   end
 
   def generate_module_doc(%{module: module}) do
-    docs = Documentation.make(module)
+    docs =
+      module
+      |> Documentation.make()
+      |> output_markdown(module)
+
     Module.put_attribute(module, :moduledoc, docs.moduledoc)
     doc_functions(docs)
+  end
+
+  defp output_markdown(%{moduledoc: {_line, moduledoc}} = docs, module) do
+    case Config.documentation_output() do
+      false ->
+        docs
+
+      true ->
+        File.write!("#{inspect(module)}.md", to_string(moduledoc))
+        docs
+
+      path when is_binary(path) ->
+        File.mkdir_p(path)
+        File.write!("#{path}/#{inspect(module)}.md", to_string(moduledoc))
+        docs
+    end
   end
 
   defp doc_functions(%{shortdoc: shortdoc, fielddoc: fielddoc, optiondoc: optiondoc, metadatadoc: metadatadoc}) do

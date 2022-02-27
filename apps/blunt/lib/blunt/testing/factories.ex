@@ -1,12 +1,12 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
-  defmodule Blunt.Testing.ExMachina do
-    alias Blunt.Testing.ExMachina.Factory
+  defmodule Blunt.Testing.Factories do
+    alias Blunt.Testing.Factories.Factory
 
     defmacro __using__(opts) do
       repo = Keyword.get(opts, :repo)
 
       quote do
-        use Blunt.Testing.ExMachina.DispatchStrategy
+        use Blunt.Testing.Factories.DispatchStrategy
 
         if unquote(repo) do
           use ExMachina.Ecto, repo: unquote(repo)
@@ -14,8 +14,10 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           use ExMachina
         end
 
-        import Blunt.Testing.ExMachina, only: :macros
-        import Blunt.Testing.ExMachina.Values, only: :macros
+        import Blunt.Testing.Factories, only: :macros
+        import Blunt.Testing.Factories.Values, only: :macros
+
+        Module.put_attribute(__MODULE__, :desc, nil)
       end
     end
 
@@ -43,12 +45,14 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defp extract_values({:__block__, _meta, elements}), do: elements
     defp extract_values(nil), do: []
+    defp extract_values(list) when is_list(list), do: list
     defp extract_values(element), do: [element]
 
     defp create_factory(name, message, values, opts) do
       quote do
         def unquote(name)(attrs) do
-          Factory.build(%Factory{message: unquote(message), values: unquote(values)}, attrs, unquote(opts))
+          Factory.new(unquote(name), unquote(message), unquote(values))
+          |> Factory.build(attrs, unquote(opts))
         end
       end
     end

@@ -1,8 +1,8 @@
 defmodule Blunt.Absinthe.QueryTest do
   use ExUnit.Case
 
-  alias Blunt.Repo
   alias Blunt.Absinthe.Test.Schema
+  alias Blunt.{DispatchContext, Repo}
   alias Blunt.Absinthe.Test.ReadModel.Person
 
   defp create_person(name) do
@@ -43,5 +43,13 @@ defmodule Blunt.Absinthe.QueryTest do
     variables = %{"id" => person_id, "error_out" => true}
 
     assert {:ok, %{errors: [%{message: "sumting wong"}]}} = Absinthe.run(query, Schema, variables: variables)
+  end
+
+  test "user is put in the context from absinthe resolution context", %{person_id: person_id, query: query} do
+    context = %{user: %{name: "chris"}, reply_to: self()}
+
+    _ = Absinthe.run(query, Schema, context: context, variables: %{"id" => person_id})
+
+    assert_receive {:context, %DispatchContext{user: %{name: "chris"}}}
   end
 end

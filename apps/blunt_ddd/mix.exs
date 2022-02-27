@@ -8,7 +8,7 @@ defmodule CqrsToolsDdd.MixProject do
       version: @version,
       app: :blunt_ddd,
       version: "0.1.0",
-      elixir: "~> 1.13",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: [
@@ -34,8 +34,8 @@ defmodule CqrsToolsDdd.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:blunt, path: "../blunt", override: true},
-      {:blunt, "~> 0.1"},
+      {:blunt, path: "../blunt", override: true},
+      # {:blunt, "~> 0.1"},
 
       # For testing
       {:etso, "~> 0.1.6", only: [:test]},

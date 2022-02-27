@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Blunt.Inspect.AggregateTest do
   use EventStoreCase, async: false
 
-  use Blunt.Testing.ExMachina
+  use Blunt.Testing.Factories
   use AppendToStreamStrategy
 
   @person_id "25d85f07-26ab-4434-851b-d11da9ec942e"

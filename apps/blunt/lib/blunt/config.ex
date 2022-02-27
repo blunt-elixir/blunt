@@ -5,7 +5,7 @@ defmodule Blunt.Config do
     defexception [:message]
   end
 
-  alias Blunt.{Behaviour, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
+  alias Blunt.{Behaviour, DispatchContext, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
 
   def log_when_compiling?,
     do: get(:log_when_compiling, false)
@@ -33,6 +33,17 @@ defmodule Blunt.Config do
     end
 
     value
+  end
+
+  @doc false
+  def documentation_output,
+    do: get(:documentation_output, false)
+
+  @doc false
+  def dispatch_context_configuration do
+    :dispatch_context_configuration
+    |> get(DispatchContext.DefaultConfiguration)
+    |> Behaviour.validate!(DispatchContext.Configuration)
   end
 
   @doc false

@@ -53,8 +53,12 @@ defmodule Blunt.Command.Events do
       |> Metadata.fields()
       |> Enum.reject(fn {name, _type, _opts} -> Enum.member?(to_drop, name) end)
       |> Enum.map(fn
-        {:created_at, _, _} -> nil
-        {name, type, opts} -> quote do: field(unquote(name), unquote(type), unquote(opts))
+        {:created_at, _, _} ->
+          nil
+
+        {name, type, opts} ->
+          opts = Keyword.put(opts, :required, false)
+          quote do: field(unquote(name), unquote(type), unquote(opts))
       end)
 
     module_name = fq_event_name(command, event)

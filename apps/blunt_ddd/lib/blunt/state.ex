@@ -24,6 +24,8 @@ defmodule Blunt.State do
 
       @before_compile Blunt.State
 
+      def __state__, do: true
+
       import Blunt.State, only: :macros
     end
   end

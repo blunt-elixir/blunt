@@ -5,7 +5,7 @@ defmodule CommandedToolkit.MixProject do
     [
       app: :blunt_toolkit,
       version: "0.1.0",
-      elixir: "~> 1.13",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -32,10 +32,10 @@ defmodule CommandedToolkit.MixProject do
     [
       {:ratatouille, "~> 0.5"},
 
-      # {:blunt, path: "../blunt", override: true},
-      # {:blunt_ddd, path: "../blunt_ddd", override: true},
-      {:blunt, "~> 0.1"},
-      {:blunt_ddd, "~> 0.1"},
+      {:blunt, path: "../blunt", override: true},
+      {:blunt_ddd, path: "../blunt_ddd", override: true},
+      # {:blunt, "~> 0.1"},
+      # {:blunt_ddd, "~> 0.1"},
 
       {:commanded, "~> 1.3"},
       {:eventstore, "~> 1.3"},

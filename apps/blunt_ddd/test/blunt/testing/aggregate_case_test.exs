@@ -1,7 +1,7 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.AggregateCaseTest do
     use ExUnit.Case
-    use Blunt.Testing.ExMachina
+    use Blunt.Testing.Factories
 
     alias Support.Testing.{CreatePerson, PersonAggregate, PersonCreated}
 

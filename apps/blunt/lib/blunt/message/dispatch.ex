@@ -34,8 +34,14 @@ defmodule Blunt.Message.Dispatch do
   def dispatch({:ok, message, discarded_data}, opts) do
     with {:ok, context} <- DispatchContext.new(message, discarded_data, opts) do
       if DispatchContext.async?(context),
-        do: Task.async(fn -> DispatchStrategy.dispatch(context) end),
-        else: DispatchStrategy.dispatch(context)
+        do: Task.async(fn -> do_dispatch(context) end),
+        else: do_dispatch(context)
     end
+  end
+
+  defp do_dispatch(context) do
+    context
+    |> DispatchContext.Configuration.configure()
+    |> DispatchStrategy.dispatch()
   end
 end

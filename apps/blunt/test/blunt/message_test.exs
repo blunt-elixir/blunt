@@ -32,7 +32,7 @@ defmodule Blunt.MessageTest do
 
     assert [:id] == Metadata.field_names(Msg)
 
-    required_fields = Metadata.required_fields(Msg)
+    required_fields = Metadata.required_field_names(Msg)
     refute Enum.member?(required_fields, :id)
   end
 

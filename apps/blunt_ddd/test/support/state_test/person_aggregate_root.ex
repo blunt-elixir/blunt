@@ -1,6 +1,4 @@
 defmodule Support.StateTest.PersonAggregateRoot do
-  @behaviour Blunt.AggregateRoot
-
   use Blunt.Ddd
 
   alias Support.StateTest.ReservationEntity

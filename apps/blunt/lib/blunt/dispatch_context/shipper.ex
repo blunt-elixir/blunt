@@ -9,8 +9,10 @@ defmodule Blunt.DispatchContext.Shipper do
     GenServer.start_link(__MODULE__, shipper, name: __MODULE__)
   end
 
-  def ship(context),
-    do: GenServer.cast(__MODULE__, {:ship, context})
+  def ship(context) do
+    GenServer.cast(__MODULE__, {:ship, context})
+    context
+  end
 
   @impl true
   def init(state),

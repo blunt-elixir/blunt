@@ -2,6 +2,10 @@ defmodule Blunt.DispatchContext do
   alias Blunt.Config
   alias Blunt.Message.{Metadata, Options}
 
+  defmodule Error do
+    defexception [:message]
+  end
+
   @type t :: %__MODULE__{message_type: atom(), message: struct(), errors: list()}
   @type command_context :: %__MODULE__{message_type: :command, message: struct(), errors: list()}
   @type query_context :: %__MODULE__{message_type: :query, message: struct(), errors: list()}
@@ -71,10 +75,10 @@ defmodule Blunt.DispatchContext do
     }
   end
 
-  defp parse_message_opts(%{message_module: message_module, opts: opts} = base_context) do
+  defp parse_message_opts(%{message_module: message_module, opts: incoming_opts} = base_context) do
     context =
-      case Options.Parser.parse_message_opts(message_module, opts) do
-        {:ok, opts} -> %{base_context | opts: opts}
+      case Options.Parser.parse_message_opts(message_module, incoming_opts) do
+        {:ok, opts} -> %{base_context | opts: Keyword.merge(incoming_opts, opts)}
         {:error, error} -> %{base_context | errors: [error]}
       end
 
@@ -90,8 +94,16 @@ defmodule Blunt.DispatchContext do
   @spec async?(context) :: boolean()
   def async?(%__MODULE__{async: async}), do: async
 
+  @spec get_message(context()) :: struct() | any()
+  def get_message(%__MODULE__{message: message}), do: message
+
   @spec options(context) :: keyword()
   def options(%__MODULE__{opts: opts}), do: opts
+
+  @spec put_option(context, atom, any) :: context
+  def put_option(%__MODULE__{opts: opts} = context, key, value) do
+    %{context | opts: Keyword.put(opts, key, value)}
+  end
 
   @spec get_option(context, atom, any | nil) :: any | nil
   def get_option(%__MODULE__{opts: opts}, key, default \\ nil) when is_atom(key), do: Keyword.get(opts, key, default)
@@ -101,6 +113,9 @@ defmodule Blunt.DispatchContext do
 
   @spec user(context) :: map() | nil
   def user(%__MODULE__{user: user}), do: user
+
+  @spec put_user(context, any()) :: context()
+  def put_user(%__MODULE__{} = context, user), do: %{context | user: user}
 
   @spec errors(context) :: map()
   def errors(%__MODULE__{errors: errors} = context) do
@@ -120,22 +135,33 @@ defmodule Blunt.DispatchContext do
   def put_private(%__MODULE__{private: private} = context, key, value) when is_atom(key),
     do: %{context | private: Map.put(private, key, value)}
 
-  @type current_context :: t() | {:ok, any(), t()}
-  @spec push_private(current_context, atom(), any()) :: {:ok, any(), t()}
+  @spec put_private(context, struct() | map() | list()) :: context
 
-  def push_private({:ok, _value, context}, key, value),
-    do: push_private(context, key, value)
+  def put_private(%__MODULE__{} = context, list) when is_list(list) do
+    unless Keyword.keyword?(list) do
+      raise Error, message: "private values must be a struct, map, or keyword list"
+    end
 
-  def push_private(%{private: private} = context, key, value) do
-    context = %{context | private: Map.put(private, key, value)}
-    {:ok, value, context}
+    put_private(context, Enum.into(list, %{}))
   end
 
-  @spec get_private(context) :: map()
+  def put_private(%__MODULE__{} = context, map) when is_struct(map),
+    do: put_private(context, Map.from_struct(map))
+
+  def put_private(%__MODULE__{private: private} = context, map) when is_map(map),
+    do: %{context | private: Map.merge(private, map)}
+
+  @spec get_private({:ok, context} | context) :: map()
+  def get_private({:ok, %__MODULE__{private: private}}), do: private
   def get_private(%__MODULE__{private: private}), do: private
 
-  @spec get_private(context, atom, any | nil) :: any | nil
-  def get_private(%__MODULE__{private: private}, key, default \\ nil),
+  @spec get_private({:ok, context} | context, atom, any | nil) :: any | nil
+  def get_private(context, key, default \\ nil)
+
+  def get_private({:ok, %__MODULE__{private: private}}, key, default),
+    do: Map.get(private, key, default)
+
+  def get_private(%__MODULE__{private: private}, key, default),
     do: Map.get(private, key, default)
 
   @spec put_pipeline(context, atom, any) :: context

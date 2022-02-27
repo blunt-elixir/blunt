@@ -17,15 +17,18 @@ locals_without_parens = [
   derive_event: 2,
   metadata: 2,
 
-  # ex_machina macros
+  # blunt factories macros
   factory: 1,
   factory: 2,
   factory: 3,
   const: 2,
   fake: 2,
-  lazy: 2,
-  lazy: 3,
-  prop: 2
+  data: 2,
+  data: 3,
+  lazy_data: 2,
+  lazy_data: 3,
+  prop: 2,
+  lazy_prop: 2
 ]
 
 [

@@ -1,4 +1,4 @@
-defmodule Blunt.ContextTest do
+defmodule Blunt.BoundedContextTest do
   use ExUnit.Case, async: true
 
   alias Blunt.{DispatchContext, Query}

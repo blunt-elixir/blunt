@@ -2,6 +2,7 @@ defmodule Blunt.Absinthe.Field do
   @moduledoc false
   alias Blunt.DispatchContext, as: Context
   alias Blunt.Absinthe.{AbsintheErrors, Args, Field, Log, Middleware}
+  alias Blunt.Absinthe.DispatchContext.Configuration, as: DispatchContextConfiguration
 
   @type message_module :: atom()
 
@@ -67,8 +68,13 @@ defmodule Blunt.Absinthe.Field do
 
   @type resolution :: Absinthe.Resolution.t()
   @spec dispatch_and_resolve(atom, atom, keyword, map, map, any) :: {:error, list} | {:ok, any}
-  def dispatch_and_resolve(operation, message_module, query_opts, parent, args, _resolution) do
-    opts = put_dispatch_opts(query_opts, operation, args)
+  def dispatch_and_resolve(operation, message_module, query_opts, parent, args, resolution) do
+    context_configuration = DispatchContextConfiguration.configure(resolution)
+
+    opts =
+      query_opts
+      |> put_dispatch_opts(operation, args)
+      |> Keyword.merge(context_configuration)
 
     results =
       args

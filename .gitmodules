@@ -1,3 +1,6 @@
 [submodule "demos/honeydew"]
 	path = demos/honeydew
 	url = git@github.com:blunt-elixir/honeydew.git
+[submodule "tools/git-semver"]
+	path = tools/git-semver
+	url = https://github.com/markchalloner/git-semver.git

@@ -8,7 +8,7 @@ defmodule BluntAbsintheRelay.MixProject do
       version: @version,
       app: :blunt_absinthe_relay,
       version: "0.1.0",
-      elixir: "~> 1.13",
+      elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://github.com/blunt-elixir/blunt_absinthe_relay",
@@ -36,10 +36,10 @@ defmodule BluntAbsintheRelay.MixProject do
       {:absinthe_relay, "~> 1.5"},
 
       # Blunt
-      # {:blunt, path: "../blunt"},
-      # {:blunt_absinthe, path: "../blunt_absinthe"},
-      {:blunt, "~> 0.1"},
-      {:blunt_absinthe, "~> 0.1"},
+      {:blunt, path: "../blunt"},
+      {:blunt_absinthe, path: "../blunt_absinthe"},
+      # {:blunt, "~> 0.1"},
+      # {:blunt_absinthe, "~> 0.1"},
 
       # For testing
       {:etso, "~> 0.1.6", only: [:test]},

@@ -5,16 +5,16 @@ defmodule Blunt.Ddd do
     end
   end
 
-  defmacro defstate(do: body) do
+  defmacro defcontext(do: body) do
     quote do
-      use Blunt.State
+      use Blunt.BoundedContext
       unquote(body)
     end
   end
 
-  defmacro defcontext(do: body) do
+  defmacro defstate(do: body) do
     quote do
-      use Blunt.Context
+      use Blunt.State
       unquote(body)
     end
   end

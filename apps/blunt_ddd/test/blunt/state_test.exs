@@ -1,8 +1,13 @@
 defmodule Blunt.StateTest do
   use ExUnit.Case, async: true
+  use Blunt.Testing.Factories
 
   alias Support.StateTest.{PersonAggregateRoot, ReservationEntity}
   alias Support.StateTest.Protocol.{PersonCreated, ReservationAdded}
+
+  factory PersonCreated
+  factory ReservationAdded
+  factory ReservationEntity
 
   test "initial aggregate state" do
     assert %{id: nil} = %PersonAggregateRoot{}
@@ -11,11 +16,9 @@ defmodule Blunt.StateTest do
   test "create person" do
     id = UUID.uuid4()
 
-    event = PersonCreated.new(id: id, name: "chris")
+    event = build(:person_created, id: id, name: "chris")
 
-    assert %{id: ^id, reservations: []} =
-             %PersonAggregateRoot{}
-             |> PersonAggregateRoot.apply(event)
+    assert %{id: ^id, reservations: []} = PersonAggregateRoot.apply(%PersonAggregateRoot{}, event)
   end
 
   test "add reservation" do
@@ -23,8 +26,8 @@ defmodule Blunt.StateTest do
     reservation_id = UUID.uuid4()
 
     events = [
-      PersonCreated.new(id: person_id, name: "chris"),
-      ReservationAdded.new(person_id: person_id, reservation_id: reservation_id)
+      build(:person_created, id: person_id, name: "chris"),
+      build(:reservation_added, person_id: person_id, reservation_id: reservation_id)
     ]
 
     state = %PersonAggregateRoot{}
@@ -51,7 +54,7 @@ defmodule Blunt.StateTest do
 
       id = UUID.uuid4()
       reservation_id = UUID.uuid4()
-      entity = ReservationEntity.new(id: reservation_id)
+      entity = build(:reservation_entity, id: reservation_id)
 
       values = %{id: id, reservations: [entity]}
 

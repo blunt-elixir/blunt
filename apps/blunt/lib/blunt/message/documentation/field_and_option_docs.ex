@@ -5,6 +5,7 @@ defmodule Blunt.Message.Documentation.FieldAndOptionDocs do
   defp generate(title, fields) do
     {required, optional} =
       fields
+      |> Enum.reject(fn {_name, _type, config} -> Keyword.get(config, :internal) == true end)
       |> Enum.sort_by(&elem(&1, 0))
       |> Enum.split_with(fn
         {_name, _type, config} -> Keyword.get(config, :required) == true
@@ -35,7 +36,7 @@ defmodule Blunt.Message.Documentation.FieldAndOptionDocs do
 
     ### #{title}
 
-    #{Enum.join(docs, "\n")}
+    #{Enum.join(docs, "\n\n")}
     """
   end
 
@@ -61,7 +62,7 @@ defmodule Blunt.Message.Documentation.FieldAndOptionDocs do
           |> Enum.map(&"**#{inspect(&1)}**")
           |> Enum.join(", ")
 
-        " \t * possible values: #{values}\n\n"
+        "\t * possible values: #{values}\n\n"
       end
 
     to_string(default) <> to_string(possible_values)

@@ -42,7 +42,8 @@ defmodule Blunt.DispatchStrategy do
          |> DispatchContext.put_pipeline(callback, :error)}
 
       {:ok, %DispatchContext{} = context} ->
-        {:ok, DispatchContext.put_pipeline(context, callback, :ok)}
+        result = DispatchContext.get_last_pipeline(context)
+        {:ok, DispatchContext.put_pipeline(context, callback, result)}
 
       {:ok, {:ok, response}} ->
         {:ok, DispatchContext.put_pipeline(context, callback, response)}

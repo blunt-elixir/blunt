@@ -1,6 +1,6 @@
 %{
   "absinthe": {:hex, :absinthe, "1.7.0", "36819e7b1fd5046c9c734f27fe7e564aed3bda59f0354c37cd2df88fd32dd014", [:mix], [{:dataloader, "~> 1.0.0", [hex: :dataloader, repo: "hexpm", optional: true]}, {:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}, {:nimble_parsec, "~> 0.5 or ~> 1.0", [hex: :nimble_parsec, repo: "hexpm", optional: false]}, {:telemetry, "~> 1.0 or ~> 0.4", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "566a5b5519afc9b29c4d367f0c6768162de3ec03e9bf9916f9dc2bcbe7c09643"},
-  "blunt": {:git, "https://github.com/blunt-elixir/blunt.git", "8cdc31951e5966efc45460a6b13bfbff020f426c", [ref: "reorg", sparse: "apps/blunt"]},
+  "blunt": {:git, "https://github.com/blunt-elixir/blunt.git", "4fb6a87f702eee1c2c425d9cbfa2445ff4c57a9c", [ref: "reorg", sparse: "apps/blunt"]},
   "decimal": {:hex, :decimal, "2.0.0", "a78296e617b0f5dd4c6caf57c714431347912ffb1d0842e998e9792b5642d697", [:mix], [], "hexpm", "34666e9c55dea81013e77d9d87370fe6cb6291d1ef32f46a1600230b1d44f577"},
   "dialyxir": {:hex, :dialyxir, "1.1.0", "c5aab0d6e71e5522e77beff7ba9e08f8e02bad90dfbeffae60eaf0cb47e29488", [:mix], [{:erlex, ">= 0.2.6", [hex: :erlex, repo: "hexpm", optional: false]}], "hexpm", "07ea8e49c45f15264ebe6d5b93799d4dd56a44036cf42d0ad9c960bc266c0b9a"},
   "earmark_parser": {:hex, :earmark_parser, "1.4.20", "89970db71b11b6b89759ce16807e857df154f8df3e807b2920a8c39834a9e5cf", [:mix], [], "hexpm", "1eb0d2dabeeeff200e0d17dc3048a6045aab271f73ebb82e416464832eb57bdd"},

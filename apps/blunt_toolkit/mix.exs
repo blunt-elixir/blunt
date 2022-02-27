@@ -32,10 +32,11 @@ defmodule CommandedToolkit.MixProject do
     [
       {:ratatouille, "~> 0.5"},
 
-      {:blunt, path: "../blunt", override: true},
-      {:blunt_ddd, path: "../blunt_ddd", override: true},
-      # {:blunt, "~> 0.1"},
-      # {:blunt_ddd, "~> 0.1"},
+      # {:blunt, path: "../blunt", override: true},
+      # {:blunt_ddd, path: "../blunt_ddd", override: true},
+
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+      {:blunt_ddd, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_ddd"},
 
       {:commanded, "~> 1.3"},
       {:eventstore, "~> 1.3"},

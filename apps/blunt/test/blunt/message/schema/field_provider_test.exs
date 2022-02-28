@@ -4,7 +4,7 @@ defmodule Blunt.Message.Schema.FieldProviderTest do
 
   alias Blunt.Config
   alias Blunt.Message.Schema.FieldProvider
-  # alias Support.Message.Schema.CustomFieldProvider
+  # alias Support.Message.Schema.EmailFieldProvider
 
   @moduledoc """
   Blunt gives you a pretty painless way of defining your own field types.
@@ -16,7 +16,7 @@ defmodule Blunt.Message.Schema.FieldProviderTest do
 
   ## Example
 
-      defmodule CustomFieldProvider do
+      defmodule EmailFieldProvider do
         @behaviour Blunt.Message.Schema.FieldProvider
 
         alias Ecto.Changeset
@@ -58,7 +58,7 @@ defmodule Blunt.Message.Schema.FieldProviderTest do
   # *****************************************************
   # And pop it in your config.exs
   # like this:
-  #   config :blunt, schema_field_providers: [CustomFieldProvider]
+  #   config :blunt, schema_field_providers: [EmailFieldProvider]
   # *****************************************************
   # Of course, it seems a little foreign. But you can test
   # your implementation by copying this file and tweaking it out.
@@ -124,27 +124,35 @@ defmodule Blunt.Message.Schema.FieldProviderTest do
   end
 
   describe "fake data" do
-    defmodule CustomFakeData do
-      use Blunt.Message
+    test "email field type provides fake data" do
+      field_type = :email
+      validation = :doesnt_matter
+      field_config = []
 
-      field :email_address, :email, required: true
-      field :name, :string, validate: :begin_with_capital_letter
+      assert "fake_hombre@example.com" == FieldProvider.fake(field_type, field_config, validation: validation)
+    end
+
+    test "field with `validate: begin_with_capital_letter` provides fake data" do
+      field_type = :doesnt_matter
+      validation = :begin_with_capital_letter
+      field_config = []
+
+      assert "Chris" == FieldProvider.fake(field_type, field_config, validation: validation)
     end
   end
 
-  test "email field type provides fake data" do
-    field_type = :email
-    validation = :doesnt_matter
-    field_config = []
+  describe "using the field provider module as a type" do
+    alias Support.Message.Schema.EmailFieldProvider
 
-    assert "fake_hombre@example.com" == FieldProvider.fake(field_type, field_config, validation: validation)
-  end
+    defmodule UseModuleAsType do
+      use Blunt.Message
+      field :email_address, EmailFieldProvider
+    end
 
-  test "field with `validate: begin_with_capital_letter` provides fake data" do
-    field_type = :doesnt_matter
-    validation = :begin_with_capital_letter
-    field_config = []
+    factory UseModuleAsType, debug: false
 
-    assert "Chris" == FieldProvider.fake(field_type, field_config, validation: validation)
+    test "works as intended" do
+      assert %{email_address: "fake_hombre@example.com"} = build(:use_module_as_type)
+    end
   end
 end

@@ -20,7 +20,8 @@ defmodule Blunt.Message.Schema.FieldProvider do
     defexception [:message]
   end
 
-  alias Blunt.Config
+  alias Blunt.{Behaviour, Config}
+  alias Blunt.Message.Schema.FieldProvider
 
   @doc false
   def ecto_field(module, field_definition, opts \\ []) do
@@ -46,11 +47,19 @@ defmodule Blunt.Message.Schema.FieldProvider do
 
   @doc false
   def fake(type, config, opts \\ []) do
-    providers = Config.schema_field_providers(opts)
+    case Behaviour.validate(type, FieldProvider) do
+      {:ok, provider} ->
+        provider
+        |> attempt_fake(type, config, opts)
+        |> elem(1)
 
-    Enum.reduce_while(providers, nil, fn provider, _acc ->
-      attempt_fake(provider, type, config, opts)
-    end)
+      _otherwise ->
+        providers = Config.schema_field_providers(opts)
+
+        Enum.reduce_while(providers, nil, fn provider, _acc ->
+          attempt_fake(provider, type, config, opts)
+        end)
+    end
   end
 
   defp attempt_fake(provider, type, config, opts) do

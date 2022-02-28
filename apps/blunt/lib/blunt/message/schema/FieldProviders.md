@@ -9,7 +9,7 @@ The `schema_field_providers` setting can accept one or more `FieldProviders`
 ## Example
 
 ```elixir
-defmodule CustomFieldProvider do
+defmodule EmailFieldProvider do
   @behaviour Blunt.Message.Schema.FieldProvider
 
   alias Ecto.Changeset
@@ -54,7 +54,7 @@ in `config.exs`
 
 ```elixir
 config :blunt, schema_field_providers: [
-    CustomFieldProvider
+    EmailFieldProvider
   ]
 ```
 

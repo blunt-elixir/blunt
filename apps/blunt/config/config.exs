@@ -10,6 +10,5 @@ config :blunt,
   pipeline_resolver: Blunt.DispatchStrategy.PipelineResolver.Default,
   dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration,
   schema_field_providers: [
-    Support.Message.Schema.CustomFieldProvider,
-    Blunt.Message.Schema.DefaultFieldProvider
+    Support.Message.Schema.CustomFieldProvider
   ]

@@ -1,6 +1,6 @@
 # Field Providers
 
-In Blunt, you can define field types based on your domain needs. This might help describe your domain better that generic data types.
+In Blunt, you can define field types based on your domain needs. This might help describe your domain better than generic data types.
 
 To achieve this, we need to tell Blunt where these fields are defined. We need to implement the `Blunt.Message.Schema.FieldProvider` behaviour and configure the `schema_field_providers` Blunt setting.
 
@@ -49,6 +49,16 @@ end
 ```
 
 ### Usage
+
+in `config.exs`
+
+```elixir
+config :blunt, schema_field_providers: [
+    CustomFieldProvider
+  ]
+```
+
+In a message
 
 ```elixir 
 defmodule CustomMessage do

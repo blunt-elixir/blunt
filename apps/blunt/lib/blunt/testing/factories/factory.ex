@@ -2,6 +2,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.Factories.Factory do
     @moduledoc false
 
+    alias Blunt.Message.Metadata
+
     defmodule Error do
       defexception [:errors]
 
@@ -42,12 +44,13 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     end
 
     alias Blunt.Message
+    alias Blunt.Message.Schema.FieldProvider
     alias Blunt.Testing.Factories.Values.{Constant, Data, Prop}
 
     def build(%__MODULE__{message: message, values: values} = factory, attrs, opts) do
       opts =
         factory
-        |> Map.take([:name, :message_name])
+        |> Map.take([:name, :message_name, :message])
         |> Enum.to_list()
         |> Keyword.merge(opts)
 
@@ -175,9 +178,16 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     end
 
     defp populate_missing_props(attrs, message_fields, opts) do
+      field_validations =
+        case Keyword.get(opts, :message) do
+          nil -> []
+          module -> Metadata.field_validations(module)
+        end
+
       data =
         for {field, type, config} when not is_map_key(attrs, field) <- message_fields, into: %{} do
-          value = fake(type, config)
+          validation = Keyword.get(field_validations, field, :none)
+          value = FieldProvider.fake(type, config, validation: validation)
 
           debug(value, IO.ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
 
@@ -185,39 +195,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         end
 
       Map.merge(data, attrs)
-    end
-
-    def fake(type, config) do
-      case type do
-        :any -> Faker.Person.suffix()
-        :binary -> nil
-        :boolean -> Enum.random([true, false])
-        :date -> Faker.Date.between(~D[2000-01-01], Date.utc_today())
-        :decimal -> Faker.Commerce.price()
-        :float -> Faker.Commerce.price()
-        :id -> Enum.random(1..100_000)
-        :integer -> Enum.random(1..100_000)
-        :map -> %{}
-        :naive_datetime -> Faker.DateTime.between(~N[2000-01-01 00:00:00.000000Z], NaiveDateTime.utc_now())
-        :naive_datetime_usec -> Faker.DateTime.between(~N[2000-01-01 00:00:00.000000Z], NaiveDateTime.utc_now())
-        :string -> Faker.Company.bullshit() <> " " <> Faker.Commerce.product_name()
-        :time -> nil
-        :time_usec -> nil
-        :utc_datetime -> Faker.DateTime.between(~U[2000-01-01 00:00:00.000000Z], DateTime.utc_now())
-        :utc_datetime_usec -> Faker.DateTime.between(~U[2000-01-01 00:00:00.000000Z], DateTime.utc_now())
-        {:array, type} -> [fake(type, config)]
-        binary_id when binary_id in [:binary_id, Ecto.UUID] -> UUID.uuid4()
-        other -> other_fake(other, config)
-      end
-    end
-
-    defp other_fake(enum, config) when enum in [:enum, Ecto.Enum] do
-      values = Keyword.fetch!(config, :values)
-      Enum.random(values)
-    end
-
-    defp other_fake({:embed, %Ecto.Embedded{cardinality: :one}}, _config) do
-      nil
     end
   end
 end

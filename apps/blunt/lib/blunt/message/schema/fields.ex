@@ -1,10 +1,14 @@
 defmodule Blunt.Message.Schema.Fields do
   @moduledoc false
+  alias Blunt.Message.Schema
 
   def record(name, type, opts \\ []) do
     quote bind_quoted: [name: name, type: type, opts: opts] do
       internal = Keyword.get(opts, :internal, false)
       required = internal == false and Keyword.get(opts, :required, @require_all_fields?)
+
+      validation_name = Keyword.get(opts, :validate)
+      Schema.put_field_validation(__MODULE__, name, validation_name)
 
       opts =
         [default: nil]

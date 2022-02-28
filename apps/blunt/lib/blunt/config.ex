@@ -21,6 +21,19 @@ defmodule Blunt.Config do
     explicit && configured
   end
 
+  def schema_field_providers(opts \\ []) do
+    alias Blunt.Message.Schema.{DefaultFieldProvider, FieldProvider}
+
+    case Keyword.get(opts, :providers) do
+      nil -> get(:schema_field_providers, [])
+      providers -> providers
+    end
+    |> List.wrap()
+    |> Enum.reject(&match?(DefaultFieldProvider, &1))
+    |> Enum.map(&Behaviour.validate!(&1, FieldProvider))
+    |> Kernel.++([DefaultFieldProvider])
+  end
+
   @doc false
   def dispatch_return do
     valid_values = [:context, :response]

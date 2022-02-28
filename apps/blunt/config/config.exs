@@ -8,4 +8,8 @@ config :blunt,
   documentation_output: false,
   dispatch_strategy: Blunt.DispatchStrategy.Default,
   pipeline_resolver: Blunt.DispatchStrategy.PipelineResolver.Default,
-  dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration
+  dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration,
+  schema_field_providers: [
+    Support.Message.Schema.CustomFieldProvider,
+    Blunt.Message.Schema.DefaultFieldProvider
+  ]

@@ -33,19 +33,25 @@ defmodule CqrsToolsDdd.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [
-      # {:blunt, path: "../blunt", override: true},
-      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+    [blunt()] ++
+      [
+        # For testing
+        {:etso, "~> 0.1.6", only: [:test]},
+        {:faker, "~> 0.17.0", optional: true, only: [:test]},
+        {:ex_machina, "~> 2.7", optional: true, only: [:test]},
+        {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+        {:elixir_uuid, "~> 1.6", only: [:dev, :test], override: true, hex: :uuid_utils},
 
-      # For testing
-      {:etso, "~> 0.1.6", only: [:test]},
-      {:faker, "~> 0.17.0", optional: true, only: [:test]},
-      {:ex_machina, "~> 2.7", optional: true, only: [:test]},
-      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-      {:elixir_uuid, "~> 1.6", only: [:dev, :test], override: true, hex: :uuid_utils},
+        # generate docs
+        {:ex_doc, "~> 0.28", only: :dev, runtime: false}
+      ]
+  end
 
-      # generate docs
-      {:ex_doc, "~> 0.28", only: :dev, runtime: false}
-    ]
+  defp blunt do
+    if Mix.env() == :prod do
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"}
+    else
+      {:blunt, path: "../blunt", override: true}
+    end
   end
 end

@@ -12,19 +12,17 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       end
     end
 
-    defmacrop debug(value, label, opts) do
-      quote bind_quoted: [label: label, value: value, opts: opts] do
-        case Keyword.get(opts, :debug, false) do
-          true ->
-            name = Keyword.fetch!(opts, :name)
-            message_name = Keyword.fetch!(opts, :message_name)
-            title = IO.ANSI.format([:blue, "blunt", " - ", :blue, name, :reset, " (", :light_black, message_name, ")"])
+    defp debug(value, label, opts) do
+      case Keyword.get(opts, :debug, false) do
+        true ->
+          name = Keyword.fetch!(opts, :name)
+          message_name = Keyword.fetch!(opts, :message_name)
+          title = IO.ANSI.format([:blue, "blunt", " - ", :blue, name, :reset, " (", :light_black, message_name, ")"])
 
-            IO.inspect(value, label: "[#{title} #{label}]", syntax_colors: [string: :yellow])
+          IO.inspect(value, label: "[#{title} #{label}]", syntax_colors: [string: :yellow])
 
-          _ ->
-            value
-        end
+        _ ->
+          value
       end
     end
 

@@ -1,19 +1,16 @@
 defmodule Support.Message.Schema.EmailFieldProvider do
   @moduledoc """
-  Defines a `email` field type to Blunt
+  Defines a `email` field type for usage in a Blunt message
   """
 
+  @field_types [:email, __MODULE__]
   @behaviour Blunt.Message.Schema.FieldProvider
 
   alias Ecto.Changeset
   alias Blunt.Message.Schema
 
   @impl true
-  def ecto_field(module, {field_name, __MODULE__, opts}) do
-    ecto_field(module, {field_name, :email, opts})
-  end
-
-  def ecto_field(module, {field_name, :email, opts}) do
+  def ecto_field(module, {field_name, field_type, opts}) when field_type in @field_types do
     quote bind_quoted: [module: module, field_name: field_name, opts: opts] do
       Schema.put_field_validation(module, field_name, :email)
       Ecto.Schema.field(field_name, :string, opts)
@@ -30,11 +27,7 @@ defmodule Support.Message.Schema.EmailFieldProvider do
   end
 
   @impl true
-  def fake(__MODULE__, validation, field_config) do
-    fake(:email, validation, field_config)
-  end
-
-  def fake(:email, _validation, _field_config) do
+  def fake(field_type, _validation, _field_config) when field_type in @field_types do
     send(self(), :email_field_faked)
     "fake_hombre@example.com"
   end

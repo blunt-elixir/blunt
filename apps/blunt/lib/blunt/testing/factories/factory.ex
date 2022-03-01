@@ -54,7 +54,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         |> Enum.to_list()
         |> Keyword.merge(opts)
 
-      debug(factory, IO.ANSI.format([:green, :bright, "build"]), opts)
+      debug(factory, IO.ANSI.format([:green, "build"]), opts)
       debug(attrs, IO.ANSI.format([:light_blue, "input"]), opts)
 
       data = Enum.reduce(values, attrs, &resolve_value(&1, &2, opts))
@@ -65,33 +65,33 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           {:ok, _} -> build_blunt_message(factory, data, opts)
         end
 
-      debug(built_message, IO.ANSI.format([:green, :bright, "deliver"]), opts)
+      debug(built_message, IO.ANSI.format([:green, "deliver"]), opts)
     end
 
     defp build_struct(message, data, opts) do
       unless function_exported?(message, :__struct__, 0) do
-        raise Error, errors: "#{inspect(message)} should be a struct to be used as a factory"
-      end
-
-      if function_exported?(message, :__changeset__, 0) do
-        message_fields =
-          message.__changeset__()
-          |> Enum.reject(&match?({_name, {:assoc, _}}, &1))
-          |> Enum.reject(&match?({:inserted_at, _}, &1))
-          |> Enum.reject(&match?({:updated_at, _}, &1))
-          |> Enum.map(fn
-            {name, {:parameterized, Ecto.Enum, config}} ->
-              values = Map.get(config, :on_dump) |> Map.keys()
-              {name, :enum, [values: values]}
-
-            {name, type} ->
-              {name, type, []}
-          end)
-
-        data = populate_missing_props(data, message_fields, opts)
-        struct!(message, data)
+        data
       else
-        struct!(message, data)
+        if function_exported?(message, :__changeset__, 0) do
+          message_fields =
+            message.__changeset__()
+            |> Enum.reject(&match?({_name, {:assoc, _}}, &1))
+            |> Enum.reject(&match?({:inserted_at, _}, &1))
+            |> Enum.reject(&match?({:updated_at, _}, &1))
+            |> Enum.map(fn
+              {name, {:parameterized, Ecto.Enum, config}} ->
+                values = Map.get(config, :on_dump) |> Map.keys()
+                {name, :enum, [values: values]}
+
+              {name, type} ->
+                {name, type, []}
+            end)
+
+          data = populate_missing_props(data, message_fields, opts)
+          struct!(message, data)
+        else
+          struct!(message, data)
+        end
       end
     end
 
@@ -181,6 +181,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       field_validations =
         case Keyword.get(opts, :message) do
           nil -> []
+          Map -> []
           module -> Metadata.field_validations(module)
         end
 

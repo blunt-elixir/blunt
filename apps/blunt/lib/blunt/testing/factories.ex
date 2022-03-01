@@ -40,6 +40,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     defmacro factory(message, opts, do: body) do
       values = extract_values(body)
       {factory_name, opts} = factory_name(message, opts)
+
       create_factory(factory_name, message, values, opts)
     end
 
@@ -49,12 +50,23 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     defp extract_values(element), do: [element]
 
     defp create_factory(name, message, values, opts) do
+      {name, message} =
+        case name do
+          {:map_factory, name} -> {name, Map}
+          _ -> {name, message}
+        end
+
       quote do
         def unquote(name)(attrs) do
           Factory.new(unquote(name), unquote(message), unquote(values))
           |> Factory.build(attrs, unquote(opts))
         end
       end
+    end
+
+    defp factory_name(message, opts) when is_atom(message) do
+      name = String.to_atom("#{message}_factory")
+      {{:map_factory, name}, opts}
     end
 
     defp factory_name({:__aliases__, _meta, message}, opts) do

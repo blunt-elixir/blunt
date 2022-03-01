@@ -4,7 +4,7 @@ You'll notice a lot of `build(:message_name)` calls in the test suite. This is s
 
 ## Factories
 
-The `Blunt.Testing.Factories` macro allows you to create factory functions for any Blunt message, Ecto schema, or even plain structs.
+The `Blunt.Testing.Factories` macro allows you to create factory functions for any Blunt message, Ecto schema, or even structs and plain maps.
 
 And thanks to `[ex_machina](https://github.com/thoughtbot/ex_machina)`, you can `build`, `insert` (in the case of Ecto schemas), or `dispatch` a fully validated data structure.
 
@@ -36,6 +36,18 @@ defmodule CreatePersonTest do
 
     assert %{id: ^id, name: ^name} = 
     	build(:create_person, id: id, name: name)
+  end
+
+  factory :setup_data do
+    lazy :data, CreateData, [const(:id, 1234)]
+    prop :child_id, [:data, :child, :child_id]
+    lazy :boss CreatePerson
+    lazy :monkey CreatePerson
+  end
+
+  test "plain map factory" do
+    %{data: %{id: 1234}, child_id: _something, boss: _boss_person, monkey: _not_really_human} = 
+      build(:setup_data)      
   end
 end
 ```

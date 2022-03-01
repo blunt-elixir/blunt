@@ -4,12 +4,13 @@ defmodule Blunt.Testing.FactoriesTest do
   use Blunt.Testing.Factories
 
   alias Support.Testing.{CreatePerson, GetPerson, PlainMessage, PlainMessage}
+  alias Support.Testing.LayzFactoryValueMessages.{CreatePolicyFee, CreatePolicy, CreateProduct}
 
   factory GetPerson
   factory CreatePerson
   factory PlainMessage
 
-  test "generated functions" do
+  test "the macro generated factory functions" do
     funcs = __MODULE__.__info__(:functions)
 
     assert [1] = Keyword.get_values(funcs, :get_person_factory)
@@ -147,41 +148,11 @@ defmodule Blunt.Testing.FactoriesTest do
     end
   end
 
-  describe "lazy values" do
-    alias Support.Testing.LayzFactoryValueMessages.{CreatePolicyFee, CreatePolicy, CreateProduct}
-
-    factory CreatePolicyFee, debug: false do
-      lazy_data :product, CreateProduct
-
-      lazy_data :policy, CreatePolicy, [
-        prop(:product_id, [:product, :id])
-      ]
-
-      prop :policy_id, [:policy, :id]
-    end
-
-    test "are evaluated in order of declaration" do
-      fee_id = UUID.uuid4()
-
-      assert {:ok, %{id: ^fee_id, policy_id: policy_id}} = bispatch(:create_policy_fee, id: fee_id)
-
-      assert {:ok, _} = UUID.info(policy_id)
-    end
-
-    test "lazy values will not overwrite existing values" do
-      fee_id = UUID.uuid4()
-      policy_id = UUID.uuid4()
-      policy = %{id: policy_id}
-
-      assert {:ok, %{id: ^fee_id, policy_id: ^policy_id}} = bispatch(:create_policy_fee, id: fee_id, policy: policy)
-    end
-  end
-
   describe "plain modules" do
     defmodule NonStruct do
     end
 
-    factory CreatePolicyFee, as: :create_policy_fee2 do
+    factory CreatePolicyFee, as: :create_policy_fee2, debug: false do
       lazy_data :policy, NonStruct, [prop(:product_id, [:product, :id])]
       prop :policy_id, [:policy, :id]
     end
@@ -189,7 +160,11 @@ defmodule Blunt.Testing.FactoriesTest do
     test "can not be used as a lazy factory" do
       fee_id = UUID.uuid4()
 
-      assert_raise Blunt.Testing.Factories.Factory.Error, fn -> bispatch(:create_policy_fee2, id: fee_id) end
+      {:ok,
+       %CreatePolicyFee{
+         id: ^fee_id,
+         policy_id: ^fee_id
+       }} = bispatch(:create_policy_fee2, id: fee_id)
     end
   end
 
@@ -204,6 +179,42 @@ defmodule Blunt.Testing.FactoriesTest do
     test "pet is populated correctly" do
       assert %MessageWithEnum{pet: pet} = build(:message_with_enum)
       assert Enum.member?([:cat, :dog], pet)
+    end
+  end
+
+  describe "plain maps" do
+    factory CreatePolicyFee, debug: false do
+      lazy_data :product, CreateProduct
+
+      lazy_data :policy, CreatePolicy, [
+        prop(:product_id, [:product, :id])
+      ]
+
+      prop :policy_id, [:policy, :id]
+    end
+
+    factory :my_complex_setup, debug: false do
+      const :test_name, :plain_map_factory
+      const :request_id, "5d724533-6d4f-49d7-bb30-e34e5b8c79b1"
+      lazy_data :product, CreateProduct
+
+      lazy_data :policy, CreatePolicy, [
+        prop(:product_id, [:product, :id])
+      ]
+
+      prop :product_id, [:product, :id]
+      prop :policy_id, [:policy, :id]
+    end
+
+    test "can be built using just value declarations" do
+      assert %{
+               product: %{id: product_id},
+               policy: %{id: policy_id},
+               policy_id: policy_id,
+               product_id: product_id,
+               request_id: "5d724533-6d4f-49d7-bb30-e34e5b8c79b1",
+               test_name: :plain_map_factory
+             } = build(:my_complex_setup)
     end
   end
 end

@@ -31,7 +31,7 @@ defmodule BluntAbsintheRelay.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    blunt() ++
+    blunt(Mix.env()) ++
       [
         {:absinthe, "~> 1.7", override: true},
         {:absinthe_relay, "~> 1.5"},
@@ -48,17 +48,17 @@ defmodule BluntAbsintheRelay.MixProject do
       ]
   end
 
-  defp blunt do
-    if Mix.env() == :prod do
-      [
-        {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
-        {:blunt_absinthe, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_absinthe"}
-      ]
-    else
-      [
-        {:blunt, path: "../blunt", override: true},
-        {:blunt_absinthe, path: "../blunt_absinthe"}
-      ]
-    end
+  defp blunt(:prod) do
+    [
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+      {:blunt_absinthe, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_absinthe"}
+    ]
+  end
+
+  defp blunt(_env) do
+    [
+      {:blunt, path: "../blunt", override: true},
+      {:blunt_absinthe, path: "../blunt_absinthe"}
+    ]
   end
 end

@@ -33,7 +33,7 @@ defmodule CqrsToolsDdd.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [blunt()] ++
+    blunt(Mix.env()) ++
       [
         # For testing
         {:etso, "~> 0.1.6", only: [:test]},
@@ -47,11 +47,15 @@ defmodule CqrsToolsDdd.MixProject do
       ]
   end
 
-  defp blunt do
-    if Mix.env() == :prod do
+  defp blunt(:prod) do
+    [
       {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"}
-    else
+    ]
+  end
+
+  defp blunt(_env) do
+    [
       {:blunt, path: "../blunt", override: true}
-    end
+    ]
   end
 end

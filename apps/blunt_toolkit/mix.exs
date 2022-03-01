@@ -29,30 +29,30 @@ defmodule CommandedToolkit.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    blunt() ++ [
-      {:ratatouille, "~> 0.5"},
+    blunt(Mix.env()) ++
+      [
+        {:ratatouille, "~> 0.5"},
+        {:commanded, "~> 1.3"},
+        {:eventstore, "~> 1.3"},
+        {:jason, "~> 1.3"},
+        {:elixir_uuid, "~> 1.6", override: true, hex: :uuid_utils},
+        {:faker, "~> 0.17.0", only: :test},
+        {:ex_machina, "~> 2.7", only: :test}
+      ]
+  end
 
-      {:commanded, "~> 1.3"},
-      {:eventstore, "~> 1.3"},
-      {:jason, "~> 1.3"},
-      {:elixir_uuid, "~> 1.6", override: true, hex: :uuid_utils},
-      {:faker, "~> 0.17.0", only: :test},
-      {:ex_machina, "~> 2.7", only: :test}
+  defp blunt(:prod) do
+    [
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+      {:blunt_ddd, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_ddd"}
     ]
   end
 
-  defp blunt do
-    if Mix.env() == :prod do
-      [
-        {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
-        {:blunt_ddd, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_ddd"}
-      ]
-    else
-      [
-        {:blunt, path: "../blunt", override: true},
-        {:blunt_ddd, path: "../blunt_ddd"}
-      ]
-    end
+  defp blunt(_env) do
+    [
+      {:blunt, path: "../blunt", override: true},
+      {:blunt_ddd, path: "../blunt_ddd"}
+    ]
   end
 
   def aliases do

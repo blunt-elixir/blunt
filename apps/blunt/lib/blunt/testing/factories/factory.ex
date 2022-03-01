@@ -2,6 +2,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.Factories.Factory do
     @moduledoc false
 
+    alias IO.ANSI
     alias Blunt.Message.Metadata
 
     defmodule Error do
@@ -17,7 +18,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         true ->
           name = Keyword.fetch!(opts, :name)
           message_name = Keyword.fetch!(opts, :message_name)
-          title = IO.ANSI.format([:blue, "blunt", " - ", :blue, name, :reset, " (", :light_black, message_name, ")"])
+          title = ANSI.format([:blue, "blunt", " - ", :blue, name, :reset, " (", :light_black, message_name, ")"])
 
           IO.inspect(value, label: "[#{title} #{label}]", syntax_colors: [string: :yellow])
 
@@ -52,8 +53,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         |> Enum.to_list()
         |> Keyword.merge(opts)
 
-      debug(factory, IO.ANSI.format([:green, "build"]), opts)
-      debug(attrs, IO.ANSI.format([:light_blue, "input"]), opts)
+      debug(factory, ANSI.format([:green, "build"]), opts)
+      debug(attrs, ANSI.format([:light_blue, "input"]), opts)
 
       data = Enum.reduce(values, attrs, &resolve_value(&1, &2, opts))
 
@@ -63,7 +64,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           {:ok, _} -> build_blunt_message(factory, data, opts)
         end
 
-      debug(built_message, IO.ANSI.format([:green, "deliver"]), opts)
+      debug(built_message, ANSI.format([:green, "deliver"]), opts)
     end
 
     defp build_struct(message, data, opts) do
@@ -126,7 +127,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     defp resolve_value(value, acc, opts) do
       log_value = fn value, field, lazy, type ->
-        field = IO.ANSI.format([:blue, :bright, to_string(field)])
+        field = ANSI.format([:blue, :bright, to_string(field)])
         type_prefix = if lazy, do: "lazy ", else: ""
         debug(value, "#{type_prefix}#{type} #{field}", opts)
       end
@@ -188,7 +189,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           validation = Keyword.get(field_validations, field, :none)
           value = FieldProvider.fake(type, config, validation: validation)
 
-          debug(value, IO.ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
+          debug(value, ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
 
           {field, value}
         end

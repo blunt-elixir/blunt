@@ -39,10 +39,10 @@ defmodule CreatePersonTest do
   end
 
   factory :setup_data do
-    lazy :data, CreateData, [const(:id, 1234)]
+    lazy_data :data, CreateData, [const(:id, 1234)]
     prop :child_id, [:data, :child, :child_id]
-    lazy :boss CreatePerson
-    lazy :monkey CreatePerson
+    lazy_data :boss CreatePerson
+    lazy_data :monkey CreatePerson
   end
 
   test "plain map factory" do

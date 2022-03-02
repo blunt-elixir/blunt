@@ -30,6 +30,13 @@ defmodule Blunt.Behaviour do
     end
   end
 
+  def is_valid?(module, behaviour_module) do
+    case validate(module, behaviour_module) do
+      {:ok, _} -> true
+      _ -> false
+    end
+  end
+
   defp has_all_callbacks?(module, behaviour_module) do
     callbacks = behaviour_module.behaviour_info(:callbacks)
     optional_callbacks = behaviour_module.behaviour_info(:optional_callbacks) |> Keyword.keys()

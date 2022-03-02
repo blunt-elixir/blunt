@@ -15,26 +15,13 @@ locals_without_parens = [
   value_object: 2,
   derive_event: 1,
   derive_event: 2,
-  metadata: 2,
-
-  # blunt factories macros
-  factory: 1,
-  factory: 2,
-  factory: 3,
-  const: 2,
-  fake: 2,
-  data: 2,
-  data: 3,
-  lazy_data: 2,
-  lazy_data: 3,
-  prop: 2,
-  lazy_prop: 2
+  metadata: 2
 ]
 
 [
+  import_deps: [:ecto, :blunt_data],
   locals_without_parens: locals_without_parens,
   line_length: 120,
-  import_deps: [:ecto],
   export: [
     locals_without_parens: locals_without_parens
   ],

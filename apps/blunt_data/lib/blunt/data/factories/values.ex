@@ -1,7 +1,5 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
-  defmodule Blunt.Testing.Factories.Values do
-    alias Blunt.Testing.Factories.Factory
-
+  defmodule Blunt.Data.Factories.Values do
     defmodule Constant do
       @moduledoc false
       @derive Inspect
@@ -33,7 +31,12 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       quote do
         %Data{
           field: unquote(field),
-          factory: Factory.new(:dependency, unquote(message), unquote(values), true)
+          factory: %{
+            name: :dependency,
+            message: unquote(message),
+            values: unquote(values),
+            dispatch?: true
+          }
         }
       end
     end
@@ -46,7 +49,12 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         %Data{
           lazy: true,
           field: unquote(field),
-          factory: Factory.new(:dependency, unquote(message), unquote(values), true)
+          factory: %{
+            name: :dependency,
+            message: unquote(message),
+            values: unquote(values),
+            dispatch?: true
+          }
         }
       end
     end

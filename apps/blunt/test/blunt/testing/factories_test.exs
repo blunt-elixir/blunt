@@ -149,6 +149,8 @@ defmodule Blunt.Testing.FactoriesTest do
   end
 
   describe "plain modules" do
+    alias Blunt.Data.Factories.Builder.NoBuilderError
+
     defmodule NonStruct do
     end
 
@@ -158,13 +160,9 @@ defmodule Blunt.Testing.FactoriesTest do
     end
 
     test "can not be used as a lazy factory" do
-      fee_id = UUID.uuid4()
-
-      {:ok,
-       %CreatePolicyFee{
-         id: ^fee_id,
-         policy_id: ^fee_id
-       }} = bispatch(:create_policy_fee2, id: fee_id)
+      assert_raise NoBuilderError, fn ->
+        bispatch(:create_policy_fee2)
+      end
     end
   end
 

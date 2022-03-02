@@ -47,15 +47,17 @@ defmodule CqrsToolsDdd.MixProject do
       ]
   end
 
-  defp blunt(:prod) do
-    [
-      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"}
-    ]
-  end
+  # defp blunt(:prod) do
+  #   [
+  #     {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+  #     {:blunt_data, github: "blunt-elixir/blunt_data", ref: "reorg", sparse: "apps/blunt_data"}
+  #   ]
+  # end
 
   defp blunt(_env) do
     [
-      {:blunt, path: "../blunt", override: true}
+      {:blunt, path: "../blunt", override: true},
+      {:blunt_data, path: "../blunt_data", override: true}
     ]
   end
 end

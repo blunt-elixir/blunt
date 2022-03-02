@@ -22,26 +22,21 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     end
 
     defmacro factory(message) do
-      {factory_name, _} = factory_name(message, [])
-      create_factory(factory_name, message, [], [])
+      create_factory(message, [], [])
     end
 
     defmacro factory(message, do: body) do
       values = extract_values(body)
-      {factory_name, _} = factory_name(message, [])
-      create_factory(factory_name, message, values, [])
+      create_factory(message, values, [])
     end
 
     defmacro factory(message, opts) do
-      {factory_name, opts} = factory_name(message, opts)
-      create_factory(factory_name, message, [], opts)
+      create_factory(message, [], opts)
     end
 
     defmacro factory(message, opts, do: body) do
       values = extract_values(body)
-      {factory_name, opts} = factory_name(message, opts)
-
-      create_factory(factory_name, message, values, opts)
+      create_factory(message, values, opts)
     end
 
     defp extract_values({:__block__, _meta, elements}), do: elements
@@ -49,7 +44,9 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     defp extract_values(list) when is_list(list), do: list
     defp extract_values(element), do: [element]
 
-    defp create_factory(name, message, values, opts) do
+    defp create_factory(message, values, opts) do
+      {name, opts} = factory_name(message, opts)
+
       {name, message} =
         case name do
           {:map_factory, name} -> {name, Map}

@@ -7,6 +7,9 @@
 			"path": "./apps/blunt"
 		},
 		{
+			"path": "./apps/blunt_data"
+		},
+		{
 			"path": "./apps/blunt_ddd"
 		},
 		{
@@ -14,9 +17,6 @@
 		},
 		{
 			"path": "./apps/blunt_absinthe_relay"
-		},
-		{
-			"path": "./apps/blunt_data"
 		},
 		{
 			"path": "./apps/blunt_toolkit"

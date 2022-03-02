@@ -1,4 +1,5 @@
 defmodule Blunt.Data.Factories.FakeProvider.Default do
+  @moduledoc false
   @behaviour Blunt.Data.Factories.FakeProvider
 
   @impl true

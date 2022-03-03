@@ -6,7 +6,7 @@ defmodule Blunt.Testing.Factories.FakeProvider do
 
   @doc false
   @impl true
-  def fake(type, config, opts \\ []) do
-    FieldProvider.fake(type, config, opts)
+  def fake(type, validation, config) do
+    FieldProvider.fake(type, config, validation: validation)
   end
 end

@@ -80,7 +80,7 @@ defmodule Blunt.Data.Factories.Factory do
     faked_data =
       for {field, type, config} when not is_map_key(data, field) <- fields, into: %{} do
         validation = Keyword.get(field_validations, field, :none)
-        value = fake_provider.fake(type, config, validation: validation)
+        value = fake_provider.fake(type, validation, config)
 
         debug(value, ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
 

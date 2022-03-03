@@ -26,61 +26,114 @@ defmodule Blunt.Data.Factories.Values do
   the given `message` will be dispatched with the returned
   data to be put into the factory source data under the `field` key.
   """
-  defmacro data(field, message, values \\ []) do
-    quote do
-      %Data{
-        field: unquote(field),
-        factory: %{
-          name: :dependency,
-          message: unquote(message),
-          values: unquote(values),
-          dispatch?: true
-        }
-      }
-    end
+  defmacro data(field, message) do
+    create_data(field, message, [], lazy: false)
+  end
+
+  defmacro data(field, message, do: body) do
+    values = extract_values(body)
+    create_data(field, message, values, lazy: false)
+  end
+
+  defmacro data(field, message, opts \\ [], do: body) do
+    values = extract_values(body)
+    opts = Keyword.put(opts, :lazy, false)
+    create_data(field, message, values, opts)
   end
 
   @doc """
   Same as `data` but
   """
-  defmacro lazy_data(field, message, values \\ []) do
+  defmacro lazy_data(field, message) do
+    create_data(field, message, [], lazy: false)
+  end
+
+  defmacro lazy_data(field, message, do: body) do
+    values = extract_values(body)
+    create_data(field, message, values, lazy: false)
+  end
+
+  defmacro lazy_data(field, message, opts \\ [], do: body) do
+    values = extract_values(body)
+    opts = Keyword.put(opts, :lazy, true)
+    create_data(field, message, values, opts)
+  end
+
+  defp extract_values({:__block__, _meta, elements}), do: elements
+  defp extract_values(nil), do: []
+  defp extract_values(list) when is_list(list), do: list
+  defp extract_values(element), do: [element]
+
+  defp create_data(field, message, values, opts) do
+    {lazy, opts} = Keyword.pop!(opts, :lazy)
+    {operation, message, values} = data_props(message, values)
+
     quote do
       %Data{
-        lazy: true,
+        lazy: unquote(lazy),
         field: unquote(field),
         factory: %{
           name: :dependency,
-          message: unquote(message),
           values: unquote(values),
-          dispatch?: true
+          message: unquote(message),
+          operation: unquote(operation),
+          opts: unquote(opts)
         }
       }
+    end
+  end
+
+  defp data_props(message, values) do
+    case message do
+      {operation, {message, values}} -> {operation, message, values}
+      {operation, message} -> {operation, message, values}
+      message -> {:dispatch, message, values}
     end
   end
 
   defmodule Prop do
     @moduledoc false
     @derive {Inspect, except: [:lazy]}
-    defstruct [:field, :value_path_or_func, lazy: false]
+    defstruct [:field, :path_func_or_value, lazy: false]
   end
 
   @doc """
   The `field` of the factory source data will be assigned
-  to the value of `value_path_or_func` in the factory source
+  to the value of `path_func_or_value` in the factory source
   """
-  defmacro prop(field, value_path_or_func) do
+  defmacro prop(field, path_func_or_value) do
     quote do
-      %Prop{field: unquote(field), value_path_or_func: unquote(value_path_or_func)}
+      %Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value)}
     end
   end
 
   @doc """
   The `field` of the factory source data will be assigned
-  to the value of `value_path_or_func` in the factory source
+  to the value of `path_func_or_value` in the factory source
   """
-  defmacro lazy_prop(field, value_path_or_func) do
+  defmacro lazy_prop(field, path_func_or_value) do
     quote do
-      %Prop{field: unquote(field), value_path_or_func: unquote(value_path_or_func), lazy: true}
+      %Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value), lazy: true}
+    end
+  end
+
+  defmodule Mapper do
+    defstruct [:func]
+  end
+
+  defmacro map(func) do
+    quote do
+      %Mapper{func: unquote(func)}
+    end
+  end
+
+  defmodule Build do
+    defstruct [:field, :factory_name]
+  end
+
+  defmacro child(field, factory_name) do
+    quote do
+      %Build{field: unquote(field), factory_name: unquote(factory_name)}
     end
   end
 end

@@ -11,7 +11,7 @@ defmodule Blunt.Data.Factories.Factory do
     end
   end
 
-  @derive {Inspect, only: [:name, :message]}
+  @derive {Inspect, only: [:name, :message, :operation]}
   defstruct [
     :name,
     :message,
@@ -21,16 +21,17 @@ defmodule Blunt.Data.Factories.Factory do
     :field_validations,
     :active_builder,
     :fake_provider,
+    :factory_module,
+    operation: :build,
     input: %{},
     data: %{},
     values: [],
     builders: [],
-    dispatch?: false,
     opts: []
   ]
 
   alias Blunt.Data.Factories.Builder
-  alias Blunt.Data.Factories.Values.{Constant, Data, Prop}
+  alias Blunt.Data.Factories.Values.{Constant, Data, Prop, Mapper, Build}
 
   def build(%__MODULE__{} = factory) do
     %{final_message: final_message} =
@@ -57,8 +58,8 @@ defmodule Blunt.Data.Factories.Factory do
         factory = %{
           factory
           | fields: fields,
-            field_validations: field_validations,
-            active_builder: active_builder
+            active_builder: active_builder,
+            field_validations: field_validations
         }
 
         debug(factory, :active_builder)
@@ -71,9 +72,10 @@ defmodule Blunt.Data.Factories.Factory do
            data: data,
            fields: fields,
            message: message,
-           dispatch?: dispatch?,
+           operation: operation,
            active_builder: builder,
            fake_provider: fake_provider,
+           factory_module: factory_module,
            field_validations: field_validations
          } = factory
        ) do
@@ -88,7 +90,13 @@ defmodule Blunt.Data.Factories.Factory do
       end
 
     final_message = builder.build(message, Map.merge(data, faked_data))
-    final_message = if dispatch?, do: builder.dispatch(final_message), else: final_message
+
+    final_message =
+      case operation do
+        :build -> final_message
+        :builder_dispatch -> builder.dispatch(final_message)
+        operation -> apply(factory_module, operation, [final_message])
+      end
 
     %{factory | final_message: final_message}
   end
@@ -124,11 +132,14 @@ defmodule Blunt.Data.Factories.Factory do
       nil ->
         acc
 
+      %Mapper{func: func} ->
+        func.(acc) |> log_value.("data", false, "map")
+
       %Constant{field: field, value: value} ->
         value = log_value.(value, field, false, "const")
         Map.put(acc, field, value)
 
-      %Prop{field: field, value_path_or_func: path, lazy: lazy} when is_list(path) ->
+      %Prop{field: field, path_func_or_value: path, lazy: lazy} when is_list(path) ->
         if not lazy or (lazy and not Map.has_key?(acc, field)) do
           keys = Enum.map(path, &Access.key/1)
           value = get_in(acc, keys) |> log_value.(field, lazy, "prop")
@@ -137,7 +148,7 @@ defmodule Blunt.Data.Factories.Factory do
           acc
         end
 
-      %Prop{field: field, value_path_or_func: func, lazy: lazy} when is_function(func, 0) ->
+      %Prop{field: field, path_func_or_value: func, lazy: lazy} when is_function(func, 0) ->
         if not lazy or (lazy and not Map.has_key?(acc, field)) do
           value = func.() |> log_value.(field, lazy, "prop")
           Map.put(acc, field, value)
@@ -145,7 +156,7 @@ defmodule Blunt.Data.Factories.Factory do
           acc
         end
 
-      %Prop{field: field, value_path_or_func: func, lazy: lazy} when is_function(func, 1) ->
+      %Prop{field: field, path_func_or_value: func, lazy: lazy} when is_function(func, 1) ->
         if not lazy or (lazy and not Map.has_key?(acc, field)) do
           value = func.(acc) |> log_value.(field, lazy, "prop")
           Map.put(acc, field, value)
@@ -153,14 +164,39 @@ defmodule Blunt.Data.Factories.Factory do
           acc
         end
 
+      %Prop{field: field, path_func_or_value: value, lazy: lazy} ->
+        if not lazy or (lazy and not Map.has_key?(acc, field)) do
+          log_value.(value, field, lazy, "prop")
+          Map.put(acc, field, value)
+        else
+          acc
+        end
+
+      %Build{field: field, factory_name: factory_name} ->
+        factory_name = String.to_existing_atom("#{factory_name}_factory")
+        value = apply(current_factory.factory_module, factory_name, [acc])
+        Map.put(acc, field, log_value.(value, field, false, "child"))
+
       %Data{field: field, factory: factory, lazy: lazy} ->
         if not lazy or (lazy and not Map.has_key?(acc, field)) do
+          operation =
+            factory
+            |> Map.fetch!(:operation)
+            |> validate_factory_operation!(current_factory)
+
+          opts =
+            factory
+            |> Map.get(:opts, [])
+            |> Keyword.merge(current_factory.opts)
+
           factory_config =
             factory
             |> Map.put(:input, acc)
-            |> Map.put(:opts, current_factory.opts)
+            |> Map.put(:opts, opts)
+            |> Map.put(:operation, operation)
             |> Map.put(:builders, current_factory.builders)
             |> Map.put(:fake_provider, current_factory.fake_provider)
+            |> Map.put(:factory_module, current_factory.factory_module)
 
           value =
             __MODULE__
@@ -172,6 +208,30 @@ defmodule Blunt.Data.Factories.Factory do
         else
           acc
         end
+    end
+  end
+
+  defp validate_factory_operation!(:dispatch, %{factory_module: module}) do
+    if function_exported?(module, :dispatch, 1),
+      do: :dispatch,
+      else: :builder_dispatch
+  end
+
+  defp validate_factory_operation!(operation, %{factory_module: module, name: name}) do
+    if function_exported?(module, operation, 1) do
+      operation
+    else
+      funcs = module.__info__(:functions) |> Keyword.keys()
+
+      raise UndefinedFunctionError,
+        arity: 1,
+        module: module,
+        function: operation,
+        reason: """
+        Attempted to call #{operation} on #{inspect(module)} as part of the `#{name}` factory.
+
+        Available functions: #{inspect(funcs)}
+        """
     end
   end
 

@@ -102,6 +102,8 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
             opts: unquote(opts),
             values: unquote(values),
             message: unquote(message),
+            operation: :build,
+            factory_module: __MODULE__,
             builders: @active_builders,
             fake_provider: @active_fake_provider
           }

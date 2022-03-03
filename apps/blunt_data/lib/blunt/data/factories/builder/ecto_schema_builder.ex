@@ -23,5 +23,33 @@ defmodule Blunt.Data.Factories.Builder.EctoSchemaBuilder do
   end
 
   @impl true
-  def build(message_module, data), do: struct!(message_module, data)
+  def build(message_module, data) do
+    fields =
+      message_module
+      |> message_fields()
+      |> Enum.map(&elem(&1, 0))
+
+    data =
+      data
+      |> Map.take(fields)
+      |> data_map()
+
+    if function_exported?(message_module, :changeset, 1) do
+      message_module
+      |> apply(:changeset, [data])
+      |> Ecto.Changeset.apply_action!(:insert)
+    else
+      struct!(message_module, data)
+    end
+  end
+
+  defp data_map(struct) when is_struct(struct) do
+    Map.from_struct(struct)
+  end
+
+  defp data_map(map) when is_struct(map) do
+    Enum.into(map, %{}, fn {key, value} -> {key, data_map(value)} end)
+  end
+
+  defp data_map(other), do: other
 end

@@ -109,9 +109,9 @@ defmodule Blunt.Data.FactoriesTest do
       const :request_id, "5d724533-6d4f-49d7-bb30-e34e5b8c79b1"
       lazy_data :product, CreateProduct
 
-      lazy_data :policy, CreatePolicy, [
+      lazy_data :policy, CreatePolicy do
         prop(:product_id, [:product, :id])
-      ]
+      end
 
       prop :product_id, [:product, :id]
       prop :policy_id, [:policy, :id]

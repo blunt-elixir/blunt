@@ -57,6 +57,6 @@ defmodule Blunt.MixProject do
       ]
   end
 
-  defp blunt(:prod), do: [{:blunt_data, github: "blunt-elixir/blunt_data", ref: "reorg", sparse: "apps/blunt_data"}]
+  defp blunt(:prod), do: [{:blunt_data, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_data"}]
   defp blunt(_env), do: [{:blunt_data, path: "../blunt_data"}]
 end

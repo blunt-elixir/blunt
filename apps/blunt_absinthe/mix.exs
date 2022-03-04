@@ -45,11 +45,11 @@ defmodule BluntAbsinthe.MixProject do
       ]
   end
 
-  # defp blunt(:prod) do
-  #   [
-  #     {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"}
-  #   ]
-  # end
+  defp blunt(:prod) do
+    [
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"}
+    ]
+  end
 
   defp blunt(_env) do
     [

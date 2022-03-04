@@ -38,6 +38,8 @@
 			"**/.elixir_ls": true,
 			"**/.DS_Store": true,
 			"**/Thumbs.db": true
+		},
+		"[markdown]": {
 		}
 		
 	},	

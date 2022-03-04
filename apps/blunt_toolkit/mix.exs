@@ -41,12 +41,12 @@ defmodule CommandedToolkit.MixProject do
       ]
   end
 
-  # defp blunt(:prod) do
-  #   [
-  #     {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
-  #     {:blunt_ddd, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_ddd"}
-  #   ]
-  # end
+  defp blunt(:prod) do
+    [
+      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
+      {:blunt_ddd, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_ddd"}
+    ]
+  end
 
   defp blunt(_env) do
     [

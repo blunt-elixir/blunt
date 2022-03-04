@@ -50,7 +50,7 @@ defmodule CqrsToolsDdd.MixProject do
   defp blunt(:prod) do
     [
       {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
-      {:blunt_data, github: "blunt-elixir/blunt_data", ref: "reorg", sparse: "apps/blunt_data"}
+      {:blunt_data, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_data"}
     ]
   end
 

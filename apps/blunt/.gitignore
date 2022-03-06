@@ -21,7 +21,3 @@ erl_crash.dump
 
 # Ignore package tarball (built via "mix hex.build").
 blunt-*.tar
-
-# Temporary files, for example, from tests.
-/tmp/
-.DS_Store

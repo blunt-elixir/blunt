@@ -1,13 +1,19 @@
 defmodule Blunt.MixProject do
   use Mix.Project
 
-  @version "0.1.1"
+  @version String.trim(File.read!("../../VERSION"))
 
   def project do
     [
-      version: @version,
       app: :blunt,
+      version: @version,
       elixir: "~> 1.12",
+      #
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
+      #
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://github.com/blunt-elixir/blunt",
@@ -24,7 +30,7 @@ defmodule Blunt.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support", "test/shared"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
@@ -57,6 +63,6 @@ defmodule Blunt.MixProject do
       ]
   end
 
-  defp blunt(:prod), do: [{:blunt_data, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_data"}]
-  defp blunt(_env), do: [{:blunt_data, path: "../blunt_data"}]
+  defp blunt(:prod), do: [{:blunt_data, "~> 0.1"}]
+  defp blunt(_env), do: [{:blunt_data, in_umbrella: true}]
 end

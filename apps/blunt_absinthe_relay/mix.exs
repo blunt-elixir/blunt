@@ -1,14 +1,19 @@
 defmodule BluntAbsintheRelay.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version String.trim(File.read!("../../VERSION"))
 
   def project do
     [
       version: @version,
       app: :blunt_absinthe_relay,
-      version: "0.1.0",
       elixir: "~> 1.12",
+      #
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
+      #
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       source_url: "https://github.com/blunt-elixir/blunt_absinthe_relay",
@@ -21,7 +26,7 @@ defmodule BluntAbsintheRelay.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "test/support", Path.expand("../blunt/test/shared")]
   defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
@@ -34,7 +39,7 @@ defmodule BluntAbsintheRelay.MixProject do
     blunt(Mix.env()) ++
       [
         {:absinthe, "~> 1.7", override: true},
-        {:absinthe_relay, "~> 1.5"},
+        {:absinthe_relay, "~> 1.5", optional: true},
 
         # For testing
         {:etso, "~> 0.1.6", only: [:test]},
@@ -50,15 +55,17 @@ defmodule BluntAbsintheRelay.MixProject do
 
   defp blunt(:prod) do
     [
-      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
-      {:blunt_absinthe, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_absinthe"}
+      {:blunt, "~> 0.1"},
+      {:blunt_data, "~> 0.1"},
+      {:blunt_absinthe, "~> 0.1"}
     ]
   end
 
   defp blunt(_env) do
     [
-      {:blunt, path: "../blunt", override: true},
-      {:blunt_absinthe, path: "../blunt_absinthe"}
+      {:blunt, in_umbrella: true},
+      {:blunt_data, in_umbrella: true},
+      {:blunt_absinthe, in_umbrella: true}
     ]
   end
 end

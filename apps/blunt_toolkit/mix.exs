@@ -1,11 +1,20 @@
 defmodule CommandedToolkit.MixProject do
   use Mix.Project
 
+  @version String.trim(File.read!("../../VERSION"))
+
   def project do
     [
       app: :blunt_toolkit,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.12",
+      #
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
+      #
+
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
@@ -43,15 +52,19 @@ defmodule CommandedToolkit.MixProject do
 
   defp blunt(:prod) do
     [
-      {:blunt, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt"},
-      {:blunt_ddd, github: "blunt-elixir/blunt", ref: "reorg", sparse: "apps/blunt_ddd"}
+      {:blunt, "~> 0.1"},
+      {:blunt_data, "~> 0.1"},
+      {:blunt_ddd, "~> 0.1"},
+      {:blunt_absinthe, "~> 0.1"}
     ]
   end
 
   defp blunt(_env) do
     [
-      {:blunt, path: "../blunt", override: true},
-      {:blunt_ddd, path: "../blunt_ddd"}
+      {:blunt, in_umbrella: true},
+      {:blunt_data, in_umbrella: true},
+      {:blunt_ddd, in_umbrella: true},
+      {:blunt_absinthe, in_umbrella: true}
     ]
   end
 

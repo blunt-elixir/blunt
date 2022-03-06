@@ -1,7 +1,4 @@
 #!/bin/bash
-ln -sf ./tools/git-semver-config .git-semver
-ln -sf ./tools/Makefile Makefile
 git fetch --recurse-submodules
-sudo ./tools/git-semver/install.sh
 asdf install
 

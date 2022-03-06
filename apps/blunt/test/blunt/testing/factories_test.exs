@@ -155,7 +155,10 @@ defmodule Blunt.Testing.FactoriesTest do
     end
 
     factory CreatePolicyFee, as: :create_policy_fee2, debug: false do
-      lazy_data :policy, NonStruct, [prop(:product_id, [:product, :id])]
+      lazy_data :policy, NonStruct do
+        prop(:product_id, [:product, :id])
+      end
+
       prop :policy_id, [:policy, :id]
     end
 
@@ -184,9 +187,9 @@ defmodule Blunt.Testing.FactoriesTest do
     factory CreatePolicyFee, debug: false do
       lazy_data :product, CreateProduct
 
-      lazy_data :policy, CreatePolicy, [
-        prop(:product_id, [:product, :id])
-      ]
+      lazy_data :policy, CreatePolicy do
+        prop :product_id, [:product, :id]
+      end
 
       prop :policy_id, [:policy, :id]
     end
@@ -196,9 +199,9 @@ defmodule Blunt.Testing.FactoriesTest do
       const :request_id, "5d724533-6d4f-49d7-bb30-e34e5b8c79b1"
       lazy_data :product, CreateProduct
 
-      lazy_data :policy, CreatePolicy, [
-        prop(:product_id, [:product, :id])
-      ]
+      lazy_data :policy, CreatePolicy do
+        prop :product_id, [:product, :id]
+      end
 
       prop :product_id, [:product, :id]
       prop :policy_id, [:policy, :id]

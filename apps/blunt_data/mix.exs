@@ -1,11 +1,19 @@
 defmodule BluntData.MixProject do
   use Mix.Project
 
+  @version String.trim(File.read!("../../VERSION"))
+
   def project do
     [
       app: :blunt_data,
-      version: "0.1.0",
-      elixir: "~> 1.13",
+      version: @version,
+      elixir: "~> 1.12",
+      #
+      build_path: "../../_build",
+      config_path: "../../config/config.exs",
+      deps_path: "../../deps",
+      lockfile: "../../mix.lock",
+      #
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env())

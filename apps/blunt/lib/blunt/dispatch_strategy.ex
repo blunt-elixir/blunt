@@ -18,7 +18,8 @@ defmodule Blunt.DispatchStrategy do
 
   @spec return_final(any, context()) :: {:ok, any}
   def return_final(value, context) do
-    DispatchContext.Shipper.ship(context)
+    if DispatchContext.get_option(context, :ship, true),
+      do: DispatchContext.Shipper.ship(context)
 
     case DispatchContext.get_return(context) do
       :context -> {:ok, context}

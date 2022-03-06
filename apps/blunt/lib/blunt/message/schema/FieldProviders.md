@@ -31,19 +31,10 @@ defmodule EmailFieldProvider do
     Changeset.validate_format(changeset, field_name, ~r/@/)
   end
 
-  # A stand-alone validator that you can set on fields. ie `field :name, :string, validate: :begin_with_capital_letter`
-  def validate_changeset(:begin_with_capital_letter, field_name, changeset, _module) do
-    Changeset.validate_format(changeset, field_name, ~r/^[A-Z].+/, message: "must begin with a capital letter")
-  end
-
   @impl true
   # `Blunt.Testing.Factories` knows to use field providers for fake data
   def fake(:email, _validation, _field_config) do
     "fake_hombre@example.com"
-  end
-
-  def fake(_field_type, :begin_with_capital_letter, _field_config) do
-    "Chris"
   end
 end
 ```
@@ -65,6 +56,5 @@ defmodule CustomMessage do
   use Blunt.Command
 
   field :email_address, :email, required: true
-  field :name, :string, validate: :begin_with_capital_letter
 end
 ```

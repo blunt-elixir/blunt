@@ -9,7 +9,6 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
   alias Blunt.Absinthe.DispatchContext.Configuration, as: DispatchContextConfiguration
 
   def generate(query_module, node_type, opts) do
-    repo = Config.get_repo!()
     field_name = Field.name(query_module, opts)
 
     opts =
@@ -27,9 +26,9 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
     quote do
       connection field(unquote(field_name), node_type: unquote(node_type)) do
         unquote_splicing(args)
-        description unquote(description)
+        description(unquote(description))
 
-        middleware unquote(before_resolve)
+        middleware(unquote(before_resolve))
 
         resolve(fn parent, args, resolution ->
           ConnectionField.dispatch_and_resolve(
@@ -37,20 +36,20 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
             unquote(opts),
             parent,
             args,
-            resolution,
-            unquote(repo)
+            resolution
           )
         end)
 
-        middleware unquote(after_resolve)
+        middleware(unquote(after_resolve))
       end
     end
   end
 
   @type resolution :: Absinthe.Resolution.t()
-  @spec dispatch_and_resolve(atom, keyword, map, map, resolution, atom()) :: {:error, list} | {:ok, any}
+  @spec dispatch_and_resolve(atom, keyword, map, map, resolution) :: {:error, list} | {:ok, any}
 
-  def dispatch_and_resolve(query_module, query_opts, parent, args, resolution, repo) do
+  def dispatch_and_resolve(query_module, query_opts, parent, args, resolution) do
+    {repo, query_opts} = Config.get_repo!(query_opts)
     context_configuration = DispatchContextConfiguration.configure(resolution)
 
     opts =

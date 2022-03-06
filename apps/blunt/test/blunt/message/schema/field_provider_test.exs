@@ -107,22 +107,6 @@ defmodule Blunt.Message.Schema.FieldProviderTest do
     end
   end
 
-  describe "custom validations" do
-    defmodule CustomValidations do
-      use Blunt.Message
-
-      field :name, :string, validate: :begin_with_capital_letter
-    end
-
-    factory CustomValidations
-
-    test "begin_with_capital_letter validation" do
-      assert {:error, %{name: ["must begin with a capital letter"]}} = build(:custom_validations, name: "chris")
-
-      assert %CustomValidations{name: "Chris"} = build(:custom_validations, name: "Chris")
-    end
-  end
-
   describe "fake data" do
     test "email field type provides fake data" do
       field_type = :email
@@ -131,22 +115,14 @@ defmodule Blunt.Message.Schema.FieldProviderTest do
 
       assert "fake_hombre@example.com" == FieldProvider.fake(field_type, field_config, validation: validation)
     end
-
-    test "field with `validate: begin_with_capital_letter` provides fake data" do
-      field_type = :doesnt_matter
-      validation = :begin_with_capital_letter
-      field_config = []
-
-      assert "Chris" == FieldProvider.fake(field_type, field_config, validation: validation)
-    end
   end
 
   describe "using the field provider module as a type" do
-    alias Support.Message.Schema.EmailFieldProvider
+    alias Blunt.Test.FieldTypes.EmailField
 
     defmodule UseModuleAsType do
       use Blunt.Message
-      field :email_address, EmailFieldProvider
+      field :email_address, EmailField
     end
 
     factory UseModuleAsType, debug: false

@@ -5,9 +5,12 @@ defmodule Blunt.Absinthe.Relay.Config do
   alias Blunt.Absinthe.Relay.Error
 
   def get_repo!(opts \\ []) do
-    case Keyword.get(opts, :repo) || get(:repo) do
-      nil -> raise_no_repo!()
-      repo -> Behaviour.validate!(repo, Ecto.Repo)
+    with nil <- Keyword.get(opts, :repo),
+         nil <- get(:repo) do
+      raise_no_repo!()
+    else
+      repo ->
+        {repo, Keyword.delete(opts, :repo)}
     end
   end
 

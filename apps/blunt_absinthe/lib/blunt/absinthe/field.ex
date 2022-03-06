@@ -107,6 +107,7 @@ defmodule Blunt.Absinthe.Field do
 
   def put_dispatch_opts(opts, operation, args) do
     opts
+    |> Keyword.put(:ship, false)
     |> Keyword.put(:return, :context)
     |> Keyword.put(operation, true)
     |> Keyword.put(:user_supplied_fields, Map.keys(args))

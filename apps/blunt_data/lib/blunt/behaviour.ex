@@ -7,7 +7,7 @@ defmodule Blunt.Behaviour do
 
   @spec validate(atom, atom) :: {:error, String.t()} | {:ok, atom}
 
-  def validate(module, behaviour_module) do
+  def validate(module, behaviour_module) when is_atom(module) do
     error = "#{inspect(module)} is not a valid #{inspect(behaviour_module)}"
 
     case Code.ensure_compiled(module) do
@@ -19,6 +19,10 @@ defmodule Blunt.Behaviour do
       _ ->
         {:error, error}
     end
+  end
+
+  def validate(_module, _behaviour_module) do
+    {:error, :not_a_module}
   end
 
   @spec validate!(atom, atom) :: atom

@@ -36,7 +36,9 @@ defmodule BluntAbsintheRelay.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    blunt(Mix.env()) ++
+    env = System.get_env("MIX_LOCAL") || Mix.env()
+
+    blunt(env) ++
       [
         {:absinthe, "~> 1.7", override: true},
         {:absinthe_relay, "~> 1.5", optional: true},

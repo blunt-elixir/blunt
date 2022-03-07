@@ -1,9 +1,5 @@
 defmodule Blunt.Data.Factories.Values do
-  defmodule Constant do
-    @moduledoc false
-    @derive Inspect
-    defstruct [:field, :value]
-  end
+  alias Blunt.Data.Factories.Values
 
   @doc """
   The `field` of the factory source data will be assigned
@@ -11,14 +7,8 @@ defmodule Blunt.Data.Factories.Values do
   """
   defmacro const(field, value) do
     quote do
-      %Constant{field: unquote(field), value: unquote(value)}
+      %Values.Constant{field: unquote(field), value: unquote(value)}
     end
-  end
-
-  defmodule Data do
-    @moduledoc false
-    @derive Inspect
-    defstruct [:field, :factory, lazy: false]
   end
 
   @doc """
@@ -45,12 +35,12 @@ defmodule Blunt.Data.Factories.Values do
   Same as `data` but
   """
   defmacro lazy_data(field, message) do
-    create_data(field, message, [], lazy: false)
+    create_data(field, message, [], lazy: true)
   end
 
   defmacro lazy_data(field, message, do: body) do
     values = extract_values(body)
-    create_data(field, message, values, lazy: false)
+    create_data(field, message, values, lazy: true)
   end
 
   defmacro lazy_data(field, message, opts \\ [], do: body) do
@@ -69,11 +59,10 @@ defmodule Blunt.Data.Factories.Values do
     {operation, message, values} = data_props(message, values)
 
     quote do
-      %Data{
+      %Values.Data{
         lazy: unquote(lazy),
         field: unquote(field),
         factory: %{
-          name: :dependency,
           values: unquote(values),
           message: unquote(message),
           operation: unquote(operation),
@@ -91,19 +80,13 @@ defmodule Blunt.Data.Factories.Values do
     end
   end
 
-  defmodule Prop do
-    @moduledoc false
-    @derive {Inspect, except: [:lazy]}
-    defstruct [:field, :path_func_or_value, lazy: false]
-  end
-
   @doc """
   The `field` of the factory source data will be assigned
   to the value of `path_func_or_value` in the factory source
   """
   defmacro prop(field, path_func_or_value) do
     quote do
-      %Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value)}
+      %Values.Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value)}
     end
   end
 
@@ -113,27 +96,38 @@ defmodule Blunt.Data.Factories.Values do
   """
   defmacro lazy_prop(field, path_func_or_value) do
     quote do
-      %Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value), lazy: true}
+      %Values.Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value), lazy: true}
     end
   end
 
-  defmodule Mapper do
-    defstruct [:func]
+  @doc """
+  Merges a key from input into the current factory data.
+
+  This will not overwrite any existing data.
+  """
+  defmacro merge_input(key, opts \\ []) do
+    quote do
+      %Values.MergeInput{key: unquote(key), opts: unquote(opts)}
+    end
   end
 
   defmacro map(func) do
     quote do
-      %Mapper{func: unquote(func)}
+      %Values.Mapper{func: unquote(func)}
     end
-  end
-
-  defmodule Build do
-    defstruct [:field, :factory_name]
   end
 
   defmacro child(field, factory_name) do
     quote do
-      %Build{field: unquote(field), factory_name: unquote(factory_name)}
+      %Values.Build{field: unquote(field), factory_name: unquote(factory_name)}
+    end
+  end
+
+  defmacro defaults(values) do
+    values = Macro.escape(Enum.into(values, %{}))
+
+    quote do
+      %Values.Defaults{values: unquote(values)}
     end
   end
 end

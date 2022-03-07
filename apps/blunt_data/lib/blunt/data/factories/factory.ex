@@ -30,8 +30,7 @@ defmodule Blunt.Data.Factories.Factory do
     opts: []
   ]
 
-  alias Blunt.Data.Factories.Builder
-  alias Blunt.Data.Factories.Values.{Constant, Data, Prop, Mapper, Build}
+  alias Blunt.Data.Factories.{Builder, Value, Values}
 
   def build(%__MODULE__{} = factory) do
     %{final_message: final_message} =
@@ -89,150 +88,63 @@ defmodule Blunt.Data.Factories.Factory do
         {field, value}
       end
 
-    final_message = builder.build(message, Map.merge(data, faked_data))
+    final_message =
+      case builder.build(message, Map.merge(data, faked_data)) do
+        {:ok, final_message} -> final_message
+        final_message -> final_message
+      end
 
     final_message =
       case operation do
-        :build -> final_message
-        :builder_dispatch -> builder.dispatch(final_message)
-        operation -> apply(factory_module, operation, [final_message])
+        :build ->
+          final_message
+
+        :builder_dispatch ->
+          builder.dispatch(final_message)
+
+        operation ->
+          case apply(factory_module, operation, [final_message]) do
+            {:ok, result} -> result
+            other -> other
+          end
       end
 
     %{factory | final_message: final_message}
   end
 
-  defp normalize(%{name: name, message: message, input: input, data: data, opts: opts} = factory) do
+  defp normalize(%{name: name, message: message, input: input, data: data, opts: opts, values: values} = factory) do
     name = String.trim_trailing(to_string(name), "_factory")
     message_name = message |> Module.split() |> List.last() |> to_string()
     opts = Keyword.merge(opts, name: name, message_name: message_name)
+
+    # put defaults at the end of the values.
+    {defaults, values} = Enum.split_with(values, &match?(%Values.Defaults{}, &1))
+
+    # Allow turning on factory debug via input: %{debug_factory: true}
+    default_debug = Keyword.get(opts, :debug, false)
+    {debug, input} = Map.pop(input || %{}, :debug_factory, default_debug)
+    opts = Keyword.put(opts, :debug, debug)
 
     %{
       factory
       | name: name,
         message_name: message_name,
-        input: input || %{},
+        input: input,
         data: data || %{},
-        opts: opts
+        opts: opts,
+        values: values ++ defaults
     }
   end
 
   defp evaluate_values(%{input: input, values: values} = factory) do
-    data = Enum.reduce(values, input, &evaluate_value(&1, &2, factory))
+    data = Enum.reduce(values, input, &Value.evaluate(&1, &2, factory))
     %{factory | data: data}
   end
 
-  defp evaluate_value(value, acc, %{opts: opts} = current_factory) do
-    log_value = fn value, field, lazy, type ->
-      field = ANSI.format([:blue, :bright, to_string(field)])
-      type_prefix = if lazy, do: "lazy ", else: ""
-      debug(value, "#{type_prefix}#{type} #{field}", opts)
-    end
-
-    case value do
-      nil ->
-        acc
-
-      %Mapper{func: func} ->
-        func.(acc) |> log_value.("data", false, "map")
-
-      %Constant{field: field, value: value} ->
-        value = log_value.(value, field, false, "const")
-        Map.put(acc, field, value)
-
-      %Prop{field: field, path_func_or_value: path, lazy: lazy} when is_list(path) ->
-        if not lazy or (lazy and not Map.has_key?(acc, field)) do
-          keys = Enum.map(path, &Access.key/1)
-          value = get_in(acc, keys) |> log_value.(field, lazy, "prop")
-          Map.put(acc, field, value)
-        else
-          acc
-        end
-
-      %Prop{field: field, path_func_or_value: func, lazy: lazy} when is_function(func, 0) ->
-        if not lazy or (lazy and not Map.has_key?(acc, field)) do
-          value = func.() |> log_value.(field, lazy, "prop")
-          Map.put(acc, field, value)
-        else
-          acc
-        end
-
-      %Prop{field: field, path_func_or_value: func, lazy: lazy} when is_function(func, 1) ->
-        if not lazy or (lazy and not Map.has_key?(acc, field)) do
-          value = func.(acc) |> log_value.(field, lazy, "prop")
-          Map.put(acc, field, value)
-        else
-          acc
-        end
-
-      %Prop{field: field, path_func_or_value: value, lazy: lazy} ->
-        if not lazy or (lazy and not Map.has_key?(acc, field)) do
-          log_value.(value, field, lazy, "prop")
-          Map.put(acc, field, value)
-        else
-          acc
-        end
-
-      %Build{field: field, factory_name: factory_name} ->
-        factory_name = String.to_existing_atom("#{factory_name}_factory")
-        value = apply(current_factory.factory_module, factory_name, [acc])
-        Map.put(acc, field, log_value.(value, field, false, "child"))
-
-      %Data{field: field, factory: factory, lazy: lazy} ->
-        if not lazy or (lazy and not Map.has_key?(acc, field)) do
-          operation =
-            factory
-            |> Map.fetch!(:operation)
-            |> validate_factory_operation!(current_factory)
-
-          opts =
-            factory
-            |> Map.get(:opts, [])
-            |> Keyword.merge(current_factory.opts)
-
-          factory_config =
-            factory
-            |> Map.put(:input, acc)
-            |> Map.put(:opts, opts)
-            |> Map.put(:operation, operation)
-            |> Map.put(:builders, current_factory.builders)
-            |> Map.put(:fake_provider, current_factory.fake_provider)
-            |> Map.put(:factory_module, current_factory.factory_module)
-
-          value =
-            __MODULE__
-            |> struct!(factory_config)
-            |> build()
-            |> log_value.(field, lazy, "data")
-
-          Map.put(acc, field, value)
-        else
-          acc
-        end
-    end
-  end
-
-  defp validate_factory_operation!(:dispatch, %{factory_module: module}) do
-    if function_exported?(module, :dispatch, 1),
-      do: :dispatch,
-      else: :builder_dispatch
-  end
-
-  defp validate_factory_operation!(operation, %{factory_module: module, name: name}) do
-    if function_exported?(module, operation, 1) do
-      operation
-    else
-      funcs = module.__info__(:functions) |> Keyword.keys()
-
-      raise UndefinedFunctionError,
-        arity: 1,
-        module: module,
-        function: operation,
-        reason: """
-        Attempted to call #{operation} on #{inspect(module)} as part of the `#{name}` factory.
-
-        Available functions: #{inspect(funcs)}
-        """
-    end
+  def log_value(%__MODULE__{opts: opts}, value, field, lazy, type) do
+    field = ANSI.format([:blue, :bright, to_string(field)])
+    type_prefix = if lazy, do: "lazy ", else: ""
+    debug(value, "#{type_prefix}#{type} #{field}", opts)
   end
 
   defp debug(%{opts: opts, input: input} = factory, :self) do

@@ -43,7 +43,9 @@ defmodule Blunt.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    blunt(Mix.env()) ++
+    env = System.get_env("MIX_LOCAL") || Mix.env()
+
+    blunt(env) ++
       [
         {:jason, "~> 1.3"},
         {:ecto, "~> 3.7"},

@@ -9,7 +9,7 @@ defmodule Blunt.Data.Factories.Builder.EctoSchemaBuilder do
   @impl true
   def message_fields(message_module) do
     message_module.__changeset__()
-    |> Enum.reject(&match?({_name, {:assoc, _}}, &1))
+    # |> Enum.reject(&match?({_name, {:assoc, _}}, &1))
     |> Enum.reject(&match?({:inserted_at, _}, &1))
     |> Enum.reject(&match?({:updated_at, _}, &1))
     |> Enum.map(fn
@@ -44,10 +44,12 @@ defmodule Blunt.Data.Factories.Builder.EctoSchemaBuilder do
   end
 
   defp data_map(struct) when is_struct(struct) do
-    Map.from_struct(struct)
+    struct
+    |> Map.from_struct()
+    |> data_map()
   end
 
-  defp data_map(map) when is_struct(map) do
+  defp data_map(map) when is_map(map) do
     Enum.into(map, %{}, fn {key, value} -> {key, data_map(value)} end)
   end
 

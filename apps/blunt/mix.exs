@@ -1,7 +1,7 @@
 defmodule Blunt.MixProject do
   use Mix.Project
 
-  @version String.trim(File.read!("../../VERSION"))
+  @version "0.1.0-rc1"
 
   def project do
     [

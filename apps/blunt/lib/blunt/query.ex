@@ -16,21 +16,21 @@ defmodule Blunt.Query do
 
       Options.register()
 
-      @options Options.query_return_option()
-
-      @options {:preload, {:array, :any},
-                [
-                  default: [],
-                  required: false,
-                  desc: "A list of preloads to append to the query"
-                ]}
-
-      @options {:allow_nil_filters, :boolean,
-                [
-                  default: false,
-                  required: false,
-                  desc: "If `false`, all fields with a value of `nil` will be removed from the filters"
-                ]}
+      @options [
+        Options.query_return_option(),
+        {:preload, {:array, :any},
+         [
+           default: [],
+           required: false,
+           desc: "A list of preloads to append to the query"
+         ]},
+        {:allow_nil_filters, :boolean,
+         [
+           default: false,
+           required: false,
+           desc: "If `false`, all fields with a value of `nil` will be removed from the filters"
+         ]}
+      ]
 
       Module.register_attribute(__MODULE__, :bindings, accumulate: true)
 

@@ -7,7 +7,7 @@ defmodule Blunt.Message.Options do
 
   defmacro register do
     quote do
-      Module.register_attribute(__MODULE__, :options, accumulate: true)
+      Module.register_attribute(__MODULE__, :options, accumulate: false)
     end
   end
 
@@ -18,7 +18,15 @@ defmodule Blunt.Message.Options do
         |> Keyword.put_new(:default, nil)
         |> Keyword.put_new(:required, false)
 
-      @options {name, type, opts}
+      options =
+        __MODULE__
+        |> Module.get_attribute(:options, [])
+        |> List.wrap()
+        |> Enum.reject(&match?({^name, _, _}, &1))
+
+      options = [{name, type, opts} | options]
+
+      Module.put_attribute(__MODULE__, :options, options)
     end
   end
 

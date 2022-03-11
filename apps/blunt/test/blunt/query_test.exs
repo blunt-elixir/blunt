@@ -94,4 +94,16 @@ defmodule Blunt.QueryTest do
       assert %Ecto.Query{from: %{source: {"people", Person}}} = Query.query(context)
     end
   end
+
+  describe "preload option" do
+    defmodule PreloadQuery do
+      use Blunt.Query
+
+      option :preload, {:array, :any}, default: [:name]
+    end
+
+    test "set default value" do
+      assert %{preload: [type: {:array, :any}, required: false, default: [:name]]} = Metadata.options(PreloadQuery)
+    end
+  end
 end

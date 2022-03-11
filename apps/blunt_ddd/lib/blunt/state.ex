@@ -20,7 +20,9 @@ defmodule Blunt.State do
       @require_all_fields? false
       @create_jason_encoders? false
 
+      Module.put_attribute(__MODULE__, :built_in_validations, nil)
       Module.register_attribute(__MODULE__, :schema_fields, accumulate: true)
+      Module.register_attribute(__MODULE__, :schema_field_validations, accumulate: true)
 
       @before_compile Blunt.State
 

@@ -1,7 +1,6 @@
 defmodule Blunt.Absinthe.Relay.Config do
   @moduledoc false
 
-  alias Blunt.Behaviour
   alias Blunt.Absinthe.Relay.Error
 
   def get_repo!(opts \\ []) do

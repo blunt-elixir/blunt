@@ -96,6 +96,10 @@ defmodule Blunt.Message do
   defmacro field(name, type, opts \\ []),
     do: Fields.record(name, type, opts)
 
+  @spec require_at_least_one(list(atom())) :: any()
+  defmacro require_at_least_one(fields) when is_list(fields),
+    do: Schema.require_at_least_one(fields)
+
   @spec metadata(atom(), any()) :: any()
   defmacro metadata(name, value),
     do: Metadata.record(name, value)

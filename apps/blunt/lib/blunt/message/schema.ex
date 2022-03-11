@@ -15,6 +15,13 @@ defmodule Blunt.Message.Schema do
       Module.register_attribute(__MODULE__, :schema_fields, accumulate: true)
       Module.register_attribute(__MODULE__, :required_fields, accumulate: true)
       Module.register_attribute(__MODULE__, :schema_field_validations, accumulate: true)
+      Module.register_attribute(__MODULE__, :built_in_validations, accumulate: true)
+    end
+  end
+
+  def require_at_least_one(fields) do
+    quote do
+      @built_in_validations {:require_at_least_one, unquote(fields)}
     end
   end
 
@@ -49,6 +56,7 @@ defmodule Blunt.Message.Schema do
         unquote(fields)
       end
 
+      @metadata built_in_validations: @built_in_validations
       @metadata field_validations: @schema_field_validations
     end
   end

@@ -15,7 +15,8 @@ locals_without_parens = [
   value_object: 2,
   derive_event: 1,
   derive_event: 2,
-  metadata: 2
+  metadata: 2,
+  require_at_least_one: 1
 ]
 
 [

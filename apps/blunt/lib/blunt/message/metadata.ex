@@ -69,6 +69,10 @@ defmodule Blunt.Message.Metadata do
     fetch!(module, :field_validations)
   end
 
+  def built_in_validations(module) do
+    fetch!(module, :built_in_validations)
+  end
+
   def field_names(module) do
     module
     |> fields()

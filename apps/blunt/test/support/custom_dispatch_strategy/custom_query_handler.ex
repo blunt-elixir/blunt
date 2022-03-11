@@ -1,4 +1,4 @@
-defmodule Blunt.CustomDispatchStrategy.CustomQueryPipeline do
+defmodule Blunt.CustomDispatchStrategy.CustomQueryHandler do
   @type opts :: keyword()
   @type filters :: struct()
   @type filter_list :: keyword()
@@ -15,7 +15,7 @@ defmodule Blunt.CustomDispatchStrategy.CustomQueryPipeline do
     quote do
       import Ecto.Query
 
-      @behaviour Blunt.CustomDispatchStrategy.CustomQueryPipeline
+      @behaviour Blunt.CustomDispatchStrategy.CustomQueryHandler
 
       @impl true
       def before_dispatch(_filters, context),

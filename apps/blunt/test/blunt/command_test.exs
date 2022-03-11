@@ -20,7 +20,7 @@ defmodule Blunt.CommandTest do
   test "dispatch with no pipeline" do
     alias Protocol.DispatchNoPipeline
 
-    error = "No Blunt.CommandPipeline found for query: Blunt.CommandTest.Protocol.DispatchNoPipeline"
+    error = "No Blunt.CommandHandler found for command: Blunt.CommandTest.Protocol.DispatchNoPipeline"
 
     assert_raise(PipelineResolver.Error, error, fn ->
       %{name: "chris"}

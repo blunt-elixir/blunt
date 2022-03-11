@@ -1,4 +1,4 @@
-defmodule Blunt.CommandPipeline do
+defmodule Blunt.CommandHandler do
   @type user :: map()
   @type command :: struct()
   @type context :: Blunt.DispatchContext.command_context()
@@ -8,7 +8,7 @@ defmodule Blunt.CommandPipeline do
   defmacro __using__(_opts) do
     quote do
       use Blunt.Message.Compilation
-      @behaviour Blunt.CommandPipeline
+      @behaviour Blunt.CommandHandler
     end
   end
 end

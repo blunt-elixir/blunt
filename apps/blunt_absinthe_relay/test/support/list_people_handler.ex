@@ -1,5 +1,5 @@
-defmodule Blunt.Absinthe.Relay.Test.ListPeoplePipeline do
-  use Blunt.QueryPipeline
+defmodule Blunt.Absinthe.Relay.Test.ListPeopleHandler do
+  use Blunt.QueryHandler
 
   alias Blunt.Absinthe.Relay.Test.Person
 

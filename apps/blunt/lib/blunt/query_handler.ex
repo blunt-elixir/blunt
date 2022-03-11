@@ -1,4 +1,4 @@
-defmodule Blunt.QueryPipeline do
+defmodule Blunt.QueryHandler do
   @type opts :: keyword()
   @type filter_list :: keyword()
   @type query :: Ecto.Query.t() | any()
@@ -12,7 +12,7 @@ defmodule Blunt.QueryPipeline do
       import Ecto.Query
       use Blunt.Message.Compilation
 
-      @behaviour Blunt.QueryPipeline
+      @behaviour Blunt.QueryHandler
     end
   end
 end

@@ -6,8 +6,8 @@ defmodule Support.Testing.GetPerson do
   binding :person, Support.ReadModel.Person
 end
 
-defmodule Support.Testing.GetPersonPipeline do
-  use Blunt.QueryPipeline
+defmodule Support.Testing.GetPersonHandler do
+  use Blunt.QueryHandler
 
   alias Blunt.Query
   alias Support.ReadModel.Person

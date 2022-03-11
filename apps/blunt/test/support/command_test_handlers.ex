@@ -1,5 +1,5 @@
-defmodule Blunt.CommandTest.Protocol.DispatchWithPipelinePipeline do
-  use Blunt.CommandPipeline
+defmodule Blunt.CommandTest.Protocol.DispatchWithPipelineHandler do
+  use Blunt.CommandHandler
   alias Blunt.DispatchContext, as: Context
 
   defp reply(context, pipeline) do
@@ -20,8 +20,8 @@ defmodule Blunt.CommandTest.Protocol.DispatchWithPipelinePipeline do
   end
 end
 
-defmodule Blunt.CommandTest.Protocol.CommandWithMetaPipeline do
-  use Blunt.CommandPipeline
+defmodule Blunt.CommandTest.Protocol.CommandWithMetaHandler do
+  use Blunt.CommandHandler
 
   def handle_dispatch(_command, _context) do
     :ok

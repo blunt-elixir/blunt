@@ -1,4 +1,4 @@
-defmodule Blunt.CustomDispatchStrategy.CustomCommandPipeline do
+defmodule Blunt.CustomDispatchStrategy.CustomCommandHandler do
   @type user :: map()
   @type command :: struct()
   @type context :: Blunt.DispatchContext.command_context()
@@ -9,7 +9,7 @@ defmodule Blunt.CustomDispatchStrategy.CustomCommandPipeline do
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Blunt.CustomDispatchStrategy.CustomCommandPipeline
+      @behaviour Blunt.CustomDispatchStrategy.CustomCommandHandler
 
       @impl true
       def handle_authorize(_user, _command, context),

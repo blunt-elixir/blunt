@@ -3,8 +3,8 @@ defmodule Support.Testing.LayzFactoryValueMessages.CreateProduct do
   field :id, :binary_id
 end
 
-defmodule Support.Testing.LayzFactoryValueMessages.CreateProductPipeline do
-  use Blunt.CommandPipeline
+defmodule Support.Testing.LayzFactoryValueMessages.CreateProductHandler do
+  use Blunt.CommandHandler
 
   def handle_dispatch(%{id: id}, _context) do
     %{id: id}
@@ -17,8 +17,8 @@ defmodule Support.Testing.LayzFactoryValueMessages.CreatePolicy do
   field :id, :binary_id
 end
 
-defmodule Support.Testing.LayzFactoryValueMessages.CreatePolicyPipeline do
-  use Blunt.CommandPipeline
+defmodule Support.Testing.LayzFactoryValueMessages.CreatePolicyHandler do
+  use Blunt.CommandHandler
 
   def handle_dispatch(%{id: id}, _context) do
     %{id: id}
@@ -31,8 +31,8 @@ defmodule Support.Testing.LayzFactoryValueMessages.CreatePolicyFee do
   field :id, :binary_id
 end
 
-defmodule Support.Testing.LayzFactoryValueMessages.CreatePolicyFeePipeline do
-  use Blunt.CommandPipeline
+defmodule Support.Testing.LayzFactoryValueMessages.CreatePolicyFeeHandler do
+  use Blunt.CommandHandler
 
   def handle_dispatch(command, _context) do
     command

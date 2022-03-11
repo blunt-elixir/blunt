@@ -1,5 +1,5 @@
-defmodule Blunt.Absinthe.Test.GetPersonPipeline do
-  use Blunt.QueryPipeline
+defmodule Blunt.Absinthe.Test.GetPersonHandler do
+  use Blunt.QueryHandler
 
   alias Blunt.Repo
   alias Blunt.Absinthe.Test.ReadModel.Person

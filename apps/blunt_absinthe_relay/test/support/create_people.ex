@@ -5,8 +5,8 @@ defmodule Blunt.Absinthe.Relay.Test.CreatePeople do
   field :peeps, {:array, Person}
 end
 
-defmodule Blunt.Absinthe.Relay.Test.CreatePeoplePipeline do
-  use Blunt.CommandPipeline
+defmodule Blunt.Absinthe.Relay.Test.CreatePeopleHandler do
+  use Blunt.CommandHandler
 
   alias Blunt.Repo
 

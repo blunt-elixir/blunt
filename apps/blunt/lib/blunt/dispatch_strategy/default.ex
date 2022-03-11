@@ -5,7 +5,7 @@ defmodule Blunt.DispatchStrategy.Default do
 
   alias Blunt.DispatchContext
   alias Blunt.DispatchStrategy.PipelineResolver
-  alias Blunt.{CommandPipeline, Query, QueryPipeline}
+  alias Blunt.{CommandHandler, Query, QueryHandler}
 
   @type context :: DispatchContext.t()
 
@@ -14,17 +14,17 @@ defmodule Blunt.DispatchStrategy.Default do
   @moduledoc """
   Receives a `DispatchContext`, locates a message pipeline, and runs the pipeline's ...uh pipeline.
 
-  ## CommandPipeline Pipeline
+  ## CommandHandler Pipeline
 
   1. `handle_dispatch`
 
-  ## QueryPipeline Pipeline
+  ## QueryHandler Pipeline
 
   1. `create_query`
   2. `handle_dispatch`
   """
   def dispatch(%{message_type: :command, message: command} = context) do
-    pipeline = PipelineResolver.get_pipeline!(context, CommandPipeline)
+    pipeline = PipelineResolver.get_pipeline!(context, CommandHandler)
 
     with {:ok, context} <- execute({pipeline, :handle_dispatch, [command, context]}, context) do
       return_last_pipeline(context)
@@ -34,7 +34,7 @@ defmodule Blunt.DispatchStrategy.Default do
   def dispatch(%{message_type: :query} = context) do
     bindings = Query.bindings(context)
     filter_list = Query.create_filter_list(context)
-    pipeline = PipelineResolver.get_pipeline!(context, QueryPipeline)
+    pipeline = PipelineResolver.get_pipeline!(context, QueryHandler)
 
     context =
       context

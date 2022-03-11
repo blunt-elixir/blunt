@@ -1,5 +1,5 @@
-defmodule Blunt.QueryTest.Protocol.GetPersonPipeline do
-  use Blunt.QueryPipeline
+defmodule Blunt.QueryTest.Protocol.GetPersonHandler do
+  use Blunt.QueryHandler
 
   alias Blunt.Repo
   alias Blunt.QueryTest.ReadModel.Person
@@ -18,8 +18,8 @@ defmodule Blunt.QueryTest.Protocol.GetPersonPipeline do
   end
 end
 
-defmodule Blunt.QueryTest.Protocol.CreatePersonPipeline do
-  use Blunt.CommandPipeline
+defmodule Blunt.QueryTest.Protocol.CreatePersonHandler do
+  use Blunt.CommandHandler
 
   alias Blunt.Repo
   alias Blunt.QueryTest.ReadModel.Person

@@ -24,11 +24,11 @@ defmodule Blunt.DispatchStrategy.PipelineResolver do
   end
 
   @doc false
-  def get_pipeline!(%{message_module: message_module} = context, behaviour_module) do
+  def get_pipeline!(%{message_type: type, message_module: message_module} = context, behaviour_module) do
     case get_pipeline(context, behaviour_module) do
       {:ok, pipeline} -> pipeline
       {:error, reason} -> raise Error, message: reason
-      :error -> raise Error, message: "No #{inspect(behaviour_module)} found for query: #{inspect(message_module)}"
+      :error -> raise Error, message: "No #{inspect(behaviour_module)} found for #{type}: #{inspect(message_module)}"
     end
   end
 end

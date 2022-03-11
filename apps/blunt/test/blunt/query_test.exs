@@ -29,7 +29,7 @@ defmodule Blunt.QueryTest do
     end
 
     test "no pipeline" do
-      error = "No Blunt.QueryPipeline found for query: Blunt.QueryTest.Protocol.BasicQuery"
+      error = "No Blunt.QueryHandler found for query: Blunt.QueryTest.Protocol.BasicQuery"
 
       assert_raise(PipelineResolver.Error, error, fn ->
         BasicQuery.new()

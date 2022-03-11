@@ -8,8 +8,8 @@ defmodule Support.Testing.CreatePerson do
   derive_event PersonCreated
 end
 
-defmodule Support.Testing.CreatePersonPipeline do
-  use Blunt.CommandPipeline
+defmodule Support.Testing.CreatePersonHandler do
+  use Blunt.CommandHandler
 
   @impl true
   def handle_dispatch(command, _context) do

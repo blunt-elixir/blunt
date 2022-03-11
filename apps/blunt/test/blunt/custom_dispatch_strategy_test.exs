@@ -22,8 +22,8 @@ defmodule Blunt.CustomDispatchStrategyTest do
       do: %{command | id: UUID.uuid4()}
   end
 
-  defmodule CreatePersonPipeline do
-    use Blunt.CustomDispatchStrategy.CustomCommandPipeline
+  defmodule CreatePersonHandler do
+    use Blunt.CustomDispatchStrategy.CustomCommandHandler
 
     @impl true
     def before_dispatch(_command, context) do

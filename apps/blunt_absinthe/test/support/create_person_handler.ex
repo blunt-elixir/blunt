@@ -1,5 +1,5 @@
-defmodule Blunt.Absinthe.Test.CreatePersonPipeline do
-  use Blunt.CommandPipeline
+defmodule Blunt.Absinthe.Test.CreatePersonHandler do
+  use Blunt.CommandHandler
 
   alias Blunt.Repo
   alias Blunt.Absinthe.Test.ReadModel.Person

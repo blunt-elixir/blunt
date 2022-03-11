@@ -6,7 +6,7 @@ defmodule Blunt.CustomDispatchStrategy do
   alias Blunt.Query
   alias Blunt.DispatchContext, as: Context
   alias Blunt.DispatchStrategy.PipelineResolver
-  alias Blunt.CustomDispatchStrategy.{CustomCommandPipeline, CustomQueryPipeline}
+  alias Blunt.CustomDispatchStrategy.{CustomCommandHandler, CustomQueryHandler}
 
   @type context :: Context.t()
   @type query_context :: Context.query_context()
@@ -18,13 +18,13 @@ defmodule Blunt.CustomDispatchStrategy do
   @moduledoc """
   Receives a `DispatchContext`, locates the message pipeline, and runs the pipeline pipeline.
 
-  ## CustomCommandPipeline Pipeline
+  ## CustomCommandHandler Pipeline
 
   1. `before_dispatch`
   2. `handle_authorize`
   3. `handle_dispatch`
 
-  ## CustomQueryPipeline Pipeline
+  ## CustomQueryHandler Pipeline
 
   1. `before_dispatch`
   2. `create_query`
@@ -33,7 +33,7 @@ defmodule Blunt.CustomDispatchStrategy do
   """
   def dispatch(%{message_type: :command, message: command} = context) do
     user = Context.user(context)
-    pipeline = PipelineResolver.get_pipeline!(context, CustomCommandPipeline)
+    pipeline = PipelineResolver.get_pipeline!(context, CustomCommandHandler)
 
     with {:ok, context} <- execute({pipeline, :before_dispatch, [command, context]}, context),
          {:ok, context} <- execute({pipeline, :handle_authorize, [user, command, context]}, context),
@@ -46,7 +46,7 @@ defmodule Blunt.CustomDispatchStrategy do
     user = Context.user(context)
     bindings = Query.bindings(context)
     filter_list = Query.create_filter_list(context)
-    pipeline = PipelineResolver.get_pipeline!(context, CustomQueryPipeline)
+    pipeline = PipelineResolver.get_pipeline!(context, CustomQueryHandler)
 
     context =
       context

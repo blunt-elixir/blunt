@@ -1,5 +1,5 @@
-defmodule Support.ContextTest.CreatePersonPipeline do
-  use Blunt.CommandPipeline
+defmodule Support.ContextTest.CreatePersonHandler do
+  use Blunt.CommandHandler
 
   alias Blunt.Repo
   alias Support.ContextTest.ReadModel.Person

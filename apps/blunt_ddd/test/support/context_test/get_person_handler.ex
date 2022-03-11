@@ -1,5 +1,5 @@
-defmodule Support.ContextTest.GetPersonPipeline do
-  use Blunt.QueryPipeline
+defmodule Support.ContextTest.GetPersonHandler do
+  use Blunt.QueryHandler
 
   alias Blunt.Repo
   alias Support.ContextTest.ReadModel.Person

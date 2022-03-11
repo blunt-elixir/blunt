@@ -1,5 +1,5 @@
-defmodule Support.Command.EventDerivationTest.CommandWithEventDerivationsPipeline do
-  use Blunt.CommandPipeline
+defmodule Support.Command.EventDerivationTest.CommandWithEventDerivationsHandler do
+  use Blunt.CommandHandler
 
   alias Blunt.CommandTest.Events.NamespacedEventWithExtrasAndDrops
 

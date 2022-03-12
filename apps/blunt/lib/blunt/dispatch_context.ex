@@ -131,6 +131,11 @@ defmodule Blunt.DispatchContext do
   def put_error(%__MODULE__{errors: errors} = context, error),
     do: %{context | errors: errors ++ List.wrap(error)}
 
+  @spec internal_field(context, atom, any) :: context
+  def internal_field(%{message: message} = context, field_name, value) do
+    %{context | message: Map.put(message, field_name, value)}
+  end
+
   @spec put_private(context, atom, any) :: context
   def put_private(%__MODULE__{private: private} = context, key, value) when is_atom(key),
     do: %{context | private: Map.put(private, key, value)}

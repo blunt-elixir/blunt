@@ -78,18 +78,18 @@ defmodule Blunt.Data.Factories.Factory do
            field_validations: field_validations
          } = factory
        ) do
-    faked_data =
-      for {field, type, config} when not is_map_key(data, field) <- fields, into: %{} do
-        validation = Keyword.get(field_validations, field, :none)
-        value = fake_provider.fake(type, validation, config)
+    # faked_data =
+    #   for {field, type, config} when not is_map_key(data, field) <- fields, into: %{} do
+    #     validation = Keyword.get(field_validations, field, :none)
+    #     value = fake_provider.fake(type, validation, config)
 
-        debug(value, ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
+    #     debug(value, ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
 
-        {field, value}
-      end
+    #     {field, value}
+    #   end
 
     final_message =
-      case builder.build(message, Map.merge(data, faked_data)) do
+      case builder.build(message, data) do
         {:ok, final_message} -> final_message
         final_message -> final_message
       end

@@ -21,6 +21,14 @@ defmodule Blunt.Config do
     explicit && configured
   end
 
+  def schema_field_definitions do
+    alias Blunt.Message.Schema.FieldDefinition
+
+    :schema_field_definitions
+    |> get([])
+    |> Enum.map(&Behaviour.validate!(&1, FieldDefinition))
+  end
+
   def schema_field_providers(opts \\ []) do
     alias Blunt.Message.Schema.{DefaultFieldProvider, FieldProvider}
 

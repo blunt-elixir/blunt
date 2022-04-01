@@ -47,6 +47,12 @@ defmodule Blunt.Behaviour do
 
     callbacks
     |> Enum.reject(fn {name, _arity} -> Enum.member?(optional_callbacks, name) end)
-    |> Enum.all?(fn {name, arity} -> function_exported?(module, name, arity) end)
+    |> Enum.all?(fn {name, arity} ->
+      # module.__info__(:functions)
+      # |> IO.inspect(label: "#{inspect(module)} ~/code/personal/blunt/apps/blunt_data/lib/blunt/behaviour.ex:52")
+
+      function_exported?(module, name, arity)
+      # |> IO.inspect(label: "#{inspect(module)} #{inspect(name)}/#{inspect(arity)}")
+    end)
   end
 end

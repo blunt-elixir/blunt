@@ -15,6 +15,9 @@ config :blunt,
   dispatch_strategy: Blunt.DispatchStrategy.Default,
   pipeline_resolver: Blunt.DispatchStrategy.PipelineResolver.Default,
   dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration,
+  schema_field_definitions: [
+    Blunt.Test.FieldTypes.EmailField
+  ],
   schema_field_providers: [
     Blunt.Test.FieldTypes.EmailField,
     Blunt.Test.FieldTypes.UuidField

@@ -2,7 +2,7 @@ defmodule Blunt.Message.Schema do
   @moduledoc false
 
   alias Blunt.Config
-  alias Blunt.Message.Schema.FieldProvider
+  alias Blunt.Message.Schema.{FieldProvider, Fields}
 
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
@@ -34,16 +34,16 @@ defmodule Blunt.Message.Schema do
     schema_fields =
       module
       |> Module.get_attribute(:schema_fields)
-      |> Enum.map(fn {name, type, opts} -> {name, type, Macro.escape(opts)} end)
+      |> Macro.escape()
 
     jason_encoder? = Module.get_attribute(module, :create_jason_encoders?) and Code.ensure_loaded?(Jason)
 
-    fields = Enum.map(schema_fields, &FieldProvider.ecto_field(module, &1))
+    # fields = Enum.map(schema_fields, &FieldProvider.ecto_field(module, &1))
 
-    quote do
+    quote bind_quoted: [schema_fields: schema_fields, jason_encoder?: jason_encoder?] do
       use Ecto.Schema
 
-      if unquote(jason_encoder?) do
+      if jason_encoder? do
         @derive Jason.Encoder
       end
 
@@ -53,7 +53,26 @@ defmodule Blunt.Message.Schema do
 
       @primary_key false
       embedded_schema do
-        unquote(fields)
+        Enum.map(schema_fields, fn
+          {name, :binary_id, opts} ->
+            Ecto.Schema.field(name, Ecto.UUID, opts)
+
+          {name, :enum, opts} ->
+            Ecto.Schema.field(name, Ecto.Enum, opts)
+
+          {name, {:array, :enum}, opts} ->
+            Ecto.Schema.field(name, {:array, Ecto.Enum}, opts)
+
+          {name, {:array, type}, opts} ->
+            if Fields.embedded?(type),
+              do: Ecto.Schema.embeds_many(name, type),
+              else: Ecto.Schema.field(name, {:array, type}, opts)
+
+          {name, type, opts} ->
+            if Fields.embedded?(type),
+              do: Ecto.Schema.embeds_one(name, type),
+              else: Ecto.Schema.field(name, type, opts)
+        end)
       end
 
       @metadata built_in_validations: @built_in_validations

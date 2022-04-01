@@ -1,6 +1,7 @@
 defmodule Blunt.Message.Schema.Fields do
   @moduledoc false
   alias Blunt.Message.Schema
+  alias Blunt.Message.Schema.FieldDefinition
 
   def record(name, type, opts \\ []) do
     quote bind_quoted: [name: name, type: type, opts: opts] do
@@ -19,6 +20,8 @@ defmodule Blunt.Message.Schema.Fields do
       if required do
         @required_fields name
       end
+
+      {type, opts} = FieldDefinition.find_field_definition(type, opts)
 
       @schema_fields {name, type, opts}
     end

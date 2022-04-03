@@ -30,11 +30,22 @@ defmodule Blunt.BoundedContext.Proxy do
     moduledoc = docs(command_module)
     {function_name, proxy_opts} = function_name(command_module, proxy_opts)
 
-    quote do
-      @doc unquote(moduledoc)
-      def unquote(function_name)(values, opts \\ []) do
-        Proxy.dispatch(unquote(command_module), values, unquote(proxy_opts), opts)
-      end
+    case Metadata.fields(command_module) do
+      [] ->
+        quote do
+          @doc unquote(moduledoc)
+          def unquote(function_name)(opts \\ []) do
+            Proxy.dispatch(unquote(command_module), %{}, unquote(proxy_opts), opts)
+          end
+        end
+
+      _fields ->
+        quote do
+          @doc unquote(moduledoc)
+          def unquote(function_name)(values, opts \\ []) do
+            Proxy.dispatch(unquote(command_module), values, unquote(proxy_opts), opts)
+          end
+        end
     end
   end
 
@@ -43,16 +54,32 @@ defmodule Blunt.BoundedContext.Proxy do
     {function_name, proxy_opts} = function_name(query_module, proxy_opts)
     query_function_name = String.to_atom("#{function_name}_query")
 
-    quote do
-      @doc unquote(moduledoc)
-      def unquote(function_name)(values \\ [], opts \\ []) do
-        Proxy.dispatch(unquote(query_module), values, unquote(proxy_opts), opts)
-      end
+    case Metadata.fields(query_module) do
+      [] ->
+        quote do
+          @doc unquote(moduledoc)
+          def unquote(function_name)(opts \\ []) do
+            Proxy.dispatch(unquote(query_module), [], unquote(proxy_opts), opts)
+          end
 
-      @doc "Same as `#{unquote(function_name)}` but returns the query without executing it"
-      def unquote(query_function_name)(values, opts \\ []) do
-        Proxy.dispatch(unquote(query_module), values, unquote(proxy_opts), opts, return: :query)
-      end
+          @doc "Same as `#{unquote(function_name)}` but returns the query without executing it"
+          def unquote(query_function_name)(opts \\ []) do
+            Proxy.dispatch(unquote(query_module), [], unquote(proxy_opts), opts, return: :query)
+          end
+        end
+
+      _fields ->
+        quote do
+          @doc unquote(moduledoc)
+          def unquote(function_name)(values \\ [], opts \\ []) do
+            Proxy.dispatch(unquote(query_module), values, unquote(proxy_opts), opts)
+          end
+
+          @doc "Same as `#{unquote(function_name)}` but returns the query without executing it"
+          def unquote(query_function_name)(values, opts \\ []) do
+            Proxy.dispatch(unquote(query_module), values, unquote(proxy_opts), opts, return: :query)
+          end
+        end
     end
   end
 
@@ -101,10 +128,19 @@ defmodule Blunt.BoundedContext.Proxy do
     field_values = Enum.into(field_values, %{})
     values = Input.normalize(values, message_module)
 
-    values
-    |> Map.merge(field_values)
-    |> message_module.new()
-    |> message_module.dispatch(opts)
+    constructor_arities = message_module.__info__(:functions) |> Keyword.get_values(:new)
+
+    case constructor_arities do
+      [0] ->
+        message_module.new()
+        |> message_module.dispatch(opts)
+
+      _ ->
+        values
+        |> Map.merge(field_values)
+        |> message_module.new()
+        |> message_module.dispatch(opts)
+    end
   end
 
   defp user_supplied_fields(list) when is_list(list),

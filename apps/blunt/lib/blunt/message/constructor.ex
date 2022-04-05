@@ -73,14 +73,20 @@ defmodule Blunt.Message.Constructor do
 
     input = Map.merge(values, overrides)
 
-    with {:ok, message, discarded_data} <- input |> module.changeset() |> handle_changeset() do
-      {:ok, module.after_validate(message), discarded_data}
+    with {:ok, message} <- input |> module.changeset() |> handle_changeset() do
+      {:ok, module.after_validate(message)}
     end
   end
 
   def handle_changeset({%{valid?: false} = changeset, _discarded_data}),
     do: {:error, MessageChangeset.format_errors(changeset)}
 
-  def handle_changeset({changeset, discarded_data}),
-    do: {:ok, Changeset.apply_action!(changeset, :create), discarded_data}
+  def handle_changeset({changeset, discarded_data}) do
+    message =
+      changeset
+      |> Changeset.put_change(:discarded_data, discarded_data)
+      |> Changeset.apply_action!(:create)
+
+    {:ok, message}
+  end
 end

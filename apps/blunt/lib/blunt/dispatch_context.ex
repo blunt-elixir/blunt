@@ -34,8 +34,8 @@ defmodule Blunt.DispatchContext do
 
   @type context :: __MODULE__.t()
 
-  @spec new(message :: struct(), map(), keyword) :: {:error, context} | {:ok, context}
-  def new(%{__struct__: message_module} = message, discarded_data, opts) do
+  @spec new(message :: struct(), keyword) :: {:error, context} | {:ok, context}
+  def new(%{__struct__: message_module} = message, opts) do
     message_type = Metadata.message_type(message_module)
 
     context = %__MODULE__{
@@ -43,7 +43,7 @@ defmodule Blunt.DispatchContext do
       message: message,
       message_type: message_type,
       message_module: message_module,
-      discarded_data: discarded_data,
+      discarded_data: message.discarded_data,
       created_at: DateTime.utc_now()
     }
 

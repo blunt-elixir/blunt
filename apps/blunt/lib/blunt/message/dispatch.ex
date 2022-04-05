@@ -28,11 +28,15 @@ defmodule Blunt.Message.Dispatch do
   def dispatch_async(message, opts),
     do: dispatch(message, Keyword.put(opts, :async, true))
 
+  def dispatch(message, opts) when is_struct(message) do
+    dispatch({:ok, message}, opts)
+  end
+
   def dispatch({:error, error}, _opts),
     do: {:error, error}
 
-  def dispatch({:ok, message, discarded_data}, opts) do
-    with {:ok, context} <- DispatchContext.new(message, discarded_data, opts) do
+  def dispatch({:ok, message}, opts) do
+    with {:ok, context} <- DispatchContext.new(message, opts) do
       if DispatchContext.async?(context),
         do: Task.async(fn -> do_dispatch(context) end),
         else: do_dispatch(context)

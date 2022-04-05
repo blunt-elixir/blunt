@@ -17,6 +17,29 @@ defmodule Blunt.CommandTest do
            } = options
   end
 
+  describe "discarded data" do
+    alias Protocol.DispatchWithPipeline
+
+    test "field is defined" do
+      assert {:discarded_data, :map, [required: false, internal: true]} =
+               DispatchWithPipeline
+               |> Metadata.fields()
+               |> Enum.find(&match?({:discarded_data, _, _}, &1))
+    end
+
+    test "data is preserved" do
+      attrs = %{name: "chris", poop: :yum}
+
+      {:ok, command} = DispatchWithPipeline.new(attrs)
+
+      assert %{discarded_data: %{"poop" => :yum}} = command
+
+      assert {:ok, dispatch_context} = DispatchWithPipeline.dispatch(command, reply_to: self(), return: :context)
+
+      assert %{discarded_data: %{"poop" => :yum}} = dispatch_context
+    end
+  end
+
   test "dispatch with no pipeline" do
     alias Protocol.DispatchNoPipeline
 
@@ -85,7 +108,6 @@ defmodule Blunt.CommandTest do
       assert task =
                %{name: "chris"}
                |> DispatchWithPipeline.new()
-               |> IO.inspect()
                |> DispatchWithPipeline.dispatch_async(return: :context, reply_to: self())
 
       assert {:ok, context} = Task.await(task)

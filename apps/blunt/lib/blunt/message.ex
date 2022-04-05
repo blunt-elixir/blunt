@@ -67,6 +67,8 @@ defmodule Blunt.Message do
       @behaviour Blunt.Message
       @before_compile Blunt.Message
 
+      @schema_fields {:discarded_data, :map, required: false, internal: true}
+
       @impl true
       def handle_validate(changeset),
         do: changeset

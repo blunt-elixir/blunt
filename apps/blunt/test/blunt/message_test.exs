@@ -11,7 +11,7 @@ defmodule Blunt.MessageTest do
     end
 
     test "is ecto schema" do
-      assert [:name] == Simple.__schema__(:fields)
+      assert [:name, :discarded_data] == Simple.__schema__(:fields)
     end
 
     test "has changeset function" do
@@ -30,7 +30,7 @@ defmodule Blunt.MessageTest do
   test "internal fields are never required" do
     alias Protocol.MessageWithInternalField, as: Msg
 
-    assert [:id] == Metadata.field_names(Msg)
+    assert [:id, :discarded_data] == Metadata.field_names(Msg)
 
     required_fields = Metadata.required_field_names(Msg)
     refute Enum.member?(required_fields, :id)
@@ -40,27 +40,26 @@ defmodule Blunt.MessageTest do
     alias Protocol.FieldOptions
 
     test "discarded data is returned" do
-      assert {:ok, _, %{"weed" => :yes}} = FieldOptions.new(name: "chris", weed: :yes)
+      assert {:ok, %{discarded_data: %{"weed" => :yes}}} = FieldOptions.new(name: "chris", weed: :yes)
     end
 
     test "autogenerate field" do
       today = Date.utc_today()
-      assert {:ok, %FieldOptions{today: ^today}, _} = FieldOptions.new(name: "chris", weed: :yes)
+      assert {:ok, %FieldOptions{today: ^today}} = FieldOptions.new(name: "chris", weed: :yes)
     end
 
     test "name is required" do
       assert {:error, %{name: ["can't be blank"]}} = FieldOptions.new(%{})
-      assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(%{name: "chris"})
+      assert {:ok, %FieldOptions{gender: nil, name: "chris"}} = FieldOptions.new(%{name: "chris"})
     end
 
     test "can accept values from different data structures" do
-      assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(%{name: "chris"})
-      assert {:ok, %FieldOptions{gender: nil, name: "chris"}, _discarded_data} = FieldOptions.new(name: "chris")
+      assert {:ok, %FieldOptions{gender: nil, name: "chris"}} = FieldOptions.new(%{name: "chris"})
+      assert {:ok, %FieldOptions{gender: nil, name: "chris"}} = FieldOptions.new(name: "chris")
     end
 
     test "dog defaults to the default option" do
-      assert {:ok, %FieldOptions{gender: :m, name: "chris", dog: "maize"}, _discarded_data} =
-               FieldOptions.new(name: "chris", gender: :m)
+      assert {:ok, %FieldOptions{gender: :m, name: "chris", dog: "maize"}} = FieldOptions.new(name: "chris", gender: :m)
     end
   end
 end

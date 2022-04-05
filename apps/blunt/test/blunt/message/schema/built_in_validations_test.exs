@@ -19,8 +19,8 @@ defmodule Blunt.Message.Schema.BuiltInValidationsTest do
     end
 
     test "ok" do
-      assert {:ok, %{id: "123"}, _} = MyQuery.new(id: "123")
-      assert {:ok, %{code: "123"}, _} = MyQuery.new(code: "123")
+      assert {:ok, %{id: "123"}} = MyQuery.new(id: "123")
+      assert {:ok, %{code: "123"}} = MyQuery.new(code: "123")
     end
   end
 end

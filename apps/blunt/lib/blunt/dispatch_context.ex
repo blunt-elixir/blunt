@@ -53,7 +53,7 @@ defmodule Blunt.DispatchContext do
     |> parse_message_opts()
   end
 
-  def message_context_data(%__MODULE__{message: message, private: private}) do
+  def merge_private(%__MODULE__{message: message, private: private}) do
     Map.merge(message, private)
   end
 

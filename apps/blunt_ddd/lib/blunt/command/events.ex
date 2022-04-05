@@ -56,6 +56,9 @@ defmodule Blunt.Command.Events do
         {:created_at, _, _} ->
           nil
 
+        {:discarded_data, _, _} ->
+          nil
+
         {name, type, opts} ->
           opts = Keyword.put(opts, :required, false)
           quote do: field(unquote(name), unquote(type), unquote(opts))

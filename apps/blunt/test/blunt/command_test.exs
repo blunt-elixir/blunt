@@ -85,6 +85,7 @@ defmodule Blunt.CommandTest do
       assert task =
                %{name: "chris"}
                |> DispatchWithPipeline.new()
+               |> IO.inspect()
                |> DispatchWithPipeline.dispatch_async(return: :context, reply_to: self())
 
       assert {:ok, context} = Task.await(task)
@@ -107,7 +108,7 @@ defmodule Blunt.CommandTest do
                last_pipeline_step: :handle_dispatch
              } = context
 
-      assert %{generic: [:handle_dispatch_error]} = Command.errors(context)
+      assert :handle_dispatch_error = Command.errors(context)
       assert {:error, :handle_dispatch_error} == DispatchContext.get_last_pipeline(context)
     end
   end

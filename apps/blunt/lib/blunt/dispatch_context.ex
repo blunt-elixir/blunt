@@ -122,6 +122,8 @@ defmodule Blunt.DispatchContext do
   def put_user(%__MODULE__{} = context, user), do: %{context | user: user}
 
   @spec errors(context) :: map()
+  def errors(%__MODULE__{errors: [error]}), do: error
+
   def errors(%__MODULE__{errors: errors} = context) do
     Enum.reduce(errors, %{}, fn
       map, acc when is_map(map) -> Map.merge(acc, map)

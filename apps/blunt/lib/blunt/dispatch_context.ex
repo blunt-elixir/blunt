@@ -53,6 +53,10 @@ defmodule Blunt.DispatchContext do
     |> parse_message_opts()
   end
 
+  def message_context_data(%__MODULE__{message: message, private: private}) do
+    Map.merge(message, private)
+  end
+
   defp add_metadata(%{message_module: message_module} = context) do
     metadata = Metadata.get_all(message_module)
     %{context | metadata: metadata}

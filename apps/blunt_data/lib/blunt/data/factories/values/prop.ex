@@ -29,7 +29,13 @@ defmodule Blunt.Data.Factories.Values.Prop do
     def evaluate(%Prop{field: field, path_func_or_value: func, lazy: lazy}, acc, current_factory)
         when is_function(func, 0) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
-        value = func.()
+        value =
+          case func.() do
+            {:ok, result} -> result
+            {:error, error} -> raise error
+            result -> result
+          end
+
         value = Factory.log_value(current_factory, value, field, lazy, "prop")
         Map.put(acc, field, value)
       else
@@ -40,7 +46,13 @@ defmodule Blunt.Data.Factories.Values.Prop do
     def evaluate(%Prop{field: field, path_func_or_value: func, lazy: lazy}, acc, current_factory)
         when is_function(func, 1) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
-        value = func.(acc)
+        value =
+          case func.(acc) do
+            {:ok, result} -> result
+            {:error, error} -> raise error
+            result -> result
+          end
+
         value = Factory.log_value(current_factory, value, field, lazy, "prop")
         Map.put(acc, field, value)
       else

@@ -4,22 +4,14 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     alias Blunt.Data.Factories.{Builder, Factory, FakeProvider}
     alias Blunt.Data.Factories.Builder.{EctoSchemaBuilder, StructBuilder, MapBuilder}
 
-    defmacro __using__(opts) do
-      repo = Keyword.get(opts, :repo)
-
+    defmacro __using__(_opts) do
       quote do
         @after_compile Blunt.Data.Factories
 
-        defmacro __using__(opts) do
+        defmacro __using__(_opts) do
           quote do
             use Blunt.Data.Factories
           end
-        end
-
-        if unquote(repo) do
-          use ExMachina.Ecto, repo: unquote(repo)
-        else
-          use ExMachina
         end
 
         import Blunt.Data.Factories, only: :macros

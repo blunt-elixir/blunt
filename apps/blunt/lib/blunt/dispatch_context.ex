@@ -15,6 +15,7 @@ defmodule Blunt.DispatchContext do
   end
 
   defstruct [
+    :id,
     :message,
     :metadata,
     :message_module,
@@ -39,6 +40,7 @@ defmodule Blunt.DispatchContext do
     message_type = Metadata.message_type(message_module)
 
     context = %__MODULE__{
+      id: UUID.uuid4(),
       opts: opts,
       message: message,
       message_type: message_type,
@@ -121,7 +123,7 @@ defmodule Blunt.DispatchContext do
   @spec put_user(context, any()) :: context()
   def put_user(%__MODULE__{} = context, user), do: %{context | user: user}
 
-  @spec errors(context) :: map()
+  @spec errors(context) :: map() | String.t()
   def errors(%__MODULE__{errors: [error]}), do: error
 
   def errors(%__MODULE__{errors: errors} = context) do

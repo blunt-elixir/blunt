@@ -19,7 +19,7 @@ defmodule Blunt.Ddd.Constructor do
   end
 
   def new(module, values, overrides, opts) do
-    with {:ok, entity, _discarded_data} <- module.__new__(values, overrides) do
+    with {:ok, entity} <- module.__new__(values, overrides) do
       case Keyword.get(opts, :return_type, :tagged_tuple) do
         :tagged_tuple -> {:ok, entity}
         :struct -> entity

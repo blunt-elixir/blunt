@@ -109,8 +109,16 @@ defmodule Blunt.Data.Factories.Factory do
           end
       end
 
-    %{factory | final_message: final_message}
+    %{factory | final_message: unwrap_ok_tuple(final_message, opts)}
   end
+
+  defp unwrap_ok_tuple({:ok, value}, opts) do
+    if Keyword.get(opts, :unwrap_ok_tuple, false),
+      do: debug(value, "unwrapped ok tuple", opts),
+      else: {:ok, value}
+  end
+
+  defp unwrap_ok_tuple(value, _opts), do: value
 
   defp normalize(%{name: name, message: message, input: input, data: data, opts: opts, values: values} = factory) do
     name = String.trim_trailing(to_string(name), "_factory")

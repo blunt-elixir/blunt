@@ -16,8 +16,22 @@ defmodule Blunt.Data.Factories.Values.Prop do
             value = Factory.log_value(current_factory, [], field, lazy, "prop")
             Map.put(acc, field, value)
 
-          path ->
-            keys = Enum.map(path, &Access.key/1)
+          [path] ->
+            value = get_in(acc, Access.key(path))
+            value = Factory.log_value(current_factory, value, field, lazy, "prop")
+            Map.put(acc, field, value)
+
+          [head | rest] ->
+            # ensure that the first key in the path is not nil
+            acc =
+              Map.update(acc, head, %{}, fn
+                nil -> %{}
+                other -> other
+              end)
+
+            keys = [Access.key(head, %{}) | Enum.map(rest, &Access.key/1)]
+            head |> IO.inspect(label: "head")
+            rest |> IO.inspect(label: "rest")
             value = get_in(acc, keys)
             value = Factory.log_value(current_factory, value, field, lazy, "prop")
             Map.put(acc, field, value)

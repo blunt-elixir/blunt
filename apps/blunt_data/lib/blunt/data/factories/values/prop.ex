@@ -30,8 +30,6 @@ defmodule Blunt.Data.Factories.Values.Prop do
               end)
 
             keys = [Access.key(head, %{}) | Enum.map(rest, &Access.key/1)]
-            head |> IO.inspect(label: "head")
-            rest |> IO.inspect(label: "rest")
             value = get_in(acc, keys)
             value = Factory.log_value(current_factory, value, field, lazy, "prop")
             Map.put(acc, field, value)

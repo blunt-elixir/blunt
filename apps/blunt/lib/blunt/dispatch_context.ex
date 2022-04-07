@@ -35,7 +35,7 @@ defmodule Blunt.DispatchContext do
 
   @type context :: __MODULE__.t()
 
-  @spec new(message :: struct(), keyword) :: {:error, context} | {:ok, context}
+  @spec new(message :: struct(), keyword) :: {:error, t} | {:ok, t}
   def new(%{__struct__: message_module} = message, opts) do
     message_type = Metadata.message_type(message_module)
 
@@ -97,33 +97,33 @@ defmodule Blunt.DispatchContext do
     end
   end
 
-  @spec async?(context) :: boolean()
+  @spec async?(t) :: boolean()
   def async?(%__MODULE__{async: async}), do: async
 
-  @spec get_message(context()) :: struct() | any()
+  @spec get_message(t()) :: struct() | any()
   def get_message(%__MODULE__{message: message}), do: message
 
-  @spec options(context) :: keyword()
+  @spec options(t) :: keyword()
   def options(%__MODULE__{opts: opts}), do: opts
 
-  @spec put_option(context, atom, any) :: context
+  @spec put_option(t, atom, any) :: context
   def put_option(%__MODULE__{opts: opts} = context, key, value) do
     %{context | opts: Keyword.put(opts, key, value)}
   end
 
-  @spec get_option(context, atom, any | nil) :: any | nil
+  @spec get_option(t, atom, any | nil) :: any | nil
   def get_option(%__MODULE__{opts: opts}, key, default \\ nil) when is_atom(key), do: Keyword.get(opts, key, default)
 
-  @spec get_return(context) :: atom()
+  @spec get_return(t) :: atom()
   def get_return(%__MODULE__{return: return}), do: return
 
-  @spec user(context) :: map() | nil
+  @spec user(t) :: map() | nil
   def user(%__MODULE__{user: user}), do: user
 
-  @spec put_user(context, any()) :: context()
+  @spec put_user(t, any()) :: t()
   def put_user(%__MODULE__{} = context, user), do: %{context | user: user}
 
-  @spec errors(context) :: map() | String.t()
+  @spec errors(t) :: map() | String.t()
   def errors(%__MODULE__{errors: [error]}), do: error
 
   def errors(%__MODULE__{errors: errors} = context) do
@@ -135,20 +135,20 @@ defmodule Blunt.DispatchContext do
     end)
   end
 
-  @spec put_error(context, any) :: context
+  @spec put_error(t, any) :: t
   def put_error(%__MODULE__{errors: errors} = context, error),
     do: %{context | errors: errors ++ List.wrap(error)}
 
-  @spec internal_field(context, atom, any) :: context
+  @spec internal_field(t, atom, any) :: t
   def internal_field(%{message: message} = context, field_name, value) do
     %{context | message: Map.put(message, field_name, value)}
   end
 
-  @spec put_private(context, atom, any) :: context
+  @spec put_private(t, atom, any) :: t
   def put_private(%__MODULE__{private: private} = context, key, value) when is_atom(key),
     do: %{context | private: Map.put(private, key, value)}
 
-  @spec put_private(context, struct() | map() | list()) :: context
+  @spec put_private(t, struct() | map() | list()) :: t
 
   def put_private(%__MODULE__{} = context, list) when is_list(list) do
     unless Keyword.keyword?(list) do
@@ -164,11 +164,11 @@ defmodule Blunt.DispatchContext do
   def put_private(%__MODULE__{private: private} = context, map) when is_map(map),
     do: %{context | private: Map.merge(private, map)}
 
-  @spec get_private({:ok, context} | context) :: map()
+  @spec get_private({:ok, t} | t) :: map()
   def get_private({:ok, %__MODULE__{private: private}}), do: private
   def get_private(%__MODULE__{private: private}), do: private
 
-  @spec get_private({:ok, context} | context, atom, any | nil) :: any | nil
+  @spec get_private({:ok, t} | t, atom, any | nil) :: any | nil
   def get_private(context, key, default \\ nil)
 
   def get_private({:ok, %__MODULE__{private: private}}, key, default),
@@ -177,30 +177,30 @@ defmodule Blunt.DispatchContext do
   def get_private(%__MODULE__{private: private}, key, default),
     do: Map.get(private, key, default)
 
-  @spec put_pipeline(context, atom, any) :: context
+  @spec put_pipeline(t, atom, any) :: t
   def put_pipeline(%__MODULE__{pipeline: pipeline} = context, key, value) when is_atom(key),
     do: %{context | last_pipeline_step: key, pipeline: pipeline ++ [{key, value}]}
 
-  @spec get_pipeline(context) :: map()
+  @spec get_pipeline(t) :: map()
   def get_pipeline(%__MODULE__{pipeline: pipeline}) do
     Enum.into(pipeline, %{})
   end
 
-  @spec get_pipeline(context, atom) :: any | nil
+  @spec get_pipeline(t, atom) :: any | nil
   def get_pipeline(%__MODULE__{} = context, key) do
     context
     |> get_pipeline()
     |> Map.get(key)
   end
 
-  @spec get_last_pipeline(context) :: any | nil
+  @spec get_last_pipeline(t) :: any | nil
   def get_last_pipeline(%__MODULE__{last_pipeline_step: step} = context),
     do: get_pipeline(context, step)
 
-  @spec user_supplied_fields(context) :: map()
+  @spec user_supplied_fields(t) :: map()
   def user_supplied_fields(%{user_supplied_fields: user_supplied_fields}), do: user_supplied_fields
 
-  @spec take_user_supplied_data(context) :: map()
+  @spec take_user_supplied_data(t) :: map()
   def take_user_supplied_data(%{message: nil}), do: %{}
 
   def take_user_supplied_data(%{message: command, user_supplied_fields: user_supplied_fields}) do
@@ -209,7 +209,7 @@ defmodule Blunt.DispatchContext do
     |> Map.take(user_supplied_fields)
   end
 
-  @spec get_metadata(context, atom, any) :: any | nil
+  @spec get_metadata(t, atom, any) :: any | nil
   def get_metadata(%{metadata: metadata}, key, default \\ nil),
     do: Keyword.get(metadata, key, default)
 end

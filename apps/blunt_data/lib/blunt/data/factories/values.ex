@@ -128,4 +128,10 @@ defmodule Blunt.Data.Factories.Values do
       %Values.Defaults{values: Enum.into(unquote(values), %{})}
     end
   end
+
+  defmacro required_prop(field) when is_atom(field) do
+    quote do
+      %Values.RequiredProp{field: unquote(field)}
+    end
+  end
 end

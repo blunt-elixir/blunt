@@ -29,7 +29,7 @@ defmodule Blunt.Testing.Factories.Builder.BluntMessageBuilder do
   @impl true
   def build(message_module, data) do
     case message_module.new(data) do
-      {:ok, message, _discarded_data} ->
+      {:ok, message} ->
         message
 
       other ->

@@ -3,6 +3,7 @@ defmodule Blunt.Data.Factories.Values.Prop do
   @derive {Inspect, except: [:lazy]}
   defstruct [:field, :path_func_or_value, lazy: false]
 
+  alias Blunt.Data.FactoryError
   alias Blunt.Data.Factories.Factory
   alias Blunt.Data.Factories.Values.Prop
 
@@ -32,7 +33,7 @@ defmodule Blunt.Data.Factories.Values.Prop do
         value =
           case func.() do
             {:ok, result} -> result
-            {:error, error} -> raise error
+            {:error, error} -> raise FactoryError, reason: error, factory: current_factory
             result -> result
           end
 
@@ -49,7 +50,7 @@ defmodule Blunt.Data.Factories.Values.Prop do
         value =
           case func.(acc) do
             {:ok, result} -> result
-            {:error, error} -> raise error
+            {:error, error} -> raise FactoryError, reason: error, factory: current_factory
             result -> result
           end
 

@@ -124,10 +124,8 @@ defmodule Blunt.Data.Factories.Values do
   end
 
   defmacro defaults(values) do
-    values = Macro.escape(Enum.into(values, %{}))
-
     quote do
-      %Values.Defaults{values: unquote(values)}
+      %Values.Defaults{values: Enum.into(unquote(values), %{})}
     end
   end
 end

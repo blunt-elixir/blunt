@@ -11,7 +11,7 @@ defmodule Blunt.Data.Factories.Factory do
     end
   end
 
-  @derive {Inspect, only: [:name, :message, :operation]}
+  @derive {Inspect, only: [:name, :message, :operation, :active_builder]}
   defstruct [
     :name,
     :message,
@@ -36,8 +36,8 @@ defmodule Blunt.Data.Factories.Factory do
     %{final_message: final_message} =
       factory
       |> normalize()
-      |> debug(:self)
       |> init_builder()
+      |> debug(:self)
       |> evaluate_values()
       |> build_final_message()
       |> debug(:final_message)
@@ -54,14 +54,12 @@ defmodule Blunt.Data.Factories.Factory do
         fields = active_builder.message_fields(message)
         field_validations = active_builder.field_validations(message)
 
-        factory = %{
+        %{
           factory
           | fields: fields,
             active_builder: active_builder,
             field_validations: field_validations
         }
-
-        debug(factory, :active_builder)
     end
   end
 
@@ -125,7 +123,7 @@ defmodule Blunt.Data.Factories.Factory do
     message_name = message |> Module.split() |> List.last() |> to_string()
     opts = Keyword.merge(opts, name: name, message_name: message_name)
 
-    # put defaults at the end of the values.
+    # put defaults at the front of the values.
     {defaults, values} = Enum.split_with(values, &match?(%Values.Defaults{}, &1))
 
     # Allow turning on factory debug via input: %{debug_factory: true}
@@ -140,7 +138,7 @@ defmodule Blunt.Data.Factories.Factory do
         input: input,
         data: data || %{},
         opts: opts,
-        values: values ++ defaults
+        values: defaults ++ values
     }
   end
 
@@ -158,20 +156,16 @@ defmodule Blunt.Data.Factories.Factory do
   defp debug(%{opts: opts, input: input} = factory, :self) do
     label = ANSI.format([:green, "build"])
     debug(factory, label, opts)
+
     label = ANSI.format([:light_blue, "input"])
     debug(input, label, opts)
+
     factory
   end
 
   defp debug(%{final_message: final_message, opts: opts} = factory, :final_message) do
     label = ANSI.format([:green, "deliver"])
     debug(final_message, label, opts)
-    factory
-  end
-
-  defp debug(%{active_builder: builder, opts: opts} = factory, :active_builder) do
-    label = ANSI.format([:light_blue, "builder"])
-    debug(builder, label, opts)
     factory
   end
 

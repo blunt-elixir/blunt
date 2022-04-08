@@ -77,7 +77,7 @@ defmodule Blunt.Message do
       def after_validate(message), do: message
 
       @impl true
-      def before_validate(values), do: :values
+      def before_validate(values), do: values
 
       defoverridable handle_validate: 1, after_validate: 1, before_validate: 1
     end

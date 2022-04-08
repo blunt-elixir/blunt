@@ -107,16 +107,8 @@ defmodule Blunt.Data.Factories.Factory do
           end
       end
 
-    %{factory | final_message: unwrap_ok_tuple(final_message, opts)}
+    %{factory | final_message: final_message}
   end
-
-  defp unwrap_ok_tuple({:ok, value}, opts) do
-    if Keyword.get(opts, :unwrap_ok_tuple, false),
-      do: debug(value, "unwrapped ok tuple", opts),
-      else: {:ok, value}
-  end
-
-  defp unwrap_ok_tuple(value, _opts), do: value
 
   defp normalize(%{name: name, message: message, input: input, data: data, opts: opts, values: values} = factory) do
     name = String.trim_trailing(to_string(name), "_factory")
@@ -165,7 +157,21 @@ defmodule Blunt.Data.Factories.Factory do
 
   defp debug(%{final_message: final_message, opts: opts} = factory, :final_message) do
     label = ANSI.format([:green, "deliver"])
+
+    final_message =
+      case Keyword.get(opts, :discarded_data, :hide) do
+        value when value in [:hide, false] ->
+          case Map.get(final_message, :discarded_data) do
+            nil -> final_message
+            _ -> Map.put(final_message, :discarded_data, "configure the factory option 'discarded_data: true' to show")
+          end
+
+        _ ->
+          final_message
+      end
+
     debug(final_message, label, opts)
+
     factory
   end
 

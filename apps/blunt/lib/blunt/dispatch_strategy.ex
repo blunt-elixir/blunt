@@ -34,13 +34,15 @@ defmodule Blunt.DispatchStrategy do
         {:error,
          context
          |> DispatchContext.put_error(error)
-         |> DispatchContext.put_pipeline(callback, {:error, error})}
+         |> DispatchContext.put_pipeline(callback, {:error, error})
+         |> translate_errors()}
 
       :error ->
         {:error,
          context
          |> DispatchContext.put_error(:error)
-         |> DispatchContext.put_pipeline(callback, :error)}
+         |> DispatchContext.put_pipeline(callback, :error)
+         |> translate_errors()}
 
       {:ok, %DispatchContext{} = context} ->
         result = DispatchContext.get_last_pipeline(context)
@@ -57,6 +59,13 @@ defmodule Blunt.DispatchStrategy do
 
       response ->
         {:ok, DispatchContext.put_pipeline(context, callback, response)}
+    end
+  end
+
+  defp translate_errors(context) do
+    case Config.error_return() do
+      :context -> context
+      :errors -> DispatchContext.errors(context)
     end
   end
 end

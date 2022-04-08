@@ -56,6 +56,19 @@ defmodule Blunt.Config do
     value
   end
 
+  def error_return do
+    valid_values = [:context, :errors]
+    value = get(:error_return, :context)
+
+    unless Enum.member?(valid_values, value) do
+      raise ConfigError,
+        message:
+          "Invalid :blunt, :error_return value: `#{value}`. Value must be one of the following: #{inspect(valid_values)}"
+    end
+
+    value
+  end
+
   @doc false
   def documentation_output,
     do: get(:documentation_output, false)

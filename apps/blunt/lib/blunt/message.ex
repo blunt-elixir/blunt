@@ -36,6 +36,7 @@ defmodule Blunt.Message do
 
   @type changeset :: Ecto.Changeset.t()
 
+  @callback before_validate(map()) :: map()
   @callback handle_validate(changeset()) :: changeset()
   @callback after_validate(struct()) :: struct()
 
@@ -70,14 +71,15 @@ defmodule Blunt.Message do
       @schema_fields {:discarded_data, :map, required: false, internal: true}
 
       @impl true
-      def handle_validate(changeset),
-        do: changeset
+      def handle_validate(changeset), do: changeset
 
       @impl true
-      def after_validate(message),
-        do: message
+      def after_validate(message), do: message
 
-      defoverridable handle_validate: 1, after_validate: 1
+      @impl true
+      def before_validate(values), do: :values
+
+      defoverridable handle_validate: 1, after_validate: 1, before_validate: 1
     end
   end
 

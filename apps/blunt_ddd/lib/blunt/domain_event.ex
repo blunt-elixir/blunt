@@ -31,7 +31,11 @@ defmodule Blunt.DomainEvent do
       unless Blunt.Message.Metadata.is_command?(command_module) do
         raise Error, message: "derive_from requires a Blunt.Command. #{inspect(command_module)} is not one."
       else
-        to_drop = Keyword.get(opts, :drop, []) |> List.wrap()
+        to_drop =
+          opts
+          |> Keyword.get(:drop, [])
+          |> List.wrap()
+          |> Kernel.++([:discarded_data])
 
         command_module
         |> Blunt.Message.Metadata.fields()

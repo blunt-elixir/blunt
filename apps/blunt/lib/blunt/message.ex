@@ -104,6 +104,10 @@ defmodule Blunt.Message do
   defmacro require_at_least_one(fields) when is_list(fields),
     do: Schema.require_at_least_one(fields)
 
+  @spec require_either(list(atom | list(atom))) :: any()
+  defmacro require_either(fields) when is_list(fields),
+    do: Schema.require_either(fields)
+
   @spec metadata(atom(), any()) :: any()
   defmacro metadata(name, value),
     do: Metadata.record(name, value)

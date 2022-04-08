@@ -23,4 +23,21 @@ defmodule Blunt.Message.Schema.BuiltInValidationsTest do
       assert {:ok, %{code: "123"}} = MyQuery.new(code: "123")
     end
   end
+
+  describe "require_either" do
+    defmodule RequireEitherQuery do
+      use Blunt.Query
+
+      field :id, :binary_id
+      field :product_id, :binary_id
+      field :label, :string
+
+      require_either([:id, [:product_id, :label]])
+    end
+
+    test "error" do
+      assert {:error, %{fields: ["expected either :id OR (:product_id AND :label) to be present"]}} =
+               RequireEitherQuery.new([])
+    end
+  end
 end

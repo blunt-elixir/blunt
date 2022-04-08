@@ -2,7 +2,7 @@ defmodule Blunt.Message.Schema do
   @moduledoc false
 
   alias Blunt.Config
-  alias Blunt.Message.Schema.{FieldProvider, Fields}
+  alias Blunt.Message.Schema.Fields
 
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
@@ -22,6 +22,12 @@ defmodule Blunt.Message.Schema do
   def require_at_least_one(fields) do
     quote do
       @built_in_validations {:require_at_least_one, unquote(fields)}
+    end
+  end
+
+  def require_either(fields) do
+    quote do
+      @built_in_validations {:require_either, unquote(fields)}
     end
   end
 

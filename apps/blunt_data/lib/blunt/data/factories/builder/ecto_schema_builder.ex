@@ -37,7 +37,7 @@ defmodule Blunt.Data.Factories.Builder.EctoSchemaBuilder do
     if function_exported?(message_module, :changeset, 1) do
       message_module
       |> apply(:changeset, [data])
-      |> Ecto.Changeset.apply_action!(:insert)
+      |> Ecto.Changeset.apply_changes()
     else
       struct!(message_module, data)
     end

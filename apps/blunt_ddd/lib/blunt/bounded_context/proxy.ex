@@ -1,6 +1,7 @@
 defmodule Blunt.BoundedContext.Proxy do
   @moduledoc false
 
+  alias Blunt.DispatchError
   alias Blunt.Message.{Input, Metadata}
   alias Blunt.BoundedContext.{Error, Proxy}
 
@@ -53,6 +54,7 @@ defmodule Blunt.BoundedContext.Proxy do
     moduledoc = docs(query_module)
     {function_name, proxy_opts} = function_name(query_module, proxy_opts)
     query_function_name = String.to_atom("#{function_name}_query")
+    bang_function_name = String.to_atom("#{function_name}!")
 
     case Metadata.fields(query_module) do
       [] ->
@@ -60,6 +62,11 @@ defmodule Blunt.BoundedContext.Proxy do
           @doc unquote(moduledoc)
           def unquote(function_name)(opts \\ []) do
             Proxy.dispatch(unquote(query_module), [], unquote(proxy_opts), opts)
+          end
+
+          @doc "Same as `#{unquote(function_name)}` but raises if the query is not successful"
+          def unquote(bang_function_name)(opts \\ []) do
+            Proxy.dispatch!(unquote(query_module), [], unquote(proxy_opts), opts)
           end
 
           @doc "Same as `#{unquote(function_name)}` but returns the query without executing it"
@@ -73,6 +80,11 @@ defmodule Blunt.BoundedContext.Proxy do
           @doc unquote(moduledoc)
           def unquote(function_name)(values \\ [], opts \\ []) do
             Proxy.dispatch(unquote(query_module), values, unquote(proxy_opts), opts)
+          end
+
+          @doc "Same as `#{unquote(function_name)}` but raises if the query is not successful"
+          def unquote(bang_function_name)(values \\ [], opts \\ []) do
+            Proxy.dispatch!(unquote(query_module), values, unquote(proxy_opts), opts)
           end
 
           @doc "Same as `#{unquote(function_name)}` but returns the query without executing it"
@@ -140,6 +152,13 @@ defmodule Blunt.BoundedContext.Proxy do
         |> Map.merge(field_values)
         |> message_module.new()
         |> message_module.dispatch(opts)
+    end
+  end
+
+  def dispatch!(message_module, values, proxy_opts, dispatch_opts, internal_opts \\ []) do
+    case dispatch(message_module, values, proxy_opts, dispatch_opts, internal_opts) do
+      {:ok, results} -> results
+      {:error, error} -> raise DispatchError, message: error
     end
   end
 

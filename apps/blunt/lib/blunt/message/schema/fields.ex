@@ -27,10 +27,20 @@ defmodule Blunt.Message.Schema.Fields do
     end
   end
 
+  def field_names(fields) do
+    Enum.map(fields, &elem(&1, 0))
+  end
+
   def internal_field_names(fields) do
     fields
     |> Enum.filter(fn {_name, _type, config} -> Keyword.fetch!(config, :internal) == true end)
-    |> Enum.map(&elem(&1, 0))
+    |> field_names()
+  end
+
+  def virtual_field_names(fields) do
+    fields
+    |> Enum.filter(fn {_name, _type, config} -> Keyword.get(config, :virtual) == true end)
+    |> field_names()
   end
 
   def embedded?(module) do

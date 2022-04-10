@@ -1,6 +1,5 @@
 defmodule Blunt.DispatchContext.Shipper do
-  @type context :: Blunt.DispatchContext.t()
-  @callback ship(context()) :: :ok
+  @callback ship(Blunt.DispatchContext.t()) :: :ok
 
   use GenServer
 

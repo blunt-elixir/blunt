@@ -37,20 +37,19 @@ defmodule Blunt.Message.Schema do
   end
 
   def generate(%{module: module}) do
-    schema_fields =
-      module
-      |> Module.get_attribute(:schema_fields)
-      |> Macro.escape()
-
+    schema_fields = Module.get_attribute(module, :schema_fields)
+    json_fields = Fields.field_names(schema_fields) -- Fields.virtual_field_names(schema_fields)
     jason_encoder? = Module.get_attribute(module, :create_jason_encoders?) and Code.ensure_loaded?(Jason)
 
-    # fields = Enum.map(schema_fields, &FieldProvider.ecto_field(module, &1))
-
-    quote bind_quoted: [schema_fields: schema_fields, jason_encoder?: jason_encoder?] do
+    quote bind_quoted: [
+            schema_fields: Macro.escape(schema_fields),
+            jason_encoder?: jason_encoder?,
+            json_fields: json_fields
+          ] do
       use Ecto.Schema
 
       if jason_encoder? do
-        @derive Jason.Encoder
+        @derive {Jason.Encoder, only: json_fields}
       end
 
       if Mix.env() == :prod do

@@ -9,8 +9,9 @@ defmodule Blunt.Message.Changeset do
   def generate do
     quote location: :keep, generated: true do
       @doc false
-      def changeset(message \\ %__MODULE__{}, values) when is_list(values) or is_map(values) or is_struct(values),
-        do: MessageChangeset.changeset(message, values)
+      def changeset(message \\ %__MODULE__{}, values) when is_list(values) or is_map(values) or is_struct(values) do
+        MessageChangeset.changeset(message, values)
+      end
     end
   end
 
@@ -19,15 +20,18 @@ defmodule Blunt.Message.Changeset do
   @type changeset :: Ecto.Changeset.t()
   @type values :: maybe_improper_list | map | struct
 
-  @spec changeset(message(), values()) :: {changeset, discarded_data}
+  @type changeset_type :: :schema | :embed
+  @spec changeset(message(), values(), atom()) :: {changeset, discarded_data} | changeset
 
-  def changeset(message, values) when is_struct(values),
-    do: changeset(message, Map.from_struct(values))
+  def changeset(message, values, type \\ :schema)
 
-  def changeset(%{__struct__: message}, values) when is_list(values) or is_map(values),
-    do: changeset(message, values)
+  def changeset(message, values, type) when is_struct(values),
+    do: changeset(message, Map.from_struct(values), type)
 
-  def changeset(message, values) when is_list(values) or is_map(values) do
+  def changeset(%{__struct__: message}, values, type) when is_list(values) or is_map(values),
+    do: changeset(message, values, type)
+
+  def changeset(message, values, type) when is_list(values) or is_map(values) do
     values =
       values
       |> Input.normalize(message)
@@ -48,15 +52,20 @@ defmodule Blunt.Message.Changeset do
       |> struct()
       |> Changeset.cast(values, fields -- embeds)
 
+    embed_changeset = {__MODULE__, :changeset, [:embed]}
+
     changeset =
       embeds
-      |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1))
+      |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1, with: embed_changeset))
       |> Changeset.validate_required(required_fields)
       |> run_field_validations(message)
       |> run_built_in_validations(message)
       |> message.handle_validate()
 
-    {changeset, discarded_data}
+    case type do
+      :embed -> changeset
+      :schema -> {changeset, discarded_data}
+    end
   end
 
   defp run_field_validations(changeset, message) do

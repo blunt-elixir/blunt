@@ -15,10 +15,13 @@ defmodule Blunt.Config do
 
   @doc false
   def create_jason_encoders?(opts) do
-    explicit = Keyword.get(opts, :create_jason_encoders?, true)
-    configured = get(:create_jason_encoders, true)
-
-    explicit && configured
+    if Keyword.get(opts, :force_jason_encoder?, false) do
+      true
+    else
+      explicit = Keyword.get(opts, :create_jason_encoders?, true)
+      configured = get(:create_jason_encoders, true)
+      explicit && configured
+    end
   end
 
   def schema_field_definitions do

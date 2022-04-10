@@ -22,6 +22,7 @@ defmodule Blunt.MixProject do
         licenses: ["MIT"],
         links: %{"GitHub" => "https://github.com/blunt-elixir/blunt"}
       ],
+      consolidate_protocols: Mix.env() != :test,
       dialyzer: [
         plt_add_deps: :apps_direct,
         plt_add_apps: [:faker, :mix]

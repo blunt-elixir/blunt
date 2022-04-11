@@ -35,17 +35,17 @@ defmodule Blunt.Message.Dispatch do
   def dispatch({:error, error}, _opts),
     do: {:error, error}
 
-  def dispatch({:ok, message}, opts) do
+  def dispatch({:ok, %{__struct__: message_module} = message}, opts) do
     with {:ok, context} <- DispatchContext.new(message, opts) do
       if DispatchContext.async?(context),
-        do: Task.async(fn -> do_dispatch(context) end),
-        else: do_dispatch(context)
+        do: Task.async(fn -> do_dispatch(message_module, context) end),
+        else: do_dispatch(message_module, context)
     end
   end
 
-  defp do_dispatch(context) do
-    context
-    |> DispatchContext.Configuration.configure()
+  defp do_dispatch(message_module, context) do
+    message_module
+    |> DispatchContext.Configuration.configure(context)
     |> DispatchStrategy.dispatch()
   end
 end

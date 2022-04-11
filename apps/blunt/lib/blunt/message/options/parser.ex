@@ -89,6 +89,11 @@ defmodule Blunt.Message.Options.Parser do
   end)
 
   def ecto_type(:pid, _config), do: Blunt.Message.Type.Pid
+  def ecto_type(:atom, _config), do: Blunt.Message.Type.Atom
+
+  def ecto_type({:array, :atom}, config) do
+    {:array, Blunt.Message.Type.Atom}
+  end
 
   def ecto_type(:enum, config) do
     {:parameterized, Ecto.Enum, Ecto.Enum.init(values: Keyword.get(config, :values))}

@@ -24,6 +24,7 @@ defmodule Blunt.DispatchContext do
     :created_at,
     :async,
     :user,
+    :pid,
     :last_pipeline_step,
     user_supplied_fields: [],
     private: %{},
@@ -46,7 +47,8 @@ defmodule Blunt.DispatchContext do
       message_type: message_type,
       message_module: message_module,
       discarded_data: message.discarded_data,
-      created_at: DateTime.utc_now()
+      created_at: DateTime.utc_now(),
+      pid: self()
     }
 
     context

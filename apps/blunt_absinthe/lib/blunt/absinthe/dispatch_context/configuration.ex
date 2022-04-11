@@ -1,11 +1,12 @@
 defmodule Blunt.Absinthe.DispatchContext.Configuration do
+  @type message_module :: atom()
   @type resolution :: Absinthe.Resolution.t()
-  @callback configure(resolution()) :: keyword()
+  @callback configure(message_module(), resolution()) :: keyword()
 
   alias Blunt.Absinthe.Config
 
-  def configure(resolution) do
+  def configure(message_module, resolution) do
     configuration = Config.dispatch_context_configuration()
-    configuration.configure(resolution)
+    configuration.configure(message_module, resolution)
   end
 end

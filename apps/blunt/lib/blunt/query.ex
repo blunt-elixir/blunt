@@ -92,9 +92,9 @@ defmodule Blunt.Query do
   @spec get_metadata(Context.query_context(), atom, any) :: any | nil
   defdelegate get_metadata(context, key, default \\ nil), to: Context
 
-  @spec options(Context.query_context()) :: list()
+  @spec options(Context.t()) :: list()
   def options(%{message_module: module}), do: Metadata.get(module, :options, [])
 
-  @spec bindings(Context.query_context()) :: list()
+  @spec bindings(Context.t()) :: list()
   def bindings(%{message_module: module}), do: Metadata.get(module, :bindings, [])
 end

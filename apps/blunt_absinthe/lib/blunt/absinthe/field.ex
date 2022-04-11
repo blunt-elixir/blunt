@@ -69,7 +69,7 @@ defmodule Blunt.Absinthe.Field do
   @type resolution :: Absinthe.Resolution.t()
   @spec dispatch_and_resolve(atom, atom, keyword, map, map, any) :: {:error, list} | {:ok, any}
   def dispatch_and_resolve(operation, message_module, query_opts, parent, args, resolution) do
-    context_configuration = DispatchContextConfiguration.configure(resolution)
+    context_configuration = DispatchContextConfiguration.configure(message_module, resolution)
 
     opts =
       query_opts

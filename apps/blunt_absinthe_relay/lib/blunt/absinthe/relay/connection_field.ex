@@ -50,7 +50,7 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
 
   def dispatch_and_resolve(query_module, query_opts, parent, args, resolution) do
     {repo, query_opts} = Config.get_repo!(query_opts)
-    context_configuration = DispatchContextConfiguration.configure(resolution)
+    context_configuration = DispatchContextConfiguration.configure(query_module, resolution)
 
     opts =
       query_opts

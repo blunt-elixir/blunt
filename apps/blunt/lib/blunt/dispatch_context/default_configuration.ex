@@ -1,5 +1,5 @@
 defmodule Blunt.DispatchContext.DefaultConfiguration do
   @behaviour Blunt.DispatchContext.Configuration
 
-  def configure(context), do: context
+  def configure(_message_module, context), do: context
 end

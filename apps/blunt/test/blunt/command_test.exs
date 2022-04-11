@@ -147,4 +147,32 @@ defmodule Blunt.CommandTest do
     assert [:owner, :collaborator] == metadata[:user_roles]
     assert [:broker, :carrier] == metadata[:account_types]
   end
+
+  describe "ecto multi option" do
+    defmodule MultiCommand do
+      use Blunt.Command
+      option :multi, :multi, required: true
+      option :reply_to, :pid, required: true
+    end
+
+    defmodule MultiCommandHandler do
+      use Blunt.CommandHandler
+
+      def handle_dispatch(_command, context) do
+        reply_to = Blunt.DispatchContext.get_option(context, :reply_to)
+        multi = Blunt.DispatchContext.get_option(context, :multi)
+        send(reply_to, {:multi, multi})
+      end
+    end
+
+    test "can pass option" do
+      person_changeset = Support.ReadModel.Person.changeset(%{id: UUID.uuid4(), name: "chris"})
+      multi = Ecto.Multi.new() |> Ecto.Multi.insert(:thing, person_changeset)
+
+      MultiCommand.new()
+      |> MultiCommand.dispatch(reply_to: self(), multi: multi)
+
+      assert_receive {:multi, ^multi}
+    end
+  end
 end

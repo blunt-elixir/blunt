@@ -60,7 +60,7 @@ defmodule Blunt.Query do
 
   @spec create_filter_list(Blunt.DispatchContext.query_context()) :: list | map
   def create_filter_list(%{message_type: :query, message: filter_map} = context) do
-    opts = Context.options(context) |> Enum.into(%{})
+    opts = Context.options_map(context)
 
     filter_map
     |> Map.from_struct()

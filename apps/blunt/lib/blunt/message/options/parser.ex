@@ -90,7 +90,7 @@ defmodule Blunt.Message.Options.Parser do
 
   def ecto_type(:pid, _config), do: Blunt.Message.Type.Pid
   def ecto_type(:atom, _config), do: Blunt.Message.Type.Atom
-  def ecto_type(:multi, _config), do: Blunt.Message.Type.Multi
+  def ecto_type(:ecto_multi, _config), do: Blunt.Message.Type.Multi
 
   def ecto_type({:array, :atom}, _config) do
     {:array, Blunt.Message.Type.Atom}

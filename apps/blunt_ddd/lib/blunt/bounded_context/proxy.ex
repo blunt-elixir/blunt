@@ -30,6 +30,7 @@ defmodule Blunt.BoundedContext.Proxy do
   def generate({:command, command_module, proxy_opts}) do
     moduledoc = docs(command_module)
     {function_name, proxy_opts} = function_name(command_module, proxy_opts)
+    bang_function_name = String.to_atom("#{function_name}!")
 
     case Metadata.fields(command_module) do
       [] ->
@@ -38,6 +39,11 @@ defmodule Blunt.BoundedContext.Proxy do
           def unquote(function_name)(opts \\ []) do
             Proxy.dispatch(unquote(command_module), %{}, unquote(proxy_opts), opts)
           end
+
+          @doc "Same as `#{unquote(function_name)}` but raises if the query is not successful"
+          def unquote(bang_function_name)(opts \\ []) do
+            Proxy.dispatch!(unquote(command_module), %{}, unquote(proxy_opts), opts)
+          end
         end
 
       _fields ->
@@ -45,6 +51,11 @@ defmodule Blunt.BoundedContext.Proxy do
           @doc unquote(moduledoc)
           def unquote(function_name)(values, opts \\ []) do
             Proxy.dispatch(unquote(command_module), values, unquote(proxy_opts), opts)
+          end
+
+          @doc "Same as `#{unquote(function_name)}` but raises if the query is not successful"
+          def unquote(bang_function_name)(values, opts \\ []) do
+            Proxy.dispatch!(unquote(command_module), values, unquote(proxy_opts), opts)
           end
         end
     end

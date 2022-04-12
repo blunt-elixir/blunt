@@ -151,7 +151,7 @@ defmodule Blunt.CommandTest do
   describe "ecto multi option" do
     defmodule MultiCommand do
       use Blunt.Command
-      option :multi, :multi, required: true
+      option :multi, :ecto_multi, required: true
       option :reply_to, :pid, required: true
     end
 

@@ -108,6 +108,9 @@ defmodule Blunt.DispatchContext do
   @spec options(t) :: keyword()
   def options(%__MODULE__{opts: opts}), do: opts
 
+  @spec options_map(t) :: map()
+  def options_map(%__MODULE__{opts: opts}), do: Enum.into(opts, %{})
+
   @spec put_option(t, atom, any) :: context
   def put_option(%__MODULE__{opts: opts} = context, key, value) do
     %{context | opts: Keyword.put(opts, key, value)}

@@ -15,7 +15,7 @@ defmodule Blunt.Command do
       use Blunt.Message, unquote(opts)
 
       Options.register()
-      @options [Options.return_option()]
+      @options [Options.command_return_option()]
 
       import Blunt.Command, only: :macros
 

@@ -41,14 +41,19 @@ defmodule Blunt.Message.Options do
     end
   end
 
-  def return_option do
+  def command_return_option do
     configured_value = Config.dispatch_return()
 
     desc = "Determines the value to be returned from `dispatch/2`. "
     desc = desc <> "If the value is `:context` the dispatch context will be returned. "
     desc = desc <> "If the value is`:response` the value will be returned. "
+    desc = desc <> "If the value is`:command` the command will be returned without executing it. "
 
-    {:return, :enum, [values: [:context, :response], default: configured_value, required: false, desc: desc]}
+    desc =
+      desc <> "If the value is`:command_context` the dispatch context will be returned without executing the command. "
+
+    {:return, :enum,
+     [values: [:context, :response, :command, :command_context], default: configured_value, required: false, desc: desc]}
   end
 
   def query_return_option do

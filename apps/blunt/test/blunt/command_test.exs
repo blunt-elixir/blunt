@@ -13,7 +13,12 @@ defmodule Blunt.CommandTest do
     assert %{
              audit: [type: :boolean, required: false, default: true],
              debug: [type: :boolean, required: false, default: false],
-             return: [type: :enum, values: [:context, :response], default: :response, required: false]
+             return: [
+               type: :enum,
+               values: [:context, :response, :command, :command_context],
+               default: :response,
+               required: false
+             ]
            } = options
   end
 
@@ -21,7 +26,7 @@ defmodule Blunt.CommandTest do
     alias Protocol.DispatchWithPipeline
 
     test "field is defined" do
-      assert {:discarded_data, :map, [required: false, internal: true]} =
+      assert {:discarded_data, :map, [required: false, internal: true, virtual: true]} =
                DispatchWithPipeline
                |> Metadata.fields()
                |> Enum.find(&match?({:discarded_data, _, _}, &1))
@@ -60,7 +65,12 @@ defmodule Blunt.CommandTest do
 
       assert %{
                reply_to: [type: :pid, default: nil, required: true],
-               return: [type: :enum, values: [:context, :response], default: :response, required: false],
+               return: [
+                 type: :enum,
+                 values: [:context, :response, :command, :command_context],
+                 default: :response,
+                 required: false
+               ],
                return_error: [type: :boolean, required: false, default: false]
              } = options
     end

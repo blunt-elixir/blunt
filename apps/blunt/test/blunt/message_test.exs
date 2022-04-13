@@ -11,7 +11,7 @@ defmodule Blunt.MessageTest do
     end
 
     test "is ecto schema" do
-      assert [:name, :discarded_data] == Simple.__schema__(:fields)
+      assert [:name] == Simple.__schema__(:fields)
     end
 
     test "has changeset function" do
@@ -30,7 +30,7 @@ defmodule Blunt.MessageTest do
   test "internal fields are never required" do
     alias Protocol.MessageWithInternalField, as: Msg
 
-    assert [:id, :discarded_data] == Metadata.field_names(Msg)
+    assert [:discarded_data, :id] == Metadata.field_names(Msg)
 
     required_fields = Metadata.required_field_names(Msg)
     refute Enum.member?(required_fields, :id)

@@ -26,8 +26,17 @@ defmodule Blunt.DispatchStrategy.Default do
   def dispatch(%{message_type: :command, message: command} = context) do
     pipeline = PipelineResolver.get_pipeline!(context, CommandHandler)
 
-    with {:ok, context} <- execute({pipeline, :handle_dispatch, [command, context]}, context) do
-      return_last_pipeline(context)
+    case DispatchContext.get_return(context) do
+      :command_context ->
+        {:ok, context}
+
+      :command ->
+        return_final(command, context)
+
+      _ ->
+        with {:ok, context} <- execute({pipeline, :handle_dispatch, [command, context]}, context) do
+          return_last_pipeline(context)
+        end
     end
   end
 

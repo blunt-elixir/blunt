@@ -35,7 +35,7 @@ defmodule Blunt.Command.Events do
   def proxy_dispatch(_command_module, _event_module, {:error, _} = errors, _values),
     do: errors
 
-  def proxy_dispatch(command_module, event_module, {:ok, %{__struct__: command_module} = command, _}, values),
+  def proxy_dispatch(command_module, event_module, {:ok, %{__struct__: command_module} = command}, values),
     do: event_module.new(command, values)
 
   def proxy_dispatch(command_module, event_module, %{__struct__: command_module} = command, values),

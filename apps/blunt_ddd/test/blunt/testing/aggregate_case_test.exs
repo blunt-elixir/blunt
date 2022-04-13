@@ -7,7 +7,11 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
     use Blunt.Testing.AggregateCase, aggregate: PersonAggregate
 
-    factory CreatePerson
+    factory CreatePerson do
+      prop :id, &UUID.uuid4/0
+      prop :name, &Faker.Person.name/0
+    end
+
     factory PersonCreated
 
     test "execute_command" do

@@ -62,7 +62,6 @@ defmodule Blunt.BoundedContextTest do
   describe "zero field proxies" do
     test "query function is generated without values param" do
       UsersContext.__info__(:functions)
-      |> IO.inspect(label: "~/code/personal/blunt/apps/blunt_ddd/test/blunt/context_test.exs:65")
     end
   end
 end

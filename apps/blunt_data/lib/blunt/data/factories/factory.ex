@@ -65,27 +65,13 @@ defmodule Blunt.Data.Factories.Factory do
 
   defp build_final_message(
          %{
-           opts: opts,
            data: data,
-           fields: fields,
            message: message,
            operation: operation,
            active_builder: builder,
-           fake_provider: fake_provider,
-           factory_module: factory_module,
-           field_validations: field_validations
+           factory_module: factory_module
          } = factory
        ) do
-    # faked_data =
-    #   for {field, type, config} when not is_map_key(data, field) <- fields, into: %{} do
-    #     validation = Keyword.get(field_validations, field, :none)
-    #     value = fake_provider.fake(type, validation, config)
-
-    #     debug(value, ANSI.format(["faked ", :blue, :bright, to_string(field), :reset]), opts)
-
-    #     {field, value}
-    #   end
-
     final_message =
       case builder.build(message, data) do
         {:ok, final_message} -> final_message

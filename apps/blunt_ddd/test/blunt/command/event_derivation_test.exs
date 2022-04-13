@@ -35,6 +35,10 @@ defmodule Blunt.Command.EventDerivationTest do
     end
   end
 
+  test "version from event derivation is baked into the event" do
+    assert %{version: 2.5} = Support.Command.EventDerivationTest.VersionedEventHappened.new([])
+  end
+
   test "are created and returned from pipeline" do
     {:ok, events} =
       %{name: "chris"}

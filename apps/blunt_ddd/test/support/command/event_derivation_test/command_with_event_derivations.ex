@@ -23,3 +23,10 @@ defmodule Support.Command.EventDerivationTest.CommandWithEventDerivations do
     field :date, :date
   end
 end
+
+defmodule Support.Command.EventDerivationTest.ComandWithVersionedEvent do
+  use Blunt.Command
+  use Blunt.Command.EventDerivation
+
+  derive_event VersionedEventHappened, version: 2.5
+end

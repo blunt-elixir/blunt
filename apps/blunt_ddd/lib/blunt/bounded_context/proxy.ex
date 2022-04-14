@@ -159,10 +159,21 @@ defmodule Blunt.BoundedContext.Proxy do
         |> message_module.dispatch(opts)
 
       _ ->
-        values
-        |> Map.merge(field_values)
-        |> message_module.new()
-        |> message_module.dispatch(opts)
+        result =
+          values
+          |> Map.merge(field_values)
+          |> message_module.new()
+          |> message_module.dispatch(opts)
+
+        case Keyword.get(internal_opts, :return) do
+          :query ->
+            with {:ok, query} <- result do
+              query
+            end
+
+          _ ->
+            result
+        end
     end
   end
 

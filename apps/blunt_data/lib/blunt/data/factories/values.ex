@@ -134,4 +134,10 @@ defmodule Blunt.Data.Factories.Values do
       %Values.RequiredProp{field: unquote(field)}
     end
   end
+
+  defmacro remove(field) when is_atom(field) do
+    quote do
+      %Values.RemoveProp{field: unquote(field)}
+    end
+  end
 end

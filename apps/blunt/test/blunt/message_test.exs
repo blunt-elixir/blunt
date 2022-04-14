@@ -30,7 +30,7 @@ defmodule Blunt.MessageTest do
   test "internal fields are never required" do
     alias Protocol.MessageWithInternalField, as: Msg
 
-    assert [:discarded_data, :id] == Metadata.field_names(Msg)
+    assert [:id] == Metadata.field_names(Msg)
 
     required_fields = Metadata.required_field_names(Msg)
     refute Enum.member?(required_fields, :id)
@@ -38,10 +38,6 @@ defmodule Blunt.MessageTest do
 
   describe "field options" do
     alias Protocol.FieldOptions
-
-    test "discarded data is returned" do
-      assert {:ok, %{discarded_data: %{"weed" => :yes}}} = FieldOptions.new(name: "chris", weed: :yes)
-    end
 
     test "autogenerate field" do
       today = Date.utc_today()

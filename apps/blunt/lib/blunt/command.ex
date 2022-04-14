@@ -4,7 +4,7 @@ defmodule Blunt.Command do
 
   defmacro __using__(opts) do
     opts =
-      [require_all_fields?: true]
+      [require_all_fields?: true, keep_discarded_data: true]
       |> Keyword.merge(opts)
       |> Keyword.put(:dispatch?, true)
       |> Keyword.put(:message_type, :command)

@@ -46,7 +46,7 @@ defmodule Blunt.DispatchContext do
       message: message,
       message_type: message_type,
       message_module: message_module,
-      discarded_data: message.discarded_data,
+      discarded_data: Map.get(message, :discarded_data, %{}),
       created_at: DateTime.utc_now(),
       pid: self()
     }

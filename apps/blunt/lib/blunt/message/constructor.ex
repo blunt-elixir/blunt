@@ -3,8 +3,8 @@ defmodule Blunt.Message.Constructor do
 
   alias Ecto.Changeset
   alias __MODULE__, as: Constructor
-  alias Blunt.Message.{Documentation, Input}
   alias Blunt.Message.Changeset, as: MessageChangeset
+  alias Blunt.Message.{Documentation, Input, Metadata}
 
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
@@ -76,20 +76,21 @@ defmodule Blunt.Message.Constructor do
       |> Map.merge(overrides)
       |> module.before_validate()
 
-    with {:ok, message} <- input |> module.changeset() |> handle_changeset() do
+    with {:ok, message} <- input |> module.changeset() |> handle_changeset(module) do
       {:ok, module.after_validate(message)}
     end
   end
 
-  def handle_changeset({%{valid?: false} = changeset, _discarded_data}),
+  defp handle_changeset({%{valid?: false} = changeset, _discarded_data}, _message_module),
     do: {:error, MessageChangeset.format_errors(changeset)}
 
-  def handle_changeset({changeset, discarded_data}) do
-    message =
-      changeset
-      |> Changeset.put_change(:discarded_data, discarded_data)
-      |> Changeset.apply_action!(:create)
+  defp handle_changeset({changeset, discarded_data}, message_module) do
+    changeset =
+      case Metadata.has_field?(message_module, :discarded_data) do
+        true -> Changeset.put_change(changeset, :discarded_data, discarded_data)
+        false -> changeset
+      end
 
-    {:ok, message}
+    {:ok, Changeset.apply_action!(changeset, :create)}
   end
 end

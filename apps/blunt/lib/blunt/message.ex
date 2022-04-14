@@ -68,7 +68,9 @@ defmodule Blunt.Message do
       @behaviour Blunt.Message
       @before_compile Blunt.Message
 
-      @schema_fields {:discarded_data, :map, required: false, internal: true, virtual: true}
+      if opts[:keep_discarded_data] do
+        @schema_fields {:discarded_data, :map, required: false, internal: true, virtual: true}
+      end
 
       @impl true
       def handle_validate(changeset), do: changeset

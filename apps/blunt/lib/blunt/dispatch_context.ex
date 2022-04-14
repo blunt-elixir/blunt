@@ -149,6 +149,11 @@ defmodule Blunt.DispatchContext do
     %{context | message: Map.put(message, field_name, value)}
   end
 
+  @spec internal_fields(t, map) :: t
+  def internal_fields(%{message: message} = context, values) do
+    %{context | message: Map.merge(message, values)}
+  end
+
   @spec put_private(t, atom, any) :: t
   def put_private(%__MODULE__{private: private} = context, key, value) when is_atom(key),
     do: %{context | private: Map.put(private, key, value)}

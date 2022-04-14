@@ -61,7 +61,11 @@ defmodule Blunt.Command.Events do
           nil
 
         {name, type, opts} ->
-          opts = Keyword.put(opts, :required, false)
+          opts =
+            opts
+            |> Keyword.put(:required, false)
+            |> Macro.escape()
+
           quote do: field(unquote(name), unquote(type), unquote(opts))
       end)
 

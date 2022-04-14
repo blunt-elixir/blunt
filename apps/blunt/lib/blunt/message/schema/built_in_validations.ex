@@ -17,13 +17,16 @@ defmodule Blunt.Message.Schema.BuiltInValidations do
   def run({:require_either, fields}, changeset) do
     import Ecto.Changeset, only: [get_change: 2, add_error: 3]
 
-    supplied =
+    no_required_fields_supplied =
       fields
-      |> Enum.flat_map(fn
+      |> Enum.map(fn
         field when is_atom(field) -> [get_change(changeset, field)]
         fields when is_list(fields) -> Enum.map(fields, &get_change(changeset, &1))
       end)
-      |> Enum.reject(&is_nil/1)
+      |> Enum.map(fn changes ->
+        Enum.any?(changes, &is_nil/1)
+      end)
+      |> Enum.all?(&(&1 == true))
 
     expected_fields =
       fields
@@ -37,11 +40,11 @@ defmodule Blunt.Message.Schema.BuiltInValidations do
       end)
       |> Enum.join(" OR ")
 
-    error = "expected either #{expected_fields} to be present"
-
-    case supplied do
-      [] -> add_error(changeset, :fields, error)
-      _ -> changeset
+    if no_required_fields_supplied do
+      error = "expected either #{expected_fields} to be present"
+      add_error(changeset, :fields, error)
+    else
+      changeset
     end
   end
 end

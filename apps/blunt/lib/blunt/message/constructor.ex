@@ -40,10 +40,10 @@ defmodule Blunt.Message.Constructor do
     quote do
       @type input :: map() | struct() | keyword()
 
-      @spec unquote(name)(input, input) :: {:ok, struct()} | {:error, any()}
+      @spec unquote(name)(input, input, keyword) :: {:ok, struct()} | {:error, any()}
       @doc unquote(docs)
-      def unquote(name)(values, overrides \\ []) when is_list(values) or is_map(values),
-        do: Constructor.apply(__MODULE__, values, overrides)
+      def unquote(name)(values, overrides \\ [], opts \\ []) when (is_list(values) or is_map(values)) and is_list(opts),
+        do: Constructor.apply(__MODULE__, values, overrides, opts)
     end
   end
 
@@ -51,23 +51,24 @@ defmodule Blunt.Message.Constructor do
     quote do
       @type input :: map() | struct() | keyword()
 
-      @spec unquote(name)(input, input) :: {:ok, struct()} | {:error, any()}
+      @spec unquote(name)(input, input, keyword) :: {:ok, struct()} | {:error, any()}
       @doc unquote(docs)
-      def unquote(name)(values \\ %{}, overrides \\ []) when is_list(values) or is_map(values),
-        do: Constructor.apply(__MODULE__, values, overrides)
+      def unquote(name)(values \\ %{}, overrides \\ [], opts \\ [])
+          when (is_list(values) or is_map(values)) and is_list(opts),
+          do: Constructor.apply(__MODULE__, values, overrides, opts)
     end
   end
 
   def do_generate(%{name: name, docs: docs}) do
     quote do
-      @spec unquote(name)() :: {:ok, struct()} | {:error, any()}
+      @spec unquote(name)(keyword) :: {:ok, struct()} | {:error, any()}
       @doc unquote(docs)
-      def unquote(name)(),
-        do: Constructor.apply(__MODULE__, %{}, %{})
+      def unquote(name)(opts \\ []) when is_list(opts),
+        do: Constructor.apply(__MODULE__, %{}, %{}, opts)
     end
   end
 
-  def apply(module, values, overrides) do
+  def apply(module, values, overrides, opts) do
     values = Input.normalize(values, module)
     overrides = Input.normalize(overrides, module)
 
@@ -76,7 +77,7 @@ defmodule Blunt.Message.Constructor do
       |> Map.merge(overrides)
       |> module.before_validate()
 
-    with {:ok, message} <- input |> module.changeset() |> handle_changeset(module) do
+    with {:ok, message} <- input |> module.changeset_with_discarded_data(opts) |> handle_changeset(module) do
       {:ok, module.after_validate(message)}
     end
   end

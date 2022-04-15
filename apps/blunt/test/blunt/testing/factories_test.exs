@@ -1,5 +1,6 @@
 defmodule Blunt.Testing.FactoriesTest do
   use ExUnit.Case, async: true
+  @moduletag :skip
 
   use Blunt.Testing.Factories
 

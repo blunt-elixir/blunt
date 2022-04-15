@@ -9,8 +9,14 @@ defmodule Blunt.Message.Changeset do
   def generate do
     quote location: :keep, generated: true do
       @doc false
-      def changeset(message \\ %__MODULE__{}, values) when is_list(values) or is_map(values) or is_struct(values) do
-        MessageChangeset.changeset(message, values)
+      def changeset(values, opts \\ [])
+          when is_list(values) or is_map(values) or is_struct(values) do
+        MessageChangeset.changeset(%__MODULE__{}, values, opts) |> elem(0)
+      end
+
+      def changeset_with_discarded_data(values, opts \\ [])
+          when is_list(values) or is_map(values) or is_struct(values) do
+        MessageChangeset.changeset(%__MODULE__{}, values, opts)
       end
     end
   end
@@ -20,18 +26,17 @@ defmodule Blunt.Message.Changeset do
   @type changeset :: Ecto.Changeset.t()
   @type values :: maybe_improper_list | map | struct
 
-  @type changeset_type :: :schema | :embed
-  @spec changeset(message(), values(), atom()) :: {changeset, discarded_data} | changeset
+  @spec changeset(message(), values(), keyword()) :: {changeset, discarded_data} | changeset
 
-  def changeset(message, values, type \\ :schema)
+  def changeset(message, values, opts \\ [])
 
-  def changeset(message, values, type) when is_struct(values),
-    do: changeset(message, Map.from_struct(values), type)
+  def changeset(message, values, opts) when is_struct(values),
+    do: changeset(message, Map.from_struct(values), opts)
 
-  def changeset(%{__struct__: message}, values, type) when is_list(values) or is_map(values),
-    do: changeset(message, values, type)
+  def changeset(%{__struct__: message}, values, opts) when is_list(values) or is_map(values),
+    do: changeset(message, values, opts)
 
-  def changeset(message, values, type) when is_list(values) or is_map(values) do
+  def changeset(message, values, opts) when is_list(values) or is_map(values) do
     values =
       values
       |> Input.normalize(message)
@@ -52,7 +57,9 @@ defmodule Blunt.Message.Changeset do
       |> struct()
       |> Changeset.cast(values, fields -- embeds)
 
-    embed_changeset = {__MODULE__, :changeset, [:embed]}
+    opts = opts |> List.wrap() |> Keyword.new()
+    {type, opts} = Keyword.pop(opts, :type, :schema)
+    embed_changeset = {__MODULE__, :changeset, [Keyword.put(opts, :type, :embed)]}
 
     changeset =
       embeds
@@ -60,7 +67,7 @@ defmodule Blunt.Message.Changeset do
       |> Changeset.validate_required(required_fields)
       |> run_field_validations(message)
       |> run_built_in_validations(message)
-      |> message.handle_validate()
+      |> message.handle_validate(opts)
 
     case type do
       :embed -> changeset

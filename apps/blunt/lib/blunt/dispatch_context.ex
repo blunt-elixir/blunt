@@ -222,4 +222,6 @@ defmodule Blunt.DispatchContext do
   @spec get_metadata(t, atom, any) :: any | nil
   def get_metadata(%{metadata: metadata}, key, default \\ nil),
     do: Keyword.get(metadata, key, default)
+
+  defdelegate format_errors(changeset), to: Blunt.Message.Changeset
 end

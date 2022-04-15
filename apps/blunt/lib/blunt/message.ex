@@ -37,7 +37,7 @@ defmodule Blunt.Message do
   @type changeset :: Ecto.Changeset.t()
 
   @callback before_validate(map()) :: map()
-  @callback handle_validate(changeset()) :: changeset()
+  @callback handle_validate(changeset(), keyword()) :: changeset()
   @callback after_validate(struct()) :: struct()
 
   defmacro __using__(opts \\ []) do
@@ -73,7 +73,7 @@ defmodule Blunt.Message do
       end
 
       @impl true
-      def handle_validate(changeset), do: changeset
+      def handle_validate(changeset, _opts), do: changeset
 
       @impl true
       def after_validate(message), do: message
@@ -81,7 +81,7 @@ defmodule Blunt.Message do
       @impl true
       def before_validate(values), do: values
 
-      defoverridable handle_validate: 1, after_validate: 1, before_validate: 1
+      defoverridable handle_validate: 2, after_validate: 1, before_validate: 1
     end
   end
 

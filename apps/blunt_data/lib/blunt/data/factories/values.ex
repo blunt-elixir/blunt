@@ -135,9 +135,11 @@ defmodule Blunt.Data.Factories.Values do
     end
   end
 
-  defmacro remove(field) when is_atom(field) do
+  defmacro remove(fields) when is_atom(fields) or is_list(fields) do
+    fields = List.wrap(fields)
+
     quote do
-      %Values.RemoveProp{field: unquote(field)}
+      %Values.RemoveProp{fields: unquote(fields)}
     end
   end
 end

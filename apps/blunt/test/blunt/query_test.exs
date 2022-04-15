@@ -5,6 +5,17 @@ defmodule Blunt.QueryTest do
   alias Blunt.Message.Metadata
   alias Blunt.QueryTest.Protocol
 
+  describe "query with no fields" do
+    defmodule QueryWithNoFields do
+      use Blunt.Query
+    end
+
+    test "can create" do
+      assert {:ok, %QueryWithNoFields{}} = QueryWithNoFields.new()
+      assert_raise FunctionClauseError, fn -> QueryWithNoFields.new(%{}) end
+    end
+  end
+
   describe "basics" do
     alias Protocol.BasicQuery
     alias Blunt.DispatchStrategy.PipelineResolver

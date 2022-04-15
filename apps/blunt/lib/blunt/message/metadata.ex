@@ -39,7 +39,7 @@ defmodule Blunt.Message.Metadata do
     do: is_message_type?(module, :command)
 
   def dispatchable?(module),
-    do: fetch!(module, :dispatchable?)
+    do: get(module, :dispatchable?, false)
 
   def options(module) do
     module
@@ -62,15 +62,15 @@ defmodule Blunt.Message.Metadata do
   end
 
   def fields(module) do
-    fetch!(module, :message_schema)
+    get(module, :message_schema, [])
   end
 
   def field_validations(module) do
-    fetch!(module, :field_validations)
+    get(module, :field_validations, [])
   end
 
   def built_in_validations(module) do
-    fetch!(module, :built_in_validations)
+    get(module, :built_in_validations, [])
   end
 
   def field_names(module) do

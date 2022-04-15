@@ -154,15 +154,15 @@ defmodule Blunt.BoundedContext.Proxy do
     constructor_arities = message_module.__info__(:functions) |> Keyword.get_values(:new)
 
     case constructor_arities do
-      [0] ->
-        message_module.new()
+      [0, 1] ->
+        message_module.new(opts)
         |> message_module.dispatch(opts)
 
       _ ->
         result =
           values
           |> Map.merge(field_values)
-          |> message_module.new()
+          |> message_module.new(opts)
           |> message_module.dispatch(opts)
 
         case Keyword.get(internal_opts, :return) do

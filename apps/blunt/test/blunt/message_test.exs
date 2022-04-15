@@ -19,7 +19,7 @@ defmodule Blunt.MessageTest do
     end
 
     test "has constructor function" do
-      assert [0, 1, 2] == Simple.__info__(:functions) |> Keyword.get_values(:new)
+      assert [0, 1, 2, 3] == Simple.__info__(:functions) |> Keyword.get_values(:new)
     end
 
     test "has message_type" do

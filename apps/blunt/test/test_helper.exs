@@ -1,3 +1,3 @@
 Blunt.Repo.start_link([])
 
-ExUnit.start()
+ExUnit.start(exclude: [:skip])

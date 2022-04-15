@@ -25,6 +25,12 @@ defmodule Blunt.Message.Schema do
     end
   end
 
+  def require_exactly_one(fields) do
+    quote do
+      @built_in_validations {:require_exactly_one, unquote(fields)}
+    end
+  end
+
   def require_either(fields) do
     quote do
       @built_in_validations {:require_either, unquote(fields)}

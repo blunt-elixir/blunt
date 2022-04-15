@@ -14,6 +14,29 @@ defmodule Blunt.Message.Schema.BuiltInValidations do
     end
   end
 
+  def run({:require_exactly_one, fields}, changeset) do
+    import Ecto.Changeset, only: [get_change: 2, add_error: 3]
+
+    provided_fields =
+      fields
+      |> Enum.map(&get_change(changeset, &1))
+      |> Enum.reject(&is_nil/1)
+
+    case provided_fields do
+      [_field] ->
+        changeset
+
+      _ ->
+        fields =
+          fields
+          |> Enum.sort()
+          |> Enum.map(&inspect/1)
+          |> Enum.join(" OR ")
+
+        add_error(changeset, :fields, "expected exactly one of #{fields} to be provided")
+    end
+  end
+
   def run({:require_either, fields}, changeset) do
     import Ecto.Changeset, only: [get_change: 2, add_error: 3]
 

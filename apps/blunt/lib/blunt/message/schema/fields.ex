@@ -43,10 +43,17 @@ defmodule Blunt.Message.Schema.Fields do
     |> field_names()
   end
 
-  def embedded?(module) do
-    case Code.ensure_compiled(module) do
-      {:module, module} -> function_exported?(module, :__schema__, 2)
-      _ -> false
-    end
+  require Logger
+
+  def embedded?(module) when is_atom(module) do
+    embedded?(Atom.to_string(module))
   end
+
+  def embedded?("Elixir." <> _ = module) do
+    module = String.to_existing_atom(module)
+    module = Code.ensure_compiled!(module)
+    function_exported?(module, :__schema__, 2)
+  end
+
+  def embedded?(_module), do: false
 end

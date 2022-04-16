@@ -11,7 +11,7 @@ defmodule Blunt.Message.Changeset do
       @doc false
       def changeset(values, opts \\ [])
           when is_list(values) or is_map(values) or is_struct(values) do
-        MessageChangeset.changeset(%__MODULE__{}, values, opts) |> elem(0)
+        changeset_with_discarded_data(values, opts) |> elem(0)
       end
 
       def changeset_with_discarded_data(values, opts \\ [])
@@ -41,6 +41,7 @@ defmodule Blunt.Message.Changeset do
       values
       |> Input.normalize(message)
       |> autogenerate_fields(message)
+      |> message.before_validate()
 
     required_fields = Metadata.required_field_names(message)
 

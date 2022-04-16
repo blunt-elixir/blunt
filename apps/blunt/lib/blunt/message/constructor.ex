@@ -71,11 +71,7 @@ defmodule Blunt.Message.Constructor do
   def apply(module, values, overrides, opts) do
     values = Input.normalize(values, module)
     overrides = Input.normalize(overrides, module)
-
-    input =
-      values
-      |> Map.merge(overrides)
-      |> module.before_validate()
+    input = Map.merge(values, overrides)
 
     with {:ok, message} <- input |> module.changeset_with_discarded_data(opts) |> handle_changeset(module) do
       {:ok, module.after_validate(message)}

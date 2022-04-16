@@ -6,6 +6,8 @@ defmodule Blunt.Data.Factories.Values.MergeInput do
   alias Blunt.Data.Factories.Values.MergeInput
 
   defimpl Blunt.Data.Factories.Value do
+    def declared_props(%MergeInput{}), do: []
+
     def evaluate(%MergeInput{key: key, opts: opts}, acc, current_factory) do
       case Map.pop(acc, key, %{}) do
         {input, acc} when is_map(input) ->

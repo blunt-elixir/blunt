@@ -11,5 +11,7 @@ defmodule Blunt.Data.Factories.Values.Constant do
       value = Factory.log_value(current_factory, value, field, false, "const")
       Map.put(acc, field, value)
     end
+
+    def declared_props(%Constant{field: field}), do: [field]
   end
 end

@@ -6,6 +6,8 @@ defmodule Blunt.Data.Factories.Values.Defaults do
   alias Blunt.Data.Factories.Values.Defaults
 
   defimpl Blunt.Data.Factories.Value do
+    def declared_props(%Defaults{values: values}), do: Map.keys(values)
+
     def evaluate(%Defaults{values: values}, acc, current_factory) do
       Enum.reduce(values, acc, fn
         {key, _value}, acc when is_map_key(acc, key) ->

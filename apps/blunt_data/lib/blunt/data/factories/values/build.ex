@@ -13,5 +13,7 @@ defmodule Blunt.Data.Factories.Values.Build do
       value = Factory.log_value(current_factory, value, field, false, "child")
       Map.put(acc, field, value)
     end
+
+    def declared_props(%Build{field: field}), do: [field]
   end
 end

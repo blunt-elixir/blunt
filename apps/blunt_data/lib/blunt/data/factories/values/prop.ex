@@ -8,6 +8,8 @@ defmodule Blunt.Data.Factories.Values.Prop do
   alias Blunt.Data.Factories.Values.Prop
 
   defimpl Blunt.Data.Factories.Value do
+    def declared_props(%Prop{field: field}), do: [field]
+
     def evaluate(%Prop{field: field, path_func_or_value: path, lazy: lazy}, acc, current_factory)
         when is_list(path) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do

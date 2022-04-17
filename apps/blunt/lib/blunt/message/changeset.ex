@@ -43,7 +43,7 @@ defmodule Blunt.Message.Changeset do
       |> autogenerate_fields(message)
       |> message.before_validate()
 
-    required_fields = Metadata.required_field_names(message)
+    required_fields = Metadata.field_names(message, :required)
 
     embeds = message.__schema__(:embeds)
     fields = message.__schema__(:fields)

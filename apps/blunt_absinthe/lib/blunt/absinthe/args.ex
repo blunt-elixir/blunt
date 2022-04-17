@@ -9,15 +9,28 @@ defmodule Blunt.Absinthe.Args do
   @type message_module :: atom()
   @spec from_message_fields(message_module, keyword) :: list
 
+  @doc """
+  Creates `Absinthe` `fields` or `args` from a Blunt message.
+
+  ## Options
+
+  * `type` - `fields` or `args`. Defaults to `args`
+  """
+
   def from_message_fields(message_module, opts) do
-    message_module
-    |> Metadata.fields()
-    |> filter(opts)
-    |> reject(:internal, opts)
-    |> reject(:parent_mapped_fields, opts)
-    |> update(:add_absinthe_types, message_module, opts)
-    |> update(:set_absinthe_type_opts, opts)
-    |> convert(:to_quoted_absinthe_args, opts)
+    fields =
+      message_module
+      |> Metadata.fields()
+      |> filter(opts)
+      |> reject(:internal, opts)
+      |> reject(:parent_mapped_fields, opts)
+      |> update(:add_absinthe_types, message_module, opts)
+      |> update(:set_absinthe_type_opts, opts)
+
+    case Keyword.get(opts, :type, :args) do
+      :args -> convert(fields, :to_quoted_absinthe_args, opts)
+      :fields -> convert(fields, :to_quoted_absinthe_fields, opts)
+    end
   end
 
   @spec resolve_message_input(map(), {atom(), map(), keyword()}) :: any
@@ -40,6 +53,20 @@ defmodule Blunt.Absinthe.Args do
         quote do: arg(unquote(name), non_null(unquote(type)), unquote(opts))
       else
         quote do: arg(unquote(name), unquote(type), unquote(opts))
+      end
+    end)
+  end
+
+  defp convert(fields, :to_quoted_absinthe_fields, opts) do
+    declared_required_field_names = Keyword.get(opts, :required, [])
+
+    Enum.map(fields, fn {name, {_type, absinthe_type}, _field_opts} = field ->
+      {type, opts} = absinthe_type
+
+      if required?(field, declared_required_field_names) do
+        quote do: field(unquote(name), non_null(unquote(type)), unquote(opts))
+      else
+        quote do: field(unquote(name), unquote(type), unquote(opts))
       end
     end)
   end

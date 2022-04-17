@@ -1,5 +1,8 @@
 defmodule Blunt.Absinthe.MutationTest do
   use ExUnit.Case
+
+  alias Absinthe.Type.{InputObject, Object}
+
   alias Blunt.DispatchContext
   alias Blunt.Absinthe.Test.Schema
 
@@ -43,5 +46,26 @@ defmodule Blunt.Absinthe.MutationTest do
     _ = Absinthe.run(query, Schema, context: context, variables: %{"name" => "chris", "gender" => "MALE"})
 
     assert_receive {:context, %DispatchContext{user: %{name: "chris"}}}
+  end
+
+  test "mutation input types" do
+    assert %InputObject{fields: fields} = Absinthe.Schema.lookup_type(Schema, :update_person_input)
+
+    assert %{
+             id: %{
+               type: %Absinthe.Type.NonNull{of_type: :id}
+             },
+             name: %{
+               type: %Absinthe.Type.NonNull{of_type: :string}
+             },
+             gender: %{
+               type: :gender
+             }
+           } = fields
+  end
+
+  test "derive object" do
+    assert %Object{fields: fields} = Absinthe.Schema.lookup_type(Schema, :dog)
+    assert %{name: %{type: :string}} = fields
   end
 end

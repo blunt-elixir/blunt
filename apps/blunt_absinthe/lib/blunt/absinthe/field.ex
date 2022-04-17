@@ -29,7 +29,7 @@ defmodule Blunt.Absinthe.Field do
       |> Keyword.put(:operation, operation)
       |> Keyword.put(:field_name, field_name)
 
-    args = args(message_module, opts)
+    args = args(operation, message_module, opts)
     description = description(message_module)
     {before_resolve, after_resolve} = middleware(opts)
 
@@ -37,8 +37,8 @@ defmodule Blunt.Absinthe.Field do
 
     quote do
       unquote_splicing(args)
-      description unquote(description)
-      middleware unquote(before_resolve)
+      description(unquote(description))
+      middleware(unquote(before_resolve))
 
       resolve(fn parent, args, resolution ->
         Field.dispatch_and_resolve(
@@ -51,7 +51,7 @@ defmodule Blunt.Absinthe.Field do
         )
       end)
 
-      middleware unquote(after_resolve)
+      middleware(unquote(after_resolve))
     end
   end
 
@@ -59,8 +59,22 @@ defmodule Blunt.Absinthe.Field do
   @spec middleware(keyword) :: {middlware_function, middlware_function}
   def middleware(opts), do: Middleware.middleware(opts)
 
-  @spec args(message_module, keyword) :: list
-  def args(message_module, opts),
+  @spec args(atom(), message_module, keyword) :: list
+  def args(:absinthe_mutation, message_module, opts) do
+    input_object = Keyword.get(opts, :input_object, false)
+    input_object? = Keyword.get(opts, :input_object?, false)
+
+    case input_object || input_object? do
+      true ->
+        field_name = :"#{Field.name(message_module, opts)}_input"
+        [quote(do: arg(:input, unquote(field_name)))]
+
+      false ->
+        Args.from_message_fields(message_module, opts)
+    end
+  end
+
+  def args(_operation, message_module, opts),
     do: Args.from_message_fields(message_module, opts)
 
   def description(message_module),

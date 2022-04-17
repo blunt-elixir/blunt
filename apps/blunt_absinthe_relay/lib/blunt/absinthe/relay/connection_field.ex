@@ -17,7 +17,7 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
       |> Keyword.put(:field_name, field_name)
       |> Keyword.put(:message_module, query_module)
 
-    args = Field.args(query_module, opts)
+    args = Field.args(:absinthe_relay_connection, query_module, opts)
     description = Field.description(query_module)
     {before_resolve, after_resolve} = Field.middleware(opts)
 

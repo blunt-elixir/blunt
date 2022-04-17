@@ -1,6 +1,6 @@
 defmodule Blunt.Absinthe do
-  alias Blunt.Absinthe.{Message, Mutation, Query}
   alias Blunt.Absinthe.Enum, as: AbsintheEnum
+  alias Blunt.Absinthe.{Message, Mutation, Object, Query}
 
   defmodule Error do
     defexception [:message]
@@ -16,6 +16,11 @@ defmodule Blunt.Absinthe do
 
       @after_compile Blunt.Absinthe
     end
+  end
+
+  defmacro derive_object(message_module, object_name, opts \\ []) do
+    object = quote do: Object.generate_object(unquote(message_module), unquote(object_name), unquote(opts))
+    Module.eval_quoted(__CALLER__, object)
   end
 
   defmacro derive_enum(enum_name, {enum_source_module, field_name}) do
@@ -49,6 +54,12 @@ defmodule Blunt.Absinthe do
       @mutations unquote(command_module)
       unquote(field)
     end
+  end
+
+  defmacro derive_mutation_input(command_module, opts \\ []) do
+    opts = Macro.escape(opts)
+    input_object = quote do: Mutation.generate_input(unquote(command_module), unquote(opts))
+    Module.eval_quoted(__CALLER__, input_object)
   end
 
   defmacro __after_compile__(_env, _bytecode) do

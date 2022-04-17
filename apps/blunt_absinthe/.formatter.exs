@@ -4,7 +4,9 @@ locals_without_parens = [
   derive_query: 2,
   derive_query: 3,
   derive_mutation: 2,
-  derive_mutation: 3
+  derive_mutation: 3,
+  derive_mutation_input: 1,
+  derive_mutation_input: 2
 ]
 
 [

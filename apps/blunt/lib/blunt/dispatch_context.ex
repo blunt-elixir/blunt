@@ -224,4 +224,7 @@ defmodule Blunt.DispatchContext do
     do: Keyword.get(metadata, key, default)
 
   defdelegate format_errors(changeset), to: Blunt.Message.Changeset
+
+  def field_names(%__MODULE__{message_module: module}), do: Metadata.field_names(module)
+  def public_field_names(%__MODULE__{message_module: module}), do: Metadata.field_names(module, :public)
 end

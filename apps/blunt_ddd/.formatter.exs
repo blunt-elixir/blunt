@@ -1,9 +1,9 @@
 # Used by "mix format"
 temp_blunt_funcs = [
-  blunt_command: 1,
-  blunt_command: 2,
-  blunt_query: 1,
-  blunt_query: 2
+  command: 1,
+  command: 2,
+  query: 1,
+  query: 2
 ]
 
 locals_without_parens = [

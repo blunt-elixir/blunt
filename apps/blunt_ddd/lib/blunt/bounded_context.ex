@@ -20,7 +20,7 @@ defmodule Blunt.BoundedContext do
     end
   end
 
-  defmacro blunt_command(message_module, opts \\ []) do
+  defmacro command(message_module, opts \\ []) do
     quote bind_quoted: [message_module: message_module, opts: opts] do
       {function_name, _opts} = Proxy.function_name(message_module, opts)
 
@@ -29,7 +29,7 @@ defmodule Blunt.BoundedContext do
     end
   end
 
-  defmacro blunt_query(message_module, opts \\ []) do
+  defmacro query(message_module, opts \\ []) do
     quote bind_quoted: [message_module: message_module, opts: opts] do
       {function_name, _opts} = Proxy.function_name(message_module, opts)
 

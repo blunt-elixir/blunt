@@ -17,9 +17,9 @@ defmodule Blunt.Testing.FactoriesTest do
     assert [1] = Keyword.get_values(funcs, :get_person_factory)
     assert [1] = Keyword.get_values(funcs, :create_person_factory)
 
-    assert [1, 2, 3] = Keyword.get_values(funcs, :bispatch)
-    assert [2, 3, 4] = Keyword.get_values(funcs, :bispatch_list)
-    assert [1, 2, 3] = Keyword.get_values(funcs, :bispatch_pair)
+    assert [1, 2, 3] = Keyword.get_values(funcs, :dispatch)
+    assert [2, 3, 4] = Keyword.get_values(funcs, :dispatch_list)
+    assert [1, 2, 3] = Keyword.get_values(funcs, :dispatch_pair)
   end
 
   describe "queries" do
@@ -33,8 +33,8 @@ defmodule Blunt.Testing.FactoriesTest do
       assert {:ok, _} = UUID.info(id)
     end
 
-    test "bispatch" do
-      assert {:ok, %{id: id, name: "chris"}} = bispatch(:get_person)
+    test "dispatch" do
+      assert {:ok, %{id: id, name: "chris"}} = dispatch(:get_person)
       assert {:ok, _} = UUID.info(id)
     end
   end
@@ -50,8 +50,8 @@ defmodule Blunt.Testing.FactoriesTest do
       refute name == nil
     end
 
-    test "bispatch" do
-      assert {:ok, {:dispatched, command}} = bispatch(:create_person)
+    test "dispatch" do
+      assert {:ok, {:dispatched, command}} = dispatch(:create_person)
       assert %CreatePerson{id: id, name: name} = command
       assert {:ok, _} = UUID.info(id)
       refute name == nil
@@ -71,11 +71,11 @@ defmodule Blunt.Testing.FactoriesTest do
       refute name == nil
     end
 
-    test "bispatch" do
+    test "dispatch" do
       alias Blunt.Testing.Factories.DispatchStrategy.Error
 
       assert_raise Error, "Support.Testing.PlainMessage is not a dispatchable message", fn ->
-        bispatch(:plain_message)
+        dispatch(:plain_message)
       end
     end
   end
@@ -165,7 +165,7 @@ defmodule Blunt.Testing.FactoriesTest do
 
     test "can not be used as a lazy factory" do
       assert_raise NoBuilderError, fn ->
-        bispatch(:create_policy_fee2)
+        dispatch(:create_policy_fee2)
       end
     end
   end

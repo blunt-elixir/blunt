@@ -1,7 +1,7 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Testing.Factories.DispatchStrategy do
     @moduledoc false
-    use ExMachina.Strategy, function_name: :bispatch
+    use ExMachina.Strategy, function_name: :dispatch
 
     defmodule Error do
       defexception [:message]
@@ -10,10 +10,10 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
     alias Blunt.Message.Metadata
     alias Blunt.{DispatchContext, Message}
 
-    def handle_bispatch(message, opts),
-      do: handle_bispatch(message, opts, [])
+    def handle_dispatch(message, opts),
+      do: handle_dispatch(message, opts, [])
 
-    def handle_bispatch(%{__struct__: module} = message, _opts, dispatch_opts) do
+    def handle_dispatch(%{__struct__: module} = message, _opts, dispatch_opts) do
       unless Message.dispatchable?(message) do
         raise Error, message: "#{inspect(module)} is not a dispatchable message"
       end

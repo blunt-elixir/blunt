@@ -116,6 +116,9 @@ defmodule Blunt.Absinthe.Field do
         |> Context.Shipper.ship()
 
         return_value
+
+      other ->
+        other
     end
   end
 

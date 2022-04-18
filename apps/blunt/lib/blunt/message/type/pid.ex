@@ -17,6 +17,8 @@ defmodule Blunt.Message.Type.Pid do
     _ -> {:error, [message: "is not a valid Pid"]}
   end
 
+  def cast(_other), do: {:ok, nil}
+
   def load(value) when is_list(value),
     do: {:ok, :erlang.list_to_pid(value)}
 

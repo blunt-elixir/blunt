@@ -12,7 +12,7 @@ defmodule Blunt.Message.MetadataTest do
 
   describe "virutal fields" do
     test "field names" do
-      assert [:calculated] == Metadata.virtual_field_names(MyMessage)
+      assert [:calculated] == Metadata.field_names(MyMessage, :virtual)
     end
 
     test "are not json serialized" do

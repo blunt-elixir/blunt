@@ -6,8 +6,7 @@ defmodule Blunt.Message.Schema.Fields do
   def record(name, type, opts \\ []) do
     quote bind_quoted: [name: name, type: type, opts: opts] do
       internal = Keyword.get(opts, :internal, false)
-      default_not_defined? = Keyword.get(opts, :default) == nil
-      required = default_not_defined? and internal == false and Keyword.get(opts, :required, @require_all_fields?)
+      required = internal == false and Keyword.get(opts, :required, @require_all_fields?)
 
       validation_name = Keyword.get(opts, :validate)
       Schema.put_field_validation(__MODULE__, name, validation_name)

@@ -90,7 +90,7 @@ defmodule Blunt.Message.Metadata do
   def fields(module, :virtual) do
     module
     |> fields()
-    |> Enum.filter(fn {_name, _type, opts} -> Keyword.fetch!(opts, :virtual) == true end)
+    |> Enum.filter(fn {_name, _type, opts} -> Keyword.get(opts, :virtual) == true end)
   end
 
   @spec field_names(module()) :: [atom()]

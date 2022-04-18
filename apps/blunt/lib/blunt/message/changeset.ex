@@ -36,17 +36,19 @@ defmodule Blunt.Message.Changeset do
   def changeset(%{__struct__: message}, values, opts) when is_list(values) or is_map(values),
     do: changeset(message, values, opts)
 
-  def changeset(message, values, opts) when is_list(values) or is_map(values) do
+  def changeset(message_module, values, opts) when is_list(values) or is_map(values) do
     values =
       values
-      |> Input.normalize(message)
-      |> autogenerate_fields(message)
-      |> message.before_validate()
+      |> Input.normalize(message_module)
+      |> set_defaults_for_required_fields(message_module)
+      |> autogenerate_fields(message_module)
+      |> message_module.before_validate()
 
-    required_fields = Metadata.field_names(message, :required)
+    required_fields = Metadata.field_names(message_module, :required)
 
-    embeds = message.__schema__(:embeds)
-    fields = message.__schema__(:fields)
+    embeds = message_module.__schema__(:embeds)
+
+    fields = message_module.__schema__(:fields)
 
     discarded_data =
       values
@@ -54,7 +56,7 @@ defmodule Blunt.Message.Changeset do
       |> Map.drop(Enum.map(embeds, &to_string/1))
 
     changeset =
-      message
+      message_module
       |> struct()
       |> Changeset.cast(values, fields -- embeds)
 
@@ -66,14 +68,28 @@ defmodule Blunt.Message.Changeset do
       embeds
       |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1, with: embed_changeset))
       |> Changeset.validate_required(required_fields)
-      |> run_field_validations(message)
-      |> run_built_in_validations(message)
-      |> message.handle_validate(opts)
+      |> run_field_validations(message_module)
+      |> run_built_in_validations(message_module)
+      |> message_module.handle_validate(opts)
 
     case type do
       :embed -> changeset
       :schema -> {changeset, discarded_data}
     end
+  end
+
+  defp set_defaults_for_required_fields(values, message_module) do
+    required_fields =
+      message_module
+      |> Metadata.fields(:required)
+      |> Enum.map(fn {name, _, opts} -> {to_string(name), Keyword.get(opts, :default)} end)
+      |> Enum.reject(&(elem(&1, 1) == nil))
+      |> Enum.into(%{})
+
+    Map.merge(values, required_fields, fn
+      _, nil, default_value -> default_value
+      _, incoming_value, _default_value -> incoming_value
+    end)
   end
 
   defp run_field_validations(changeset, message) do

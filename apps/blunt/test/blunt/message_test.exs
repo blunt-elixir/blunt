@@ -58,4 +58,16 @@ defmodule Blunt.MessageTest do
       assert {:ok, %FieldOptions{gender: :m, name: "chris", dog: "maize"}} = FieldOptions.new(name: "chris", gender: :m)
     end
   end
+
+  describe "required fields with defaults" do
+    defmodule ReqFieldWithDefaultMessage do
+      use Blunt.Message
+
+      field :validate, :boolean, default: false, required: true
+    end
+
+    test "will be set to default value if value passed is nil" do
+      assert {:ok, %{validate: false}} = ReqFieldWithDefaultMessage.new(validate: nil)
+    end
+  end
 end

@@ -185,4 +185,16 @@ defmodule Blunt.CommandTest do
       assert_receive {:multi, ^multi}
     end
   end
+
+  describe "required fields with defaults" do
+    defmodule ReqFieldWithDefaultMessage do
+      use Blunt.Command
+
+      field :validate, :boolean, default: false
+    end
+
+    test "will be set to default value if value passed is nil" do
+      assert {:ok, %{validate: false}} = ReqFieldWithDefaultMessage.new(validate: nil)
+    end
+  end
 end

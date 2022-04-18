@@ -5,16 +5,6 @@ defmodule Blunt.Absinthe.AbsintheErrors do
 
   @type context :: Blunt.DispatchContext.t()
 
-  def format(errors) when is_map(errors) do
-    Enum.map(errors, fn
-      {key, messages} when is_list(messages) or is_map(messages) ->
-        Enum.flat_map(messages, fn message -> [message: "#{key} #{message}"] end)
-
-      {key, message} when is_binary(message) ->
-        [message: "#{key} #{message}"]
-    end)
-  end
-
   @spec from_dispatch_context(context()) :: list
 
   def from_dispatch_context(%{id: dispatch_id} = context) do
@@ -24,13 +14,21 @@ defmodule Blunt.Absinthe.AbsintheErrors do
         [message: error, dispatch_id: dispatch_id]
 
       errors when is_map(errors) ->
-        Enum.map(errors, fn
-          {key, messages} when is_list(messages) or is_map(messages) ->
-            Enum.flat_map(messages, fn message -> [message: "#{key} #{message}", dispatch_id: dispatch_id] end)
-
-          {key, message} when is_binary(message) ->
-            [message: "#{key} #{message}", dispatch_id: dispatch_id]
-        end)
+        format(errors, dispatch_id: dispatch_id)
     end
+  end
+
+  def format(errors, extra_properties \\ []) when is_map(errors) do
+    Enum.reduce(errors, [], fn
+      {:generic, messages}, acc when is_list(messages) or is_map(messages) ->
+        Enum.map(messages, fn message -> [message: message] end) ++ acc
+
+      {key, messages}, acc when is_list(messages) or is_map(messages) ->
+        Enum.map(messages, fn message -> [message: "#{key} #{message}"] end) ++ acc
+
+      {key, message}, acc when is_binary(message) ->
+        [[message: "#{key} #{message}"] | acc]
+    end)
+    |> Enum.map(&Keyword.merge(&1, extra_properties))
   end
 end

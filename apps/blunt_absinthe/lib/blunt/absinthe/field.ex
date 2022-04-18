@@ -100,6 +100,9 @@ defmodule Blunt.Absinthe.Field do
     :ok = Log.dump()
 
     case results do
+      {:error, errors} when is_map(errors) ->
+        {:error, AbsintheErrors.format(errors)}
+
       {:error, %Context{} = context} ->
         return_value = {:error, AbsintheErrors.from_dispatch_context(context)}
 
@@ -117,9 +120,6 @@ defmodule Blunt.Absinthe.Field do
         |> Context.Shipper.ship()
 
         return_value
-
-      {:error, errors} when is_map(errors) ->
-        {:error, AbsintheErrors.format(errors)}
 
       other ->
         other

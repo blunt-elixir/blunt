@@ -5,6 +5,16 @@ defmodule Blunt.Absinthe.AbsintheErrors do
 
   @type context :: Blunt.DispatchContext.t()
 
+  def format(errors) when is_map(errors) do
+    Enum.map(errors, fn
+      {key, messages} when is_list(messages) or is_map(messages) ->
+        Enum.flat_map(messages, fn message -> [message: "#{key} #{message}"] end)
+
+      {key, message} when is_binary(message) ->
+        [message: "#{key} #{message}"]
+    end)
+  end
+
   @spec from_dispatch_context(context()) :: list
 
   def from_dispatch_context(%{id: dispatch_id} = context) do
@@ -16,7 +26,7 @@ defmodule Blunt.Absinthe.AbsintheErrors do
       errors when is_map(errors) ->
         Enum.map(errors, fn
           {key, messages} when is_list(messages) or is_map(messages) ->
-            Enum.map(messages, fn message -> [message: "#{key} #{message}", dispatch_id: dispatch_id] end)
+            Enum.flat_map(messages, fn message -> [message: "#{key} #{message}", dispatch_id: dispatch_id] end)
 
           {key, message} when is_binary(message) ->
             [message: "#{key} #{message}", dispatch_id: dispatch_id]

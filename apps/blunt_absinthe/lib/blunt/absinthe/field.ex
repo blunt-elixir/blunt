@@ -118,6 +118,9 @@ defmodule Blunt.Absinthe.Field do
 
         return_value
 
+      {:error, errors} when is_map(errors) ->
+        {:error, AbsintheErrors.format(errors)}
+
       other ->
         other
     end

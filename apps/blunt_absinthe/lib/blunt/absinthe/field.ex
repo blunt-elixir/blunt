@@ -92,6 +92,7 @@ defmodule Blunt.Absinthe.Field do
 
     results =
       args
+      |> Map.get(:input, args)
       |> Args.resolve_message_input({message_module, parent, query_opts})
       |> message_module.new()
       |> message_module.dispatch(opts)

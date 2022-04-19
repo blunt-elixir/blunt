@@ -79,9 +79,9 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
       {:ok, %Context{} = context} ->
         query = Context.get_last_pipeline(context)
 
-        repo_fun = fn args ->
+        repo_fun = fn query ->
           fun = Keyword.get(query_opts, :repo_fun, :all)
-          apply(repo, fun, [args])
+          apply(repo, fun, [query])
         end
 
         case Connection.from_query(query, repo_fun, args) do

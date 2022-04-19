@@ -1,5 +1,6 @@
 defmodule Blunt.Absinthe.Field do
   @moduledoc false
+  alias Blunt.Message.Metadata
   alias Blunt.DispatchContext, as: Context
   alias Blunt.Absinthe.{AbsintheErrors, Args, Field, Log, Middleware}
   alias Blunt.Absinthe.DispatchContext.Configuration, as: DispatchContextConfiguration
@@ -85,6 +86,8 @@ defmodule Blunt.Absinthe.Field do
   def dispatch_and_resolve(operation, message_module, query_opts, parent, args, resolution) do
     context_configuration = DispatchContextConfiguration.configure(message_module, resolution)
 
+    args = Map.get(args, :input, args)
+
     opts =
       query_opts
       |> put_dispatch_opts(operation, args)
@@ -92,17 +95,13 @@ defmodule Blunt.Absinthe.Field do
 
     results =
       args
-      |> Map.get(:input, args)
       |> Args.resolve_message_input({message_module, parent, query_opts})
-      |> message_module.new()
+      |> create_message(message_module)
       |> message_module.dispatch(opts)
 
     :ok = Log.dump()
 
     case results do
-      {:error, errors} when is_map(errors) ->
-        {:error, AbsintheErrors.format(errors)}
-
       {:error, %Context{} = context} ->
         return_value = {:error, AbsintheErrors.from_dispatch_context(context)}
 
@@ -111,6 +110,9 @@ defmodule Blunt.Absinthe.Field do
         |> Context.Shipper.ship()
 
         return_value
+
+      {:error, errors} when is_map(errors) ->
+        {:error, AbsintheErrors.format(errors)}
 
       {:ok, %Context{} = context} ->
         return_value = {:ok, Context.get_last_pipeline(context)}
@@ -126,11 +128,20 @@ defmodule Blunt.Absinthe.Field do
     end
   end
 
+  defp create_message(input_data, message_module) do
+    case Metadata.fields(message_module) do
+      [] -> message_module.new()
+      _fields -> message_module.new(input_data)
+    end
+  end
+
   def put_dispatch_opts(opts, operation, args) do
+    user_supplied_fields = args |> Map.keys() |> Enum.sort()
+
     opts
     |> Keyword.put(:ship, false)
     |> Keyword.put(:return, :context)
     |> Keyword.put(operation, true)
-    |> Keyword.put(:user_supplied_fields, Map.keys(args))
+    |> Keyword.put(:user_supplied_fields, user_supplied_fields)
   end
 end

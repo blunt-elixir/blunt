@@ -46,9 +46,26 @@ defmodule Blunt.Data.Factories.Values.Prop do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         value =
           case func.() do
-            {:ok, result} -> result
-            {:error, error} -> raise FactoryError, reason: error, factory: current_factory
-            result -> result
+            {:ok, result} ->
+              result
+
+            {:error, error} ->
+              raise FactoryError, reason: error, factory: current_factory
+
+            results when is_list(results) ->
+              Enum.map(results, fn
+                {:ok, result} ->
+                  result
+
+                {:error, error} ->
+                  raise FactoryError, reason: error, factory: current_factory
+
+                other ->
+                  other
+              end)
+
+            result ->
+              result
           end
 
         value = Factory.log_value(current_factory, value, field, lazy, "prop")
@@ -63,9 +80,26 @@ defmodule Blunt.Data.Factories.Values.Prop do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         value =
           case func.(acc) do
-            {:ok, result} -> result
-            {:error, error} -> raise FactoryError, reason: error, factory: current_factory
-            result -> result
+            {:ok, result} ->
+              result
+
+            {:error, error} ->
+              raise FactoryError, reason: error, factory: current_factory
+
+            results when is_list(results) ->
+              Enum.map(results, fn
+                {:ok, result} ->
+                  result
+
+                {:error, error} ->
+                  raise FactoryError, reason: error, factory: current_factory
+
+                other ->
+                  other
+              end)
+
+            result ->
+              result
           end
 
         value = Factory.log_value(current_factory, value, field, lazy, "prop")

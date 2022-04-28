@@ -39,6 +39,7 @@ defmodule Blunt.DispatchContext do
   @spec new(message :: struct(), keyword) :: {:error, t} | {:ok, t}
   def new(%{__struct__: message_module} = message, opts) do
     message_type = Metadata.message_type(message_module)
+    {discarded_data, message} = Map.pop(message, :discarded_data, %{})
 
     context = %__MODULE__{
       id: UUID.uuid4(),
@@ -46,7 +47,7 @@ defmodule Blunt.DispatchContext do
       message: message,
       message_type: message_type,
       message_module: message_module,
-      discarded_data: Map.get(message, :discarded_data, %{}),
+      discarded_data: discarded_data,
       created_at: DateTime.utc_now(),
       pid: self()
     }
@@ -98,6 +99,9 @@ defmodule Blunt.DispatchContext do
         {:error, put_pipeline(context, :read_opts, {:error, errors})}
     end
   end
+
+  @spec discarded_data(t) :: map()
+  def discarded_data(%{discarded_data: data}), do: data
 
   @spec async?(t) :: boolean()
   def async?(%__MODULE__{async: async}), do: async

@@ -30,7 +30,7 @@ defmodule Blunt.Data.Factories.Factory do
     opts: []
   ]
 
-  alias Blunt.Data.Factories.{Builder, Value, Values}
+  alias Blunt.Data.Factories.{Builder, InputConfiguration, Value, Values}
 
   def build(%__MODULE__{} = factory) do
     %{final_message: final_message} =
@@ -63,15 +63,16 @@ defmodule Blunt.Data.Factories.Factory do
     end
   end
 
-  defp build_final_message(
-         %{
-           data: data,
-           message: message,
-           operation: operation,
-           active_builder: builder,
-           factory_module: factory_module
-         } = factory
-       ) do
+  defp build_final_message(factory) do
+    %{
+      data: data,
+      values: values,
+      message: message,
+      operation: operation,
+      active_builder: builder,
+      factory_module: factory_module
+    } = factory
+
     final_message =
       case builder.build(message, data) do
         {:ok, final_message} -> final_message
@@ -93,6 +94,16 @@ defmodule Blunt.Data.Factories.Factory do
           end
       end
 
+    final_message =
+      case message do
+        Map ->
+          declared_props = Enum.flat_map(values, &Value.declared_props/1)
+          Map.take(final_message, declared_props)
+
+        _other ->
+          final_message
+      end
+
     %{factory | final_message: final_message}
   end
 
@@ -112,11 +123,11 @@ defmodule Blunt.Data.Factories.Factory do
     %{
       factory
       | name: name,
-        message_name: message_name,
-        input: input,
-        data: data || %{},
         opts: opts,
-        values: defaults ++ values
+        data: data || %{},
+        message_name: message_name,
+        values: defaults ++ values,
+        input: InputConfiguration.configure(input)
     }
   end
 

@@ -63,16 +63,15 @@ defmodule Blunt.Data.Factories.Factory do
     end
   end
 
-  defp build_final_message(factory) do
-    %{
-      data: data,
-      values: values,
-      message: message,
-      operation: operation,
-      active_builder: builder,
-      factory_module: factory_module
-    } = factory
-
+  defp build_final_message(
+         %{
+           data: data,
+           message: message,
+           operation: operation,
+           active_builder: builder,
+           factory_module: factory_module
+         } = factory
+       ) do
     final_message =
       case builder.build(message, data) do
         {:ok, final_message} -> final_message
@@ -92,16 +91,6 @@ defmodule Blunt.Data.Factories.Factory do
             {:ok, result} -> result
             other -> other
           end
-      end
-
-    final_message =
-      case message do
-        Map ->
-          declared_props = Enum.flat_map(values, &Value.declared_props/1)
-          Map.take(final_message, declared_props)
-
-        _other ->
-          final_message
       end
 
     %{factory | final_message: final_message}

@@ -12,7 +12,7 @@ defmodule Blunt.Absinthe.Test.SchemaTypes do
     field :gender, :gender
   end
 
-  derive_object(Dog, :dog)
+  derive_object(:dog, Dog)
 
   object :person_queries do
     derive_query GetPerson, :person,

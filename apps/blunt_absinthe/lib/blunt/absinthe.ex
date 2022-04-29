@@ -18,7 +18,7 @@ defmodule Blunt.Absinthe do
     end
   end
 
-  defmacro derive_object(message_module, object_name, opts \\ []) do
+  defmacro derive_object(object_name, message_module, opts \\ []) do
     object = quote do: Object.generate_object(unquote(message_module), unquote(object_name), unquote(opts))
     Module.eval_quoted(__CALLER__, object)
   end

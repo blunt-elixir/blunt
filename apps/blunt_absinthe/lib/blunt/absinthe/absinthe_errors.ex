@@ -10,6 +10,9 @@ defmodule Blunt.Absinthe.AbsintheErrors do
   def from_dispatch_context(%{id: dispatch_id} = context) do
     # TODO: Use more info in context to supply useful errors
     case DispatchContext.errors(context) do
+      error when is_atom(error) ->
+        [message: to_string(error), dispatch_id: dispatch_id]
+
       error when is_binary(error) ->
         [message: error, dispatch_id: dispatch_id]
 

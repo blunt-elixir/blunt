@@ -132,7 +132,7 @@ defmodule Blunt.DispatchContext do
   @spec put_user(t, any()) :: t()
   def put_user(%__MODULE__{} = context, user), do: %{context | user: user}
 
-  @spec errors(t) :: map() | String.t()
+  @spec errors(t) :: map() | atom() | String.t()
   def errors(%__MODULE__{errors: [error]}), do: error
 
   def errors(%__MODULE__{errors: errors} = context) do

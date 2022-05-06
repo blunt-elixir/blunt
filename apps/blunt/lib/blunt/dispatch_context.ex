@@ -155,7 +155,10 @@ defmodule Blunt.DispatchContext do
 
   @spec internal_field_new(t, atom, any) :: t
   def internal_field_new(%{message: message} = context, field_name, value) do
-    %{context | message: Map.put_new(message, field_name, value)}
+    case Map.get(message, field_name) do
+      nil -> internal_field(context, field_name, value)
+      _ -> context
+    end
   end
 
   @spec internal_fields(t, map) :: t

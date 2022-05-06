@@ -28,16 +28,15 @@ defmodule Blunt.BoundedContextTest do
   end
 
   test "get_person_query returns the ecto query without executing it" do
-    assert {:ok, query} = UsersContext.get_person_query(%{id: UUID.uuid4()})
-    assert %Ecto.Query{from: %{source: {"people", Person}}} = query
+    assert %Ecto.Query{from: %{source: {"people", Person}}} = UsersContext.get_person_query(%{id: UUID.uuid4()})
   end
 
   test "passing other values to the return option have no effect on the return value" do
-    assert {:ok, query} = UsersContext.get_person_query(%{id: UUID.uuid4()}, return: :context)
-    assert %Ecto.Query{from: %{source: {"people", Person}}} = query
+    assert %Ecto.Query{from: %{source: {"people", Person}}} =
+             UsersContext.get_person_query(%{id: UUID.uuid4()}, return: :context)
 
-    assert {:ok, query} = UsersContext.get_person_query(%{id: UUID.uuid4()}, return: :response)
-    assert %Ecto.Query{from: %{source: {"people", Person}}} = query
+    assert %Ecto.Query{from: %{source: {"people", Person}}} =
+             UsersContext.get_person_query(%{id: UUID.uuid4()}, return: :response)
   end
 
   test "get_person returns the person" do

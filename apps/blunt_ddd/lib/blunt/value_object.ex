@@ -3,6 +3,8 @@ defmodule Blunt.ValueObject do
 
   defmacro __using__(opts) do
     quote do
+      use Blunt.ValueObject.Equality
+
       use Blunt.Message,
           [require_all_fields?: false]
           |> Keyword.merge(unquote(opts))

@@ -24,7 +24,7 @@ defmodule Blunt.DomainEventTest do
   end
 
   test "EventDerivedFromCommand has fields from CommandToTestDerivation" do
-    expected_fields = Metadata.field_names(CommandToTestDerivation)
+    expected_fields = Metadata.field_names(CommandToTestDerivation) -- [:discarded_data]
     actual_fields = Metadata.field_names(EventDerivedFromCommand)
 
     assert Enum.all?(expected_fields, &Enum.member?(actual_fields, &1))

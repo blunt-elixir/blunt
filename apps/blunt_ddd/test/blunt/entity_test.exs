@@ -33,6 +33,8 @@ defmodule Blunt.EntityTest do
       assert [2] == Entity1.__info__(:functions) |> Keyword.get_values(:equals?)
     end
 
+    import ExUnit.CaptureLog
+
     test "entities can only check equality of same entity types" do
       one = Entity1.new(id: UUID.uuid4())
       two = Entity2.new(ident: UUID.uuid4())
@@ -40,9 +42,7 @@ defmodule Blunt.EntityTest do
       error =
         "Blunt.EntityTestMessages.Protocol.Entity1.equals? requires two Blunt.EntityTestMessages.Protocol.Entity1 structs"
 
-      assert_raise Blunt.Entity.Error, error, fn ->
-        Entity1.equals?(one, two)
-      end
+      capture_log(fn -> refute Entity1.equals?(one, two) end) =~ error
     end
 
     test "identity works" do

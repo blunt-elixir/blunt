@@ -153,6 +153,11 @@ defmodule Blunt.DispatchContext do
     %{context | message: Map.put(message, field_name, value)}
   end
 
+  @spec internal_field_new(t, atom, any) :: t
+  def internal_field_new(%{message: message} = context, field_name, value) do
+    %{context | message: Map.put_new(message, field_name, value)}
+  end
+
   @spec internal_fields(t, map) :: t
   def internal_fields(%{message: message} = context, values) do
     %{context | message: Map.merge(message, values)}

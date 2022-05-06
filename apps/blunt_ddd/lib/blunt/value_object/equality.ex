@@ -8,8 +8,8 @@ defmodule Blunt.ValueObject.Equality do
     end
   end
 
-  def equals?(nil, _), do: false
-  def equals?(_, nil), do: false
+  def equals?(_module, nil, _), do: false
+  def equals?(_module, _, nil), do: false
 
   def equals?(module, %{__struct__: module} = left, %{__struct__: module} = right),
     do: Map.equal?(left, right)

@@ -41,6 +41,8 @@ defmodule Blunt.Entity.Identity do
     Map.fetch!(entity, field_name)
   end
 
+  def equals?(nil, _), do: false
+
   def equals?(module, %{__struct__: module} = left, %{__struct__: module} = right) do
     identity(module, left) == identity(module, right)
   end

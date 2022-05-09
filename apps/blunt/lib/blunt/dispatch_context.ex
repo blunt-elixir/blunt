@@ -71,7 +71,8 @@ defmodule Blunt.DispatchContext do
     {user, opts} = Keyword.pop(opts, :user)
     {async, opts} = Keyword.pop(opts, :async, false)
     {user_supplied_fields, opts} = Keyword.pop(opts, :user_supplied_fields, [])
-    {return, opts} = Keyword.pop(opts, :return, :response)
+
+    return = Keyword.get(opts, :return, :response)
 
     %{
       base_context

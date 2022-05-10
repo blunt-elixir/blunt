@@ -66,9 +66,9 @@ defmodule Blunt.DispatchStrategy do
   end
 
   defp translate_errors(context) do
-    case DispatchContext.get_return(context) do
+    case Config.error_return() do
       :context -> context
-      _ -> DispatchContext.errors(context)
+      :errors -> DispatchContext.errors(context)
     end
   end
 end

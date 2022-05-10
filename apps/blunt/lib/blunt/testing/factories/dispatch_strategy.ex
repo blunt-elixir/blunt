@@ -25,8 +25,11 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         |> Keyword.put(:user_supplied_fields, Metadata.field_names(module))
 
       case module.dispatch({:ok, message}, dispatch_opts) do
-        {:error, context} ->
+        {:error, %DispatchContext{} = context} ->
           {:error, DispatchContext.errors(context)}
+
+        {:error, errors} ->
+          {:error, errors}
 
         {:ok, %DispatchContext{} = context} ->
           case DispatchContext.get_last_pipeline(context) do

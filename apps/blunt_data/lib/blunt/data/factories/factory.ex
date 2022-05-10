@@ -101,7 +101,10 @@ defmodule Blunt.Data.Factories.Factory do
     message_name = message |> Module.split() |> List.last() |> to_string()
     opts = Keyword.merge(opts, name: name, message_name: message_name)
 
-    # put defaults at the front of the values.
+    # put input declarations at the top of all values.
+    {inputs, values} = Enum.split_with(values, &match?(%Values.Input{}, &1))
+
+    # put defaults declarations after input declarations
     {defaults, values} = Enum.split_with(values, &match?(%Values.Defaults{}, &1))
 
     # Allow turning on factory debug via input: %{debug_factory: true}
@@ -115,7 +118,7 @@ defmodule Blunt.Data.Factories.Factory do
         opts: opts,
         data: data || %{},
         message_name: message_name,
-        values: defaults ++ values,
+        values: inputs ++ defaults ++ values,
         input: InputConfiguration.configure(input)
     }
   end
@@ -131,13 +134,9 @@ defmodule Blunt.Data.Factories.Factory do
     debug(value, "#{type_prefix}#{type} #{field}", opts)
   end
 
-  defp debug(%{opts: opts, input: input} = factory, :self) do
+  defp debug(%{opts: opts} = factory, :self) do
     label = ANSI.format([:green, "build"])
     debug(factory, label, opts)
-
-    label = ANSI.format([:light_blue, "input"])
-    debug(input, label, opts)
-
     factory
   end
 
@@ -198,5 +197,9 @@ defmodule Blunt.Data.Factories.Factory do
       _ ->
         value
     end
+  end
+
+  def enable_debug(%__MODULE__{opts: opts} = factory) do
+    %{factory | opts: [{:debug, true} | opts]}
   end
 end

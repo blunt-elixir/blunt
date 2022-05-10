@@ -142,4 +142,28 @@ defmodule Blunt.Data.Factories.Values do
       %Values.RemoveProp{fields: unquote(fields)}
     end
   end
+
+  defmacro input(props) when is_list(props) do
+    quote do
+      %Values.Input{props: unquote(props)}
+    end
+  end
+
+  defmacro inspect_props(:declared) do
+    quote do
+      %Values.InspectProps{props: :declared}
+    end
+  end
+
+  defmacro inspect_props(props) when is_list(props) do
+    quote do
+      %Values.InspectProps{props: unquote(props)}
+    end
+  end
+
+  defmacro inspect_props do
+    quote do
+      %Values.InspectProps{props: :all}
+    end
+  end
 end

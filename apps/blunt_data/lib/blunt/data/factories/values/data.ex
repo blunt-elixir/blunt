@@ -28,7 +28,6 @@ defmodule Blunt.Data.Factories.Values.Data do
           |> Map.put(:operation, operation)
           |> Map.put(:name, current_factory.name)
           |> Map.put(:builders, current_factory.builders)
-          |> Map.put(:fake_provider, current_factory.fake_provider)
           |> Map.put(:factory_module, current_factory.factory_module)
 
         value =

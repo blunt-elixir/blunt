@@ -20,7 +20,6 @@ defmodule Blunt.Data.Factories.Factory do
     :fields,
     :field_validations,
     :active_builder,
-    :fake_provider,
     :factory_module,
     operation: :build,
     input: %{},

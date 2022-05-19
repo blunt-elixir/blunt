@@ -1,7 +1,7 @@
 if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
   defmodule Blunt.Data.Factories do
     alias Blunt.Behaviour
-    alias Blunt.Data.Factories.{Builder, Factory, FakeProvider}
+    alias Blunt.Data.Factories.{Builder, Factory}
     alias Blunt.Data.Factories.Builder.{EctoSchemaBuilder, StructBuilder, MapBuilder}
 
     defmacro __using__(_opts) do
@@ -17,10 +17,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         import Blunt.Data.Factories, only: :macros
         import Blunt.Data.Factories.Values, only: :macros
 
-        Module.register_attribute(__MODULE__, :fake_provider, [])
-
-        Module.put_attribute(__MODULE__, :fake_provider, FakeProvider.Default)
-
         Module.register_attribute(__MODULE__, :builders, accumulate: true)
 
         Module.put_attribute(__MODULE__, :builders, MapBuilder)
@@ -33,21 +29,11 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       module
       |> Module.get_attribute(:builders)
       |> Enum.each(&Behaviour.validate!(&1, Builder))
-
-      module
-      |> Module.get_attribute(:fake_provider)
-      |> Behaviour.validate!(FakeProvider)
     end
 
     defmacro builder(module) do
       quote do
         @builders unquote(module)
-      end
-    end
-
-    defmacro fake_provider(module) do
-      quote do
-        @fake_provider unquote(module)
       end
     end
 
@@ -85,7 +71,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
 
       quote do
         @active_builders Module.get_attribute(__MODULE__, :builders)
-        @active_fake_provider Module.get_attribute(__MODULE__, :fake_provider)
 
         def unquote(name)(input) do
           factory = %Factory{
@@ -96,8 +81,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
             message: unquote(message),
             operation: :build,
             factory_module: __MODULE__,
-            builders: @active_builders,
-            fake_provider: @active_fake_provider
+            builders: @active_builders
           }
 
           Factory.build(factory)

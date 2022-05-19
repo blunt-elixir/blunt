@@ -13,7 +13,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
           use ExMachina
         end
 
-        fake_provider Blunt.Testing.Factories.FakeProvider
         builder Blunt.Testing.Factories.Builder.BluntMessageBuilder
       end
     end

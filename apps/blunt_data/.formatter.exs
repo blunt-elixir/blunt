@@ -2,7 +2,6 @@
 locals_without_parens = [
   # blunt data factories macros
   builder: 1,
-  fake_provider: 1,
   factory: 1,
   factory: 2,
   factory: 3,

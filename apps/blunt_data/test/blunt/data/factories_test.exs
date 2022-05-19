@@ -1,6 +1,7 @@
 defmodule Blunt.Data.FactoriesTest do
-  use ExUnit.Case, async: true
+  use ExMachina
   use Blunt.Data.Factories
+  use ExUnit.Case, async: true
 
   defmodule CreatePerson do
     defstruct [:id, :name]
@@ -31,12 +32,6 @@ defmodule Blunt.Data.FactoriesTest do
       id = UUID.uuid4()
       assert %PlainMessage{name: "chris", id: id} = build(:plain_message, id: id, name: "chris")
       assert {:ok, _} = UUID.info(id)
-    end
-
-    test "build without data will generate fake data" do
-      assert %PlainMessage{id: id, name: name} = build(:plain_message)
-      assert {:ok, _} = UUID.info(id)
-      refute name == nil
     end
   end
 

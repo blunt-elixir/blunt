@@ -4,16 +4,6 @@ defmodule Blunt.Message.Schema.Fields do
   alias Blunt.Message.Schema.FieldDefinition
 
   def record(name, type, opts \\ []) do
-    {type, opts} =
-      case type do
-        {:array, type} ->
-          {type, opts} = FieldDefinition.find_field_definition(type, opts)
-          {{:array, type}, opts}
-
-        type ->
-          FieldDefinition.find_field_definition(type, opts)
-      end
-
     quote bind_quoted: [name: name, type: type, opts: opts] do
       internal = Keyword.get(opts, :internal, false)
       required = internal == false and Keyword.get(opts, :required, @require_all_fields?)
@@ -31,6 +21,16 @@ defmodule Blunt.Message.Schema.Fields do
       if required do
         @required_fields name
       end
+
+      {type, opts} =
+        case type do
+          {:array, type} ->
+            {type, opts} = FieldDefinition.find_field_definition(type, opts)
+            {{:array, type}, opts}
+
+          type ->
+            FieldDefinition.find_field_definition(type, opts)
+        end
 
       @schema_fields {name, type, opts}
     end

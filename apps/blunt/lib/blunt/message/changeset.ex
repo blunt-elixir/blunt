@@ -3,8 +3,8 @@ defmodule Blunt.Message.Changeset do
 
   alias Ecto.Changeset
   alias Blunt.Message.{Input, Metadata}
+  alias Blunt.Message.Schema.BuiltInValidations
   alias Blunt.Message.Changeset, as: MessageChangeset
-  alias Blunt.Message.Schema.{BuiltInValidations, FieldProvider}
 
   def generate do
     quote location: :keep, generated: true do
@@ -67,7 +67,6 @@ defmodule Blunt.Message.Changeset do
       embeds
       |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1, with: embed_changeset))
       |> Changeset.validate_required(required_fields)
-      |> run_field_validations(message_module)
       |> run_built_in_validations(message_module)
       |> message_module.handle_validate(opts)
 
@@ -89,12 +88,6 @@ defmodule Blunt.Message.Changeset do
       _, nil, default_value -> default_value
       _, incoming_value, _default_value -> incoming_value
     end)
-  end
-
-  defp run_field_validations(changeset, message) do
-    message
-    |> Metadata.field_validations()
-    |> Enum.reduce(changeset, &FieldProvider.validate_field(&1, &2, message))
   end
 
   defp run_built_in_validations(changeset, message) do

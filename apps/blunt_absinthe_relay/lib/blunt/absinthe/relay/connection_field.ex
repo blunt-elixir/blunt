@@ -106,6 +106,8 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
             {:error, error}
         end
     end
+  rescue
+    e -> {:error, e}
   end
 
   defp drop_connection_args(args),

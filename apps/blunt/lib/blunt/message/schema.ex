@@ -65,6 +65,15 @@ defmodule Blunt.Message.Schema do
       @primary_key false
       embedded_schema do
         Enum.map(schema_fields, fn
+          {name, :binary_id, opts} ->
+            Ecto.Schema.field(name, Ecto.UUID, opts)
+
+          {name, :enum, opts} ->
+            Ecto.Schema.field(name, Ecto.Enum, opts)
+
+          {name, {:array, :enum}, opts} ->
+            Ecto.Schema.field(name, {:array, Ecto.Enum}, opts)
+
           {name, {:array, type}, opts} ->
             if Fields.embedded?(type),
               do: Ecto.Schema.embeds_many(name, type),

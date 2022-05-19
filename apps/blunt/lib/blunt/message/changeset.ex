@@ -44,11 +44,10 @@ defmodule Blunt.Message.Changeset do
       |> autogenerate_fields(message_module)
       |> message_module.before_validate()
 
+    fields = Metadata.field_names(message_module)
     required_fields = Metadata.field_names(message_module, :required)
 
     embeds = message_module.__schema__(:embeds)
-
-    fields = message_module.__schema__(:fields)
 
     discarded_data =
       values

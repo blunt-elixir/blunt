@@ -197,4 +197,21 @@ defmodule Blunt.CommandTest do
       assert {:ok, %{validate: false}} = ReqFieldWithDefaultMessage.new(validate: nil)
     end
   end
+
+  describe "fields of type :any" do
+    defmodule CommandWithFieldOfTypeAny do
+      use Blunt.Command
+
+      field :name, :atom
+      field :id, :any
+      field :pet, {:array, :enum}, values: [:dog, :cat], default: [:dog]
+    end
+
+    test "can pass any value as id" do
+      assert {:ok, %{id: 123, name: :chris}} = CommandWithFieldOfTypeAny.new(id: 123, name: :chris)
+
+      assert {:ok, %{id: "12167f6b-ed68-4d94-b793-811bcb12d260", name: :chris}} =
+               CommandWithFieldOfTypeAny.new(id: "12167f6b-ed68-4d94-b793-811bcb12d260", name: :chris)
+    end
+  end
 end

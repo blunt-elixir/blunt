@@ -6,8 +6,6 @@ defmodule Blunt.Message.Schema.FieldDefinition do
 
   @callback define(custom_type, opts :: keyword()) :: {ecto_type, opts :: keyword()}
 
-  @callback fake(custom_type) :: any()
-
   defmacro __using__(_opts) do
     quote do
       @behaviour unquote(__MODULE__)

@@ -17,10 +17,6 @@ config :blunt,
   dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration,
   schema_field_definitions: [
     Blunt.Test.FieldTypes.EmailField
-  ],
-  schema_field_providers: [
-    Blunt.Test.FieldTypes.EmailField,
-    Blunt.Test.FieldTypes.UuidField
   ]
 
 config :blunt_absinthe,

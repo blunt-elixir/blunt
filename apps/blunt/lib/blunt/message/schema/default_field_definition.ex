@@ -1,5 +1,5 @@
 defmodule Blunt.Message.Schema.DefaultFieldDefinition do
-  @behaviour Blunt.Message.Schema.FieldDefinition
+  use Blunt.Message.Schema.FieldDefinition
 
   alias Blunt.Message.Type.{Atom, Pid}
 
@@ -7,5 +7,4 @@ defmodule Blunt.Message.Schema.DefaultFieldDefinition do
   def define(:pid, opts), do: {Pid, opts}
   def define(:enum, opts), do: {Ecto.Enum, opts}
   def define(:binary_id, opts), do: {Ecto.UUID, opts}
-  def define(type, opts), do: {type, opts}
 end

@@ -214,4 +214,17 @@ defmodule Blunt.CommandTest do
                CommandWithFieldOfTypeAny.new(id: "12167f6b-ed68-4d94-b793-811bcb12d260", name: :chris)
     end
   end
+
+  describe "enum field with modules as values" do
+    defmodule CommandWithModuleEnumField do
+      use Blunt.Command
+
+      field :event, :enum, values: [My.Domain.Event1, My.Domain.Event2, My.Domain.Event3]
+    end
+
+    test "works" do
+      assert {:ok, %{event: My.Domain.Event2}} = CommandWithModuleEnumField.new(event: My.Domain.Event2)
+      assert {:error, %{event: ["is invalid"]}} = CommandWithModuleEnumField.new(event: My.Domain.Event5)
+    end
+  end
 end

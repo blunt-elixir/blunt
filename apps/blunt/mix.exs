@@ -49,7 +49,7 @@ defmodule Blunt.MixProject do
     blunt(env) ++
       [
         {:jason, "~> 1.3"},
-        {:ecto, "~> 3.7"},
+        {:ecto, "~> 3.7 or ~> 3.8"},
         {:decimal, "~> 1.6 or ~> 2.0"},
 
         # Optional deps.

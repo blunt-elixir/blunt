@@ -43,7 +43,7 @@ defmodule Blunt.Message.Schema do
   end
 
   def generate(%{module: module}) do
-    schema_fields = Module.get_attribute(module, :schema_fields)
+    schema_fields = Module.get_attribute(module, :schema_fields) |> clean_field_opts()
     json_fields = Fields.field_names(schema_fields) -- Fields.virtual_field_names(schema_fields)
     jason_encoder? = Module.get_attribute(module, :create_jason_encoders?) and Code.ensure_loaded?(Jason)
 
@@ -89,5 +89,26 @@ defmodule Blunt.Message.Schema do
       @metadata built_in_validations: @built_in_validations
       @metadata field_validations: @schema_field_validations
     end
+  end
+
+  defp clean_field_opts(fields) when is_list(fields) do
+    Enum.map(fields, &clean_field_opts/1)
+  end
+
+  defp clean_field_opts({name, type, opts}) do
+    opts =
+      Keyword.take(opts, [
+        :default,
+        :source,
+        :autogenerate,
+        :virtual,
+        :values,
+        :primary_key,
+        :redact,
+        :defaults,
+        :type
+      ])
+
+    {name, type, opts}
   end
 end

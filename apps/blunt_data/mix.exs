@@ -33,7 +33,7 @@ defmodule BluntData.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, "~> 3.7"},
+      {:ecto, "~> 3.7 or ~> 3.8"},
       # Optional deps.
       {:faker, "~> 0.17.0", optional: true},
       {:ex_machina, "~> 2.7", optional: true},

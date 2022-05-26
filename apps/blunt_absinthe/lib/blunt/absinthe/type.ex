@@ -35,6 +35,7 @@ defmodule Blunt.Absinthe.Type do
   end
 
   def from_message_field(_message_module, {_name, :binary_id, _field_opts}, _opts), do: quote(do: :id)
+  def from_message_field(_message_module, {_name, Ecto.UUID, _field_opts}, _opts), do: quote(do: :id)
   def from_message_field(_message_module, {_name, :utc_datetime, _field_opts}, _opts), do: quote(do: :datetime)
 
   def from_message_field(_message_module, {name, type, _field_opts}, opts) do

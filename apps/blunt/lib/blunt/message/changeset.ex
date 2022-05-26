@@ -37,15 +37,18 @@ defmodule Blunt.Message.Changeset do
     do: changeset(message, values, opts)
 
   def changeset(message_module, values, opts) when is_list(values) or is_map(values) do
+    fields = Metadata.field_names(message_module)
+    required_fields = Metadata.field_names(message_module, :required)
+    static_fields = Metadata.field_names(message_module, :static) |> Enum.map(&to_string/1)
+
     values =
       values
       |> Input.normalize(message_module)
       |> set_defaults_for_required_fields(message_module)
       |> autogenerate_fields(message_module)
       |> message_module.before_validate()
-
-    fields = Metadata.field_names(message_module)
-    required_fields = Metadata.field_names(message_module, :required)
+      |> Enum.reject(fn {name, _value} -> name in static_fields end)
+      |> Enum.into(%{})
 
     embeds = message_module.__schema__(:embeds)
 

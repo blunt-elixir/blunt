@@ -70,4 +70,17 @@ defmodule Blunt.MessageTest do
       assert {:ok, %{validate: false}} = ReqFieldWithDefaultMessage.new(validate: nil)
     end
   end
+
+  describe "static fields" do
+    defmodule MessageWithStaticField do
+      use Blunt.Message
+
+      static_field(:name, :string, default: "chris")
+    end
+
+    test "are unsettable" do
+      assert {:ok, %{name: "chris"}} = MessageWithStaticField.new(name: "flkajds")
+      assert {:ok, %{name: "chris"}} = MessageWithStaticField.new()
+    end
+  end
 end

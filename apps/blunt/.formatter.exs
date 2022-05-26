@@ -4,6 +4,8 @@ locals_without_parens = [
   field: 3,
   internal_field: 2,
   internal_field: 3,
+  static_field: 2,
+  static_field: 3,
   option: 2,
   option: 3,
   command: 1,

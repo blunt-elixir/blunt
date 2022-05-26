@@ -72,7 +72,7 @@ defmodule Blunt.Message.Metadata do
     get(module, :message_schema, [])
   end
 
-  @type field_type :: :public | :required | :virtual
+  @type field_type :: :public | :required | :virtual | :static
   @spec fields(module(), field_type()) :: [field()]
 
   def fields(module, :public) do
@@ -93,6 +93,12 @@ defmodule Blunt.Message.Metadata do
     |> Enum.filter(fn {_name, _type, opts} -> Keyword.get(opts, :virtual) == true end)
   end
 
+  def fields(module, :static) do
+    module
+    |> fields()
+    |> Enum.filter(fn {_name, _type, opts} -> Keyword.get(opts, :static) == true end)
+  end
+
   @spec field_names(module()) :: [atom()]
 
   def field_names(module) do
@@ -103,7 +109,7 @@ defmodule Blunt.Message.Metadata do
   end
 
   @spec field_names(module(), field_type()) :: [atom()]
-  def field_names(module, type) when type in [:public, :required, :virtual] do
+  def field_names(module, type) when type in [:public, :required, :virtual, :static] do
     module
     |> fields(type)
     |> Enum.map(&elem(&1, 0))

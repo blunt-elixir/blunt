@@ -128,6 +128,16 @@ defmodule Blunt.Message do
     Fields.record(name, type, opts)
   end
 
+  @spec static_field(name :: atom(), type :: atom(), keyword()) :: any()
+  defmacro static_field(name, type, opts \\ []) do
+    opts =
+      opts
+      |> Keyword.put(:static, true)
+      |> Keyword.put(:required, false)
+
+    Fields.record(name, type, opts)
+  end
+
   def dispatchable?(%{__struct__: module}),
     do: dispatchable?(module)
 

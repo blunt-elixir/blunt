@@ -110,6 +110,9 @@ defmodule Blunt.DispatchContext do
   @spec get_message(t()) :: struct() | any()
   def get_message(%__MODULE__{message: message}), do: message
 
+  @spec get_message_module(t()) :: atom()
+  def get_message_module(%__MODULE__{message_module: message_module}), do: message_module
+
   @spec options(t) :: keyword()
   def options(%__MODULE__{opts: opts}), do: opts
 

@@ -15,7 +15,7 @@ defmodule Blunt.DispatchContextTest do
       def handle_dispatch(_command, _context), do: :ok
     end
 
-    test "is removed from command and placed in context" do
+    test "is reset in command and placed in context" do
       {:ok, context} =
         %{name: "chris", dog: "maize"}
         |> DiscardedDataCommand.new()
@@ -23,7 +23,7 @@ defmodule Blunt.DispatchContextTest do
 
       assert %{"dog" => "maize"} = DispatchContext.discarded_data(context)
       assert command = DispatchContext.get_message(context)
-      refute Map.has_key?(command, :discarded_data)
+      assert command.discarded_data == %{}
     end
   end
 end

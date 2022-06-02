@@ -48,10 +48,7 @@ defmodule Blunt.DomainEvent do
   end
 
   defmacro __before_compile__(env) do
-    user_defined_code = Config.domain_event_compile_hook(env)
-
     quote do
-      unquote(user_defined_code)
       require Constructor
       Constructor.generate(return_type: :struct)
     end

@@ -43,6 +43,7 @@ defmodule Blunt.Message do
   defmacro __using__(opts \\ []) do
     quote bind_quoted: [opts: opts] do
       use Blunt.Message.Compilation
+      use Blunt.Message.CompilerHooks, opts
 
       require Blunt.Message.{
         Constructor,

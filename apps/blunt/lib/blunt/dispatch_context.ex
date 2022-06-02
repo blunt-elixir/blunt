@@ -39,7 +39,8 @@ defmodule Blunt.DispatchContext do
   @spec new(message :: struct(), keyword) :: {:error, t} | {:ok, t}
   def new(%{__struct__: message_module} = message, opts) do
     message_type = Metadata.message_type(message_module)
-    {discarded_data, message} = Map.pop(message, :discarded_data, %{})
+
+    {discarded_data, message} = Map.get_and_update(message, :discarded_data, fn data -> {data, %{}} end)
 
     context = %__MODULE__{
       id: UUID.uuid4(),

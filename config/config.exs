@@ -17,6 +17,13 @@ config :blunt,
   dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration,
   schema_field_definitions: [
     Blunt.Test.FieldTypes.EmailField
+  ],
+  compiler_hooks: [
+    command: [],
+    query: [],
+    domain_event: [],
+    value_object: [],
+    entity: []
   ]
 
 config :blunt_absinthe,

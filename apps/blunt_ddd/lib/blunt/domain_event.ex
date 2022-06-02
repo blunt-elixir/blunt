@@ -47,7 +47,7 @@ defmodule Blunt.DomainEvent do
     end
   end
 
-  defmacro __before_compile__(env) do
+  defmacro __before_compile__(_env) do
     quote do
       require Constructor
       Constructor.generate(return_type: :struct)

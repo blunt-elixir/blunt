@@ -40,7 +40,7 @@ defmodule Blunt.Message.Constructor do
     quote do
       @type input :: map() | struct() | keyword()
 
-      @spec unquote(name)(input, input, keyword) :: {:ok, struct()} | {:error, any()}
+      @spec unquote(name)(input, input, keyword) :: {:ok, t()} | {:error, any()}
       @doc unquote(docs)
       def unquote(name)(values, overrides \\ [], opts \\ []) when (is_list(values) or is_map(values)) and is_list(opts),
         do: Constructor.apply(__MODULE__, values, overrides, opts)
@@ -51,7 +51,7 @@ defmodule Blunt.Message.Constructor do
     quote do
       @type input :: map() | struct() | keyword()
 
-      @spec unquote(name)(input, input, keyword) :: {:ok, struct()} | {:error, any()}
+      @spec unquote(name)(input, input, keyword) :: {:ok, t()} | {:error, any()}
       @doc unquote(docs)
       def unquote(name)(values \\ %{}, overrides \\ [], opts \\ [])
           when (is_list(values) or is_map(values)) and is_list(opts),
@@ -61,7 +61,7 @@ defmodule Blunt.Message.Constructor do
 
   def do_generate(%{name: name, docs: docs}) do
     quote do
-      @spec unquote(name)(keyword) :: {:ok, struct()} | {:error, any()}
+      @spec unquote(name)(keyword) :: {:ok, t()} | {:error, any()}
       @doc unquote(docs)
       def unquote(name)(opts \\ []) when is_list(opts),
         do: Constructor.apply(__MODULE__, %{}, %{}, opts)

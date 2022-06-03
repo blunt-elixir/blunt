@@ -18,6 +18,7 @@ config :blunt,
   schema_field_definitions: [
     Blunt.Test.FieldTypes.EmailField
   ],
+  type_spec_provider: nil,
   compiler_hooks: [
     command: [],
     query: [],

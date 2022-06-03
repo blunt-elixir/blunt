@@ -95,5 +95,9 @@ defmodule Blunt.Config do
     end
   end
 
+  def type_spec_provider do
+    get(:type_spec_provider)
+  end
+
   defp get(key, default \\ nil), do: Application.get_env(:blunt, key, default)
 end

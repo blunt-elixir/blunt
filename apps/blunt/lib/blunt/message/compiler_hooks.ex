@@ -1,6 +1,4 @@
 defmodule Blunt.Message.CompilerHooks do
-  alias Blunt.Config
-
   require Logger
 
   defmacro __using__(opts) do
@@ -18,7 +16,7 @@ defmodule Blunt.Message.CompilerHooks do
     message_type = Module.get_attribute(module, :message_type)
     manual_config = Module.get_attribute(module, :manual_config)
 
-    run_compile_hooks(message_type, manual_config, __ENV__)
+    run_compile_hooks(message_type, manual_config, env)
   end
 
   defp run_compile_hooks(nil, _manual_config, _env), do: nil

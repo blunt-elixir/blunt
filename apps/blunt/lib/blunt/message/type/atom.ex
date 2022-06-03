@@ -10,6 +10,12 @@ defmodule Blunt.Message.Type.Atom do
   def cast(atom) when is_atom(atom),
     do: {:ok, atom}
 
+  def cast(string) when is_binary(string) do
+    {:ok, String.to_existing_atom(string)}
+  rescue
+    _ -> :error
+  end
+
   def cast(_other), do: :error
 
   def load(nil), do: {:ok, nil}

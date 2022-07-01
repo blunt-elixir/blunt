@@ -3,6 +3,7 @@ defmodule Blunt.Data.Factories.Builder.StructBuilder do
 
   @impl true
   def recognizes?(message_module) do
+    Code.ensure_compiled!(message_module)
     function_exported?(message_module, :__struct__, 0)
   end
 

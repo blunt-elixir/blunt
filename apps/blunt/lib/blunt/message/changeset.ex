@@ -110,6 +110,8 @@ defmodule Blunt.Message.Changeset do
     do: run_autogenerator({name, {m, f, []}}, message)
 
   defp run_autogenerator({name, {m, f, a}}, message) do
+    Code.ensure_compiled!(m)
+
     unless function_exported?(m, f, length(a)) do
       raise Blunt.Message.Error,
         message: "#{inspect(message)}.#{name} autogenerate function '#{inspect(m)}.#{f}/#{length(a)}' not found."

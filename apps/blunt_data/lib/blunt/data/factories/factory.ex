@@ -143,14 +143,23 @@ defmodule Blunt.Data.Factories.Factory do
     label = ANSI.format([:green, "deliver"])
 
     final_message =
-      case Keyword.get(opts, :discarded_data, :hide) do
-        value when value in [:hide, false] ->
-          case Map.get(final_message, :discarded_data) do
-            nil -> final_message
-            _ -> Map.put(final_message, :discarded_data, "configure the factory option 'discarded_data: true' to show")
+      cond do
+        is_map(final_message) ->
+          case Keyword.get(opts, :discarded_data, :hide) do
+            value when value in [:hide, false] ->
+              case Map.get(final_message, :discarded_data) do
+                nil ->
+                  final_message
+
+                _ ->
+                  Map.put(final_message, :discarded_data, "configure the factory option 'discarded_data: true' to show")
+              end
+
+            _ ->
+              final_message
           end
 
-        _ ->
+        true ->
           final_message
       end
 

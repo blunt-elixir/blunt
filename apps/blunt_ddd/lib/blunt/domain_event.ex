@@ -1,5 +1,5 @@
 defmodule Blunt.DomainEvent do
-  alias Blunt.Ddd.{Config, Constructor}
+  alias Blunt.Ddd.Constructor
 
   defmodule Error do
     defexception [:message]

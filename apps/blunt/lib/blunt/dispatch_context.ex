@@ -236,6 +236,11 @@ defmodule Blunt.DispatchContext do
     |> Map.take(user_supplied_fields)
   end
 
+  @spec has_user_supplied_field?(t, atom()) :: boolean()
+  def has_user_supplied_field?(%{user_supplied_fields: user_supplied_fields}, field) do
+    Enum.member?(user_supplied_fields, field)
+  end
+
   @spec get_metadata(t, atom, any) :: any | nil
   def get_metadata(%{metadata: metadata}, key, default \\ nil),
     do: Keyword.get(metadata, key, default)

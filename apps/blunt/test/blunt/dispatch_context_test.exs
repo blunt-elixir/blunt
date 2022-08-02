@@ -26,4 +26,32 @@ defmodule Blunt.DispatchContextTest do
       assert command.discarded_data == %{}
     end
   end
+
+  defmodule CustomCommand do
+    use Blunt.Command
+
+    field :name, :string
+    field :dog, :string, required: false
+  end
+
+  defmodule CustomCommandHandler do
+    use Blunt.CommandHandler
+
+    def handle_dispatch(_command, _context), do: :ok
+  end
+
+  defmodule CustomContext do
+    use Blunt.BoundedContext
+
+    command CustomCommand
+  end
+
+  test "has_user_supplied_field?" do
+    {:ok, context} = CustomContext.custom_command([name: "chris"], return: :context)
+    assert DispatchContext.has_user_supplied_field?(context, :name)
+
+    {:ok, context} = CustomContext.custom_command([name: "chris", dog: "maize"], return: :context)
+    assert DispatchContext.has_user_supplied_field?(context, :name)
+    assert DispatchContext.has_user_supplied_field?(context, :dog)
+  end
 end

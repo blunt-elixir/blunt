@@ -162,7 +162,9 @@ defmodule Blunt.BoundedContext.Proxy do
         result =
           values
           |> Map.merge(field_values)
-          |> message_module.new([], opts)
+          # opts will contain value overrides AND any dispatch options. It doesn't hurt
+          # to pass both, but should probably be refactored if possbile to do safely.
+          |> message_module.new(opts, opts)
           |> message_module.dispatch(opts)
 
         case Keyword.get(internal_opts, :return) do

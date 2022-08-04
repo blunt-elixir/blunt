@@ -147,14 +147,13 @@ defmodule Blunt.BoundedContext.Proxy do
       |> Keyword.put(:dispatched_from, :bounded_context)
       |> Keyword.put(:user_supplied_fields, user_supplied_fields(values))
       |> Keyword.pop(:field_values, [])
-      |> IO.inspect(label: inspect(message_module))
 
     field_values = Enum.into(field_values, %{})
     values = Input.normalize(values, message_module)
 
     constructor_arities = message_module.__info__(:functions) |> Keyword.get_values(:new)
 
-    case constructor_arities |> IO.inspect(label: "CTOR ARITIES") do
+    case constructor_arities do
       [0, 1] ->
         message_module.new(opts)
         |> message_module.dispatch(opts)

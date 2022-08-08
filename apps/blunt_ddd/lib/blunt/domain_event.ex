@@ -35,7 +35,7 @@ defmodule Blunt.DomainEvent do
           opts
           |> Keyword.get(:drop, [])
           |> List.wrap()
-          |> Kernel.++([:discarded_data])
+          |> Kernel.++([:__blunt_id])
 
         command_module
         |> Blunt.Message.Metadata.fields()

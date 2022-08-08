@@ -3,8 +3,8 @@ defmodule Blunt.Message.Constructor do
 
   alias Ecto.Changeset
   alias __MODULE__, as: Constructor
+  alias Blunt.Message.{Documentation, Input, State}
   alias Blunt.Message.Changeset, as: MessageChangeset
-  alias Blunt.Message.{Documentation, Input, Metadata}
 
   defmacro register(opts) do
     quote bind_quoted: [opts: opts] do
@@ -17,7 +17,11 @@ defmodule Blunt.Message.Constructor do
     constructor = Module.get_attribute(module, :constructor)
     doc = Documentation.generate_constructor_doc(module)
     pk_type = Module.get_attribute(module, :primary_key_type)
-    schema_fields = Module.get_attribute(module, :schema_fields)
+
+    schema_fields =
+      Module.get_attribute(module, :schema_fields)
+      |> Enum.reject(&match?({:__blunt_id, _type, _opts}, &1))
+
     required_fields = Module.get_attribute(module, :required_fields)
 
     constructor_info = %{
@@ -29,12 +33,6 @@ defmodule Blunt.Message.Constructor do
 
     Constructor.do_generate(constructor_info)
   end
-
-  # defp type_spec(schema_fields) do
-  #   {required, optional} = Enum.split_with(schema_fields, fn {_name, _type, config} ->
-  #     Keyword.get(config, :required) == true
-  #   end)
-  # end
 
   def do_generate(%{has_fields?: true, has_required_fields?: true, name: name, docs: docs}) do
     quote do
@@ -73,21 +71,15 @@ defmodule Blunt.Message.Constructor do
     overrides = Input.normalize(overrides, module)
     input = Map.merge(values, overrides)
 
-    with {:ok, message} <- input |> module.changeset_with_discarded_data(opts) |> handle_changeset(module) do
+    with {:ok, message} <- input |> module.changeset(opts) |> handle_changeset() do
       {:ok, module.after_validate(message)}
     end
   end
 
-  defp handle_changeset({%{valid?: false} = changeset, _discarded_data}, _message_module),
+  defp handle_changeset(%{valid?: false} = changeset),
     do: {:error, MessageChangeset.format_errors(changeset)}
 
-  defp handle_changeset({changeset, discarded_data}, message_module) do
-    changeset =
-      case Metadata.has_field?(message_module, :discarded_data) do
-        true -> Changeset.put_change(changeset, :discarded_data, discarded_data)
-        false -> changeset
-      end
-
+  defp handle_changeset(changeset) do
     {:ok, Changeset.apply_action!(changeset, :create)}
   end
 end

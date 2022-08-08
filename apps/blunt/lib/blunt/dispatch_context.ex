@@ -1,6 +1,6 @@
 defmodule Blunt.DispatchContext do
   alias Blunt.Config
-  alias Blunt.Message.{Metadata, Options}
+  alias Blunt.Message.{Metadata, Options, State}
 
   defmodule Error do
     defexception [:message]
@@ -40,15 +40,16 @@ defmodule Blunt.DispatchContext do
   def new(%{__struct__: message_module} = message, opts) do
     message_type = Metadata.message_type(message_module)
 
-    {discarded_data, message} = Map.get_and_update(message, :discarded_data, fn data -> {data, %{}} end)
+    %{id: id, discarded_data: discarded_data, user_supplied_fields: user_supplied_fields} = State.get(message)
 
     context = %__MODULE__{
-      id: UUID.uuid4(),
+      id: id,
       opts: opts,
       message: message,
       message_type: message_type,
       message_module: message_module,
       discarded_data: discarded_data,
+      user_supplied_fields: user_supplied_fields,
       created_at: DateTime.utc_now(),
       pid: self()
     }
@@ -71,7 +72,6 @@ defmodule Blunt.DispatchContext do
   defp populate_from_opts(%{opts: opts} = base_context) do
     {user, opts} = Keyword.pop(opts, :user)
     {async, opts} = Keyword.pop(opts, :async, false)
-    {user_supplied_fields, opts} = Keyword.pop(opts, :user_supplied_fields, [])
 
     return = Keyword.get(opts, :return, :response)
 
@@ -81,8 +81,7 @@ defmodule Blunt.DispatchContext do
         opts: opts,
         async: async,
         return: return,
-        last_pipeline_step: :read_opts,
-        user_supplied_fields: user_supplied_fields
+        last_pipeline_step: :read_opts
     }
   end
 

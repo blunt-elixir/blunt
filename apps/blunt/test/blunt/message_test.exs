@@ -30,7 +30,7 @@ defmodule Blunt.MessageTest do
   test "internal fields are never required" do
     alias Protocol.MessageWithInternalField, as: Msg
 
-    assert [:id] == Metadata.field_names(Msg)
+    assert [:__blunt_id, :id] == Metadata.field_names(Msg)
 
     required_fields = Metadata.field_names(Msg, :required)
     refute Enum.member?(required_fields, :id)

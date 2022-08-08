@@ -135,13 +135,10 @@ defmodule Blunt.Absinthe.Field do
     end
   end
 
-  def put_dispatch_opts(opts, operation, args) do
-    user_supplied_fields = args |> Map.keys() |> Enum.sort()
-
+  def put_dispatch_opts(opts, operation, _args) do
     opts
     |> Keyword.put(:ship, false)
     |> Keyword.put(:return, :context)
     |> Keyword.put(operation, true)
-    |> Keyword.put(:user_supplied_fields, user_supplied_fields)
   end
 end

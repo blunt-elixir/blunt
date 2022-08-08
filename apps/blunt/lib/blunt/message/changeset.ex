@@ -2,20 +2,14 @@ defmodule Blunt.Message.Changeset do
   @moduledoc false
 
   alias Ecto.Changeset
-  alias Blunt.Message.{Input, Metadata}
+  alias Blunt.Message.{Input, Metadata, State}
   alias Blunt.Message.Schema.BuiltInValidations
   alias Blunt.Message.Changeset, as: MessageChangeset
 
   def generate do
     quote location: :keep, generated: true do
-      def changeset(values, opts \\ [])
-          when is_list(values) or is_map(values) or is_struct(values) do
-        changeset_with_discarded_data(values, opts) |> elem(0)
-      end
-
       @doc false
-      def changeset_with_discarded_data(values, opts \\ [])
-          when is_list(values) or is_map(values) or is_struct(values) do
+      def changeset(values, opts \\ []) when is_list(values) or is_map(values) or is_struct(values) do
         MessageChangeset.changeset(%__MODULE__{}, values, opts)
       end
     end
@@ -38,11 +32,15 @@ defmodule Blunt.Message.Changeset do
 
   def changeset(message_module, values, opts) when is_list(values) or is_map(values) do
     fields = Metadata.field_names(message_module)
+    virtual_fields = Metadata.field_names(message_module, :virtual)
     required_fields = Metadata.field_names(message_module, :required)
     static_fields = Metadata.field_names(message_module, :static) |> Enum.map(&to_string/1)
 
-    values =
+    blunt_id = UUID.uuid4()
+
+    final_values =
       values
+      |> Map.put(:__blunt_id, blunt_id)
       |> Input.normalize(message_module)
       |> set_defaults_for_required_fields(message_module)
       |> autogenerate_fields(message_module)
@@ -53,30 +51,31 @@ defmodule Blunt.Message.Changeset do
     embeds = message_module.__schema__(:embeds)
 
     discarded_data =
-      values
+      final_values
       |> Map.drop(Enum.map(fields, &to_string/1))
       |> Map.drop(Enum.map(embeds, &to_string/1))
+
+    user_supplied_fields =
+      values
+      |> Map.take(Enum.map(fields, &to_string/1))
+      |> Map.keys()
+      |> Enum.map(&String.to_existing_atom/1)
+
+    _ = State.put(blunt_id, %{discarded_data: discarded_data, user_supplied_fields: user_supplied_fields})
 
     changeset =
       message_module
       |> struct()
-      |> Changeset.cast(values, fields -- embeds)
+      |> Changeset.cast(final_values, (fields ++ virtual_fields) -- embeds)
 
     opts = opts |> List.wrap() |> Keyword.new()
-    {type, opts} = Keyword.pop(opts, :type, :schema)
-    embed_changeset = {__MODULE__, :changeset, [Keyword.put(opts, :type, :embed)]}
+    embed_changeset = {__MODULE__, :changeset, []}
 
-    changeset =
-      embeds
-      |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1, with: embed_changeset))
-      |> Changeset.validate_required(required_fields)
-      |> run_built_in_validations(message_module)
-      |> message_module.handle_validate(opts)
-
-    case type do
-      :embed -> changeset
-      :schema -> {changeset, discarded_data}
-    end
+    embeds
+    |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1, with: embed_changeset))
+    |> Changeset.validate_required(required_fields)
+    |> run_built_in_validations(message_module)
+    |> message_module.handle_validate(opts)
   end
 
   defp set_defaults_for_required_fields(values, message_module) do

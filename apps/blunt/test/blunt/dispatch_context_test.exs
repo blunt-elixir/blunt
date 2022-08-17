@@ -22,8 +22,6 @@ defmodule Blunt.DispatchContextTest do
         |> DiscardedDataCommand.dispatch(return: :context)
 
       assert %{"dog" => "maize"} = DispatchContext.discarded_data(context)
-      assert command = DispatchContext.get_message(context)
-      assert command.discarded_data == %{}
     end
   end
 

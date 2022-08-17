@@ -1,6 +1,7 @@
 defmodule Blunt.CommandTest do
   use ExUnit.Case, async: true
 
+  alias Blunt.Message
   alias Blunt.Message.Metadata
   alias Blunt.CommandTest.Protocol
   alias Blunt.{Command, DispatchContext}
@@ -25,19 +26,12 @@ defmodule Blunt.CommandTest do
   describe "discarded data" do
     alias Protocol.DispatchWithPipeline
 
-    test "field is defined" do
-      assert {:discarded_data, :map, [required: false, internal: true, virtual: true]} =
-               DispatchWithPipeline
-               |> Metadata.fields()
-               |> Enum.find(&match?({:discarded_data, _, _}, &1))
-    end
-
-    test "data is preserved" do
+    test "data is preserved in state" do
       attrs = %{name: "chris", poop: :yum}
 
       {:ok, command} = DispatchWithPipeline.new(attrs)
 
-      assert %{discarded_data: %{"poop" => :yum}} = command
+      assert %{discarded_data: %{"poop" => :yum}} = Message.State.get(command)
 
       assert {:ok, dispatch_context} = DispatchWithPipeline.dispatch(command, reply_to: self(), return: :context)
 

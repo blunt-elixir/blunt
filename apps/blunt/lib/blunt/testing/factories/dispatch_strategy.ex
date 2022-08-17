@@ -7,7 +7,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       defexception [:message]
     end
 
-    alias Blunt.Message.Metadata
     alias Blunt.{DispatchContext, Message}
 
     def handle_dispatch(message, opts),
@@ -22,7 +21,6 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
         dispatch_opts
         |> Keyword.put(:dispatched_from, :ex_machina)
         |> Keyword.update(:return, :context, &Function.identity/1)
-        |> Keyword.put(:user_supplied_fields, Metadata.field_names(module))
 
       case module.dispatch({:ok, message}, dispatch_opts) do
         {:error, %DispatchContext{} = context} ->

@@ -57,7 +57,7 @@ defmodule Blunt.Command.Events do
         {:created_at, _, _} ->
           nil
 
-        {:discarded_data, _, _} ->
+        {:__blunt_id, _, _} ->
           nil
 
         {name, type, opts} ->

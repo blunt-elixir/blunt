@@ -43,6 +43,7 @@ defmodule Blunt.DispatchStrategy.Default do
   def dispatch(%{message_type: :query} = context) do
     bindings = Query.bindings(context)
     filter_list = Query.create_filter_list(context)
+
     pipeline = PipelineResolver.get_pipeline!(context, QueryHandler)
 
     context =

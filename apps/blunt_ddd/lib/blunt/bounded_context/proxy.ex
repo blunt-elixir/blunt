@@ -145,7 +145,6 @@ defmodule Blunt.BoundedContext.Proxy do
       |> Keyword.merge(proxy_opts)
       |> Keyword.merge(internal_opts)
       |> Keyword.put(:dispatched_from, :bounded_context)
-      |> Keyword.put(:user_supplied_fields, user_supplied_fields(values))
       |> Keyword.pop(:field_values, [])
 
     field_values = Enum.into(field_values, %{})
@@ -185,13 +184,4 @@ defmodule Blunt.BoundedContext.Proxy do
       {:error, error} -> raise DispatchError, message: error
     end
   end
-
-  defp user_supplied_fields(list) when is_list(list),
-    do: Keyword.keys(list)
-
-  defp user_supplied_fields(struct) when is_struct(struct),
-    do: user_supplied_fields(Map.from_struct(struct))
-
-  defp user_supplied_fields(map) when is_map(map),
-    do: Map.keys(map)
 end

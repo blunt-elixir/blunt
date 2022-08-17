@@ -27,7 +27,8 @@ defmodule Blunt.Message do
     PrimaryKey,
     Schema,
     Schema.Fields,
-    Version
+    Version,
+    State
   }
 
   defmodule Error do
@@ -70,9 +71,7 @@ defmodule Blunt.Message do
       @behaviour Blunt.Message
       @before_compile Blunt.Message
 
-      if opts[:keep_discarded_data] do
-        @schema_fields {:discarded_data, :map, required: false, internal: true, virtual: true}
-      end
+      @schema_fields {:__blunt_id, :binary_id, required: false, internal: true, virtual: true}
 
       @impl true
       def handle_validate(changeset, _opts), do: changeset
@@ -152,4 +151,10 @@ defmodule Blunt.Message do
 
   @doc false
   defdelegate compile_start(message_module), to: Blunt.Message.Compilation
+
+  def user_supplied_fields(%{__blunt_id: id}),
+    do: State.get(id, :user_supplied_fields, [])
+
+  def discarded_data(%{__blunt_id: id}),
+    do: State.get(id, :discarded_data, [])
 end

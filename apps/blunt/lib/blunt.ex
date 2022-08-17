@@ -2,7 +2,7 @@ defmodule Blunt do
   use Application
 
   def start(_type, _args) do
-    [Blunt.DispatchContext.Shipper]
+    [Blunt.DispatchContext.Shipper, Blunt.Message.State]
     |> Supervisor.start_link(strategy: :one_for_one, name: Blunt.Supervisor)
   end
 

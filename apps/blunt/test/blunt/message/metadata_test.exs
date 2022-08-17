@@ -12,7 +12,7 @@ defmodule Blunt.Message.MetadataTest do
 
   describe "virutal fields" do
     test "field names" do
-      assert [:calculated] == Metadata.field_names(MyMessage, :virtual)
+      assert [:__blunt_id, :calculated] == Metadata.field_names(MyMessage, :virtual)
     end
 
     test "are not json serialized" do
@@ -25,8 +25,7 @@ defmodule Blunt.Message.MetadataTest do
 
       refute Map.has_key?(rehydrated_map, "calculated")
 
-      assert {:ok, %MyMessage{dog: :maize, name: "chris", calculated: nil}} ==
-               MyMessage.new(rehydrated_map)
+      assert {:ok, %MyMessage{dog: :maize, name: "chris", calculated: nil}} = MyMessage.new(rehydrated_map)
     end
   end
 end

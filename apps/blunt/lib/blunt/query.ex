@@ -64,7 +64,7 @@ defmodule Blunt.Query do
 
     filter_map
     |> Map.from_struct()
-    |> Map.delete(:discarded_data)
+    |> Map.delete(:__blunt_id)
     |> reject_nil_filters(opts)
   end
 

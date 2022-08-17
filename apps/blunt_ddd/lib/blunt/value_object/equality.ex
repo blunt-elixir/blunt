@@ -11,8 +11,11 @@ defmodule Blunt.ValueObject.Equality do
   def equals?(_module, nil, _), do: false
   def equals?(_module, _, nil), do: false
 
-  def equals?(module, %{__struct__: module} = left, %{__struct__: module} = right),
-    do: Map.equal?(left, right)
+  def equals?(module, %{__struct__: module} = left, %{__struct__: module} = right) do
+    left = Map.delete(left, :__blunt_id)
+    right = Map.delete(right, :__blunt_id)
+    Map.equal?(left, right)
+  end
 
   def equals?(module, _left, _right) do
     Logger.warn("#{inspect(module)}.equals? requires two #{inspect(module)} structs")

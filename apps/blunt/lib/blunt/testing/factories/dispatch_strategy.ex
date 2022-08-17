@@ -7,8 +7,7 @@ if Code.ensure_loaded?(ExMachina) and Code.ensure_loaded?(Faker) do
       defexception [:message]
     end
 
-    alias Blunt.Message.Metadata
-    alias Blunt.{DispatchContext, Message}
+    alias Blunt.{DispatchContext, Message, Message.Metadata}
 
     def handle_dispatch(message, opts),
       do: handle_dispatch(message, opts, [])

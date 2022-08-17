@@ -1,7 +1,7 @@
 defmodule Blunt.Message.Options.Parser do
   alias Blunt.Message.{Changeset, Metadata}
 
-  def parse_message_opts(message_module, opts) do
+  def parse_message_opts(message_module, opts, parsing_opts \\ []) do
     message_opts = Metadata.get(message_module, :options, [])
 
     %{parsed: parsed, unparsed: unparsed} =
@@ -14,7 +14,7 @@ defmodule Blunt.Message.Options.Parser do
         end
       )
 
-    case validate_options(parsed, message_opts) do
+    case validate_options(parsed, message_opts, parsing_opts) do
       {:ok, parsed} ->
         {:ok, Keyword.merge(unparsed, parsed)}
 
@@ -28,7 +28,7 @@ defmodule Blunt.Message.Options.Parser do
     {name, Keyword.get(provided_opts, name, default)}
   end
 
-  defp validate_options(parsed_opts, supported_opts) do
+  defp validate_options(parsed_opts, supported_opts, parsing_opts) do
     required =
       supported_opts
       |> Enum.filter(fn {_, _type, config} -> Keyword.fetch!(config, :required) == true end)
@@ -45,9 +45,15 @@ defmodule Blunt.Message.Options.Parser do
     params = Enum.into(parsed_opts, %{})
 
     changeset =
-      {data, types}
-      |> Ecto.Changeset.cast(params, Map.keys(types))
-      |> Ecto.Changeset.validate_required(required)
+      cond do
+        Keyword.get(parsing_opts, :strict, true) ->
+          {data, types}
+          |> Ecto.Changeset.cast(params, Map.keys(types))
+          |> Ecto.Changeset.validate_required(required)
+
+        true ->
+          Ecto.Changeset.cast({data, types}, params, Map.keys(types))
+      end
 
     case changeset do
       %{valid?: false} ->

@@ -73,7 +73,7 @@ defmodule Blunt.Message.Constructor do
     overrides = Input.normalize(overrides, module)
     input = Map.merge(values, overrides)
 
-    with {:ok, opts} <- Options.Parser.parse_message_opts(module, opts),
+    with {:ok, opts} <- Options.Parser.parse_message_opts(module, opts, strict: false),
          {:ok, message} <- input |> module.changeset_with_discarded_data(opts) |> handle_changeset(module) do
       {:ok, module.after_validate(message)}
     end

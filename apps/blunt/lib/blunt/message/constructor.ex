@@ -3,7 +3,7 @@ defmodule Blunt.Message.Constructor do
 
   alias Ecto.Changeset
   alias __MODULE__, as: Constructor
-  alias Blunt.Message.{Documentation, Input, State}
+  alias Blunt.Message.{Documentation, Input, Options}
   alias Blunt.Message.Changeset, as: MessageChangeset
 
   defmacro register(opts) do
@@ -71,7 +71,8 @@ defmodule Blunt.Message.Constructor do
     overrides = Input.normalize(overrides, module)
     input = Map.merge(values, overrides)
 
-    with {:ok, message} <- input |> module.changeset(opts) |> handle_changeset() do
+    with {:ok, opts} <- Options.Parser.parse_message_opts(module, opts),
+         {:ok, message} <- input |> module.changeset(opts) |> handle_changeset() do
       {:ok, module.after_validate(message)}
     end
   end

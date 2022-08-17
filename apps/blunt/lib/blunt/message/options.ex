@@ -13,10 +13,13 @@ defmodule Blunt.Message.Options do
 
   def record(name, type, opts) do
     quote bind_quoted: [name: name, type: type, opts: opts] do
+      {description, opts} = Keyword.pop(opts, :description)
+
       opts =
         opts
         |> Keyword.put_new(:default, nil)
         |> Keyword.put_new(:required, false)
+        |> Keyword.put_new(:desc, description)
 
       options =
         __MODULE__

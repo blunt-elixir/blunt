@@ -12,7 +12,7 @@ defmodule Blunt.Message.Version do
 
   def generate(%{module: module}) do
     if Module.delete_attribute(module, :versioned?) do
-      version = Module.delete_attribute(module, :version) || 1
+      version = Module.get_attribute(module, :version) || 1
       Module.put_attribute(module, :metadata, version: version)
       Module.put_attribute(module, :schema_fields, {:version, :decimal, default: version, required: false})
     end

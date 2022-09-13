@@ -142,10 +142,25 @@ defmodule Blunt.DispatchContext do
 
   def errors(%__MODULE__{errors: errors} = context) do
     Enum.reduce(errors, %{}, fn
-      map, acc when is_map(map) -> Map.merge(acc, map)
-      list, acc when is_list(list) -> acc ++ errors(%{context | errors: list})
-      atom, acc when is_atom(atom) -> Map.update(acc, :generic, [atom], fn errors -> [atom | errors] end)
-      string, acc when is_binary(string) -> Map.update(acc, :generic, [string], fn errors -> [string | errors] end)
+      map, acc when is_map(map) ->
+        Map.merge(acc, map, fn _key, existing_value, new_value ->
+          case existing_value do
+            list when is_list(list) ->
+              [new_value | list]
+
+            value ->
+              [new_value, value]
+          end
+        end)
+
+      list, acc when is_list(list) ->
+        acc ++ errors(%{context | errors: list})
+
+      atom, acc when is_atom(atom) ->
+        Map.update(acc, :generic, [atom], fn errors -> [atom | errors] end)
+
+      string, acc when is_binary(string) ->
+        Map.update(acc, :generic, [string], fn errors -> [string | errors] end)
     end)
   end
 

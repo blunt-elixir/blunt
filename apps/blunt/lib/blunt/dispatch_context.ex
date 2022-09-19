@@ -144,13 +144,16 @@ defmodule Blunt.DispatchContext do
     Enum.reduce(errors, %{}, fn
       map, acc when is_map(map) ->
         Map.merge(acc, map, fn _key, existing_value, new_value ->
-          case existing_value do
-            list when is_list(list) ->
-              [new_value | list]
+          values =
+            case existing_value do
+              list when is_list(list) ->
+                [new_value | list]
 
-            value ->
-              [new_value, value]
-          end
+              value ->
+                [new_value, value]
+            end
+
+          List.flatten(values)
         end)
 
       list, acc when is_list(list) ->

@@ -30,9 +30,14 @@ defmodule Blunt.Message.FieldImporter do
     only = Keyword.get(opts, :only, Metadata.field_names(source_module) -- except)
     only = Enum.uniq(List.wrap(only))
 
+    include_internal_fields = Keyword.get(opts, :include_internal_fields, false)
+
     source_module
     |> Metadata.fields()
     |> Enum.filter(fn {name, _type, _opts} -> Enum.member?(only, name) end)
+    |> Enum.reject(fn {name, _type, opts} ->
+      if include_internal_fields, do: false, else: Keyword.get(opts, :internal)
+    end)
     |> Enum.flat_map(fn {name, type, opts} ->
       opts = Macro.escape(opts)
 

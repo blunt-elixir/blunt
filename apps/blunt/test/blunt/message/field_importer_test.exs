@@ -8,6 +8,7 @@ defmodule Blunt.Message.FieldImporterTest do
 
     field :id, :integer
     field :one, :string
+    internal_field :one_internal, :string
   end
 
   defmodule Two do
@@ -38,9 +39,22 @@ defmodule Blunt.Message.FieldImporterTest do
     )
   end
 
+  defmodule Four do
+    use Blunt.Command, create_jason_encoders?: false
+
+    field :id, :integer
+    field :three, :string
+
+    import_fields(One, include_internal_fields: true, except: :id)
+  end
+
   test "three has all imported fields" do
     assert [:discarded_data, :id, :one, :three, :two_a, :two_b] ==
              Metadata.field_names(Three)
+             |> Enum.sort()
+
+    assert [:discarded_data, :id, :one, :one_internal, :three] ==
+             Metadata.field_names(Four)
              |> Enum.sort()
   end
 end

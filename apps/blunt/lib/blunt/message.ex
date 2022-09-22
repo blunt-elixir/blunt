@@ -114,6 +114,8 @@ defmodule Blunt.Message do
 
   * **only** *atom* or *list[atom]* - A field or list of fields to import
 
+  * **include_internal_fields** *boolean* default value: **false** - If true, internal fields from the imported module will be imported.
+
   * **transform** *({name, type, opts}) -> {name, type, opts}* or *({name, type, opts}) -> [{name, type, opts}]* - An optional function to transform the fields being imported.
   """
   @spec import_fields(module() | {:aliases, keyword(), list()}, keyword()) :: any()

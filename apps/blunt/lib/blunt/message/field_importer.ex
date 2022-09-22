@@ -1,4 +1,5 @@
 defmodule Blunt.Message.FieldImporter do
+  @moduledoc false
   alias Blunt.Message.Metadata
   alias Blunt.Message.FieldImporter
 

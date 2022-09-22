@@ -35,7 +35,7 @@ defmodule Blunt.Message.FieldImporter do
     source_module
     |> Metadata.fields()
     |> Enum.filter(fn {name, _type, _opts} -> Enum.member?(only, name) end)
-    |> Enum.reject(fn {name, _type, opts} ->
+    |> Enum.reject(fn {_name, _type, opts} ->
       if include_internal_fields, do: false, else: Keyword.get(opts, :internal)
     end)
     |> Enum.flat_map(fn {name, type, opts} ->

@@ -17,12 +17,12 @@ defmodule Blunt.Message do
   * primary_key - default value: `false`
   * constructor - default value: `:new`
   """
-
   alias Blunt.Message.{
     Changeset,
     Constructor,
     Dispatch,
     Documentation,
+    FieldImporter,
     Metadata,
     PrimaryKey,
     Schema,
@@ -44,6 +44,7 @@ defmodule Blunt.Message do
     quote bind_quoted: [opts: opts] do
       use Blunt.Message.TypeSpec
       use Blunt.Message.Compilation
+      use Blunt.Message.FieldImporter
       use Blunt.Message.CompilerHooks, opts
 
       require Blunt.Message.{
@@ -103,6 +104,21 @@ defmodule Blunt.Message do
   @spec field(name :: atom(), type :: atom(), keyword()) :: any()
   defmacro field(name, type, opts \\ []),
     do: Fields.record(name, type, opts)
+
+  @doc """
+  Imports fields from another Blunt message into the current message.
+
+  ## Options
+
+  * **except** *atom* or *list[atom]* - A field or list of fields to not import
+
+  * **only** *atom* or *list[atom]* - A field or list of fields to import
+
+  * **transform** *({name, type, opts}) -> {name, type, opts}* or *({name, type, opts}) -> [{name, type, opts}]* - An optional function to transform the fields being imported.
+  """
+  @spec import_fields(module() | {:aliases, keyword(), list()}, keyword()) :: any()
+  defmacro import_fields(module, opts \\ []),
+    do: FieldImporter.import_fields(module, opts)
 
   @spec require_at_least_one(list(atom())) :: any()
   defmacro require_at_least_one(fields) when is_list(fields),

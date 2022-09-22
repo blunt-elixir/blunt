@@ -15,7 +15,6 @@ defmodule Support.Message.Schema.EmailFieldProvider do
     {:string, opts}
   end
 
-  @impl true
   def fake(:email) do
     "fake_hombre@example.com"
   end

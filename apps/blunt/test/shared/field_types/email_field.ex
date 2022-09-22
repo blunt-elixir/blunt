@@ -11,12 +11,10 @@ defmodule Blunt.Test.FieldTypes.EmailField do
     {:string, opts}
   end
 
-  @impl true
   def fake(__MODULE__) do
     "fake_hombre@example.com"
   end
 
-  @impl true
   def fake(:email) do
     "fake_hombre@example.com"
   end

@@ -8,6 +8,7 @@ defmodule Blunt.Absinthe.Test.CreatePerson do
 
   field :name, :string
   field :gender, :enum, values: Person.genders(), default: :not_sure
+  field :address, Blunt.Absinthe.Test.Address, required: false
 
   internal_field :id, :binary_id, desc: "Id is set internally. Setting it will have no effect"
 

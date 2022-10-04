@@ -9,8 +9,8 @@ defmodule Blunt.Absinthe.MutationTest do
   setup do
     %{
       query: """
-      mutation create($name: String!, $gender: Gender!){
-        createPerson(name: $name, gender: $gender){
+      mutation create($name: String!, $gender: Gender!, $address: AddressInput){
+        createPerson(name: $name, gender: $gender, address: $address){
           id
           name
           gender
@@ -38,6 +38,39 @@ defmodule Blunt.Absinthe.MutationTest do
 
     assert %{"id" => id, "name" => "chris", "gender" => "MALE"} = person
     assert {:ok, _} = UUID.info(id)
+  end
+
+  test "returns errors", %{query: query} do
+    assert {:ok, %{errors: [%{message: message}]}} =
+             Absinthe.run(query, Schema, variables: %{"name" => "chris", "gender" => ""})
+
+    assert message =~ "gender"
+  end
+
+  test "returns errors for absinthe type mismatch", %{query: query} do
+    assert {:ok, %{errors: [%{message: message}]}} =
+             Absinthe.run(query, Schema,
+               variables: %{
+                 "name" => "chris",
+                 "gender" => "MALE",
+                 "address" => %{}
+               }
+             )
+
+    assert message =~ ~r/address.*\n.*line1.*found null/
+  end
+
+  test "returns errors from nested changeset validations", %{query: query} do
+    assert {:ok, %{errors: [%{message: message}]}} =
+             Absinthe.run(query, Schema,
+               variables: %{
+                 "name" => "chris",
+                 "gender" => "MALE",
+                 "address" => %{"line1" => "--"}
+               }
+             )
+
+    assert message =~ "address.line1 should be at least 3 character(s)"
   end
 
   test "user is put in the context from absinthe resolution context", %{query: query} do

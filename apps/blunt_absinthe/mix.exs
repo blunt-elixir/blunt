@@ -65,6 +65,7 @@ defmodule BluntAbsinthe.MixProject do
   defp blunt(_env) do
     [
       {:blunt, in_umbrella: true},
+      {:blunt_ddd, in_umbrella: true},
       {:blunt_data, in_umbrella: true}
     ]
   end

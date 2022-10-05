@@ -125,7 +125,7 @@ defmodule Blunt.Absinthe.Args do
   defp update(fields, :set_absinthe_type_opts, _opts) do
     Enum.map(fields, fn {name, {type, absinthe_type}, field_opts} ->
       description = Keyword.get(field_opts, :desc)
-      default_value = Keyword.get(field_opts, :default) |> Macro.escape()
+      default_value = Keyword.get(field_opts, :default) |> normalize_default_value()
 
       absinthe_type_opts =
         field_opts
@@ -142,6 +142,9 @@ defmodule Blunt.Absinthe.Args do
       {name, {type, absinthe_type}, field_opts}
     end)
   end
+
+  defp normalize_default_value(%{}), do: {:{}, [], []}
+  defp normalize_default_value(value), do: value
 
   defp update(fields, :add_absinthe_types, message_module, opts) do
     Enum.map(fields, fn {field_name, type, field_opts} = field ->

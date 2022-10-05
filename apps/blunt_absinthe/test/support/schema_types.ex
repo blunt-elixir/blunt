@@ -24,7 +24,7 @@ defmodule Blunt.Absinthe.Test.SchemaTypes do
       ]
   end
 
-  derive_mutation_input(UpdatePerson, arg_types: [gender: :gender])
+  derive_mutation_input(UpdatePerson, arg_types: [gender: :gender, address: :address_input])
 
   object :person_mutations do
     derive_mutation CreatePerson, :person, arg_types: [gender: :gender, address: :address_input]

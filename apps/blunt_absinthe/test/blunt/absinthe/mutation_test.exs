@@ -99,6 +99,9 @@ defmodule Blunt.Absinthe.MutationTest do
              },
              gender: %{
                type: :gender
+             },
+             address: %{
+               type: :address_input
              }
            } = fields
   end

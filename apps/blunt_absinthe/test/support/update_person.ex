@@ -5,4 +5,5 @@ defmodule Blunt.Absinthe.Test.UpdatePerson do
   field :id, :binary_id
   field :name, :string
   field :gender, :enum, values: Person.genders(), required: false
+  field :address, Blunt.Absinthe.Test.Address, required: false
 end

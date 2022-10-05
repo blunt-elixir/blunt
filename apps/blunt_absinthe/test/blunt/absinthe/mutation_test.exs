@@ -14,6 +14,10 @@ defmodule Blunt.Absinthe.MutationTest do
           id
           name
           gender
+          address {
+            line1
+            line2
+          }
         }
       }
       """
@@ -34,9 +38,11 @@ defmodule Blunt.Absinthe.MutationTest do
 
   test "can create a person", %{query: query} do
     assert {:ok, %{data: %{"createPerson" => person}}} =
-             Absinthe.run(query, Schema, variables: %{"name" => "chris", "gender" => "MALE"})
+             Absinthe.run(query, Schema,
+               variables: %{"name" => "chris", "gender" => "MALE", "address" => %{"line1" => "42 Infinity Ave"}}
+             )
 
-    assert %{"id" => id, "name" => "chris", "gender" => "MALE"} = person
+    assert %{"id" => id, "name" => "chris", "gender" => "MALE", "address" => %{"line1" => "42 Infinity Ave"}} = person
     assert {:ok, _} = UUID.info(id)
   end
 

@@ -20,6 +20,19 @@ defmodule Blunt.Absinthe.MutationTest do
           }
         }
       }
+      """,
+      update_query: """
+      mutation update($input: UpdatePersonInput){
+        updatePerson(input: $input){
+          id
+          name
+          gender
+          address {
+            line1
+            line2
+          }
+        }
+      }
       """
     }
   end
@@ -109,5 +122,21 @@ defmodule Blunt.Absinthe.MutationTest do
   test "derive object" do
     assert %Object{fields: fields} = Absinthe.Schema.lookup_type(Schema, :dog)
     assert %{name: %{type: :string}} = fields
+  end
+
+  test "returns errors from deeper nested changeset validations", %{update_query: update_query} do
+    assert {:ok, %{errors: [%{message: message}]}} =
+             Absinthe.run(update_query, Schema,
+               variables: %{
+                 "input" => %{
+                   "id" => UUID.uuid4(),
+                   "name" => "chris",
+                   "gender" => "MALE",
+                   "address" => %{"line1" => "--"}
+                 }
+               }
+             )
+
+    assert message =~ "address.line1 should be at least 3 character(s)"
   end
 end

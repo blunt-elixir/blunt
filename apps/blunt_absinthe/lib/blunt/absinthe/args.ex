@@ -143,15 +143,15 @@ defmodule Blunt.Absinthe.Args do
     end)
   end
 
-  defp normalize_default_value(%{}), do: {:{}, [], []}
-  defp normalize_default_value(value), do: value
-
   defp update(fields, :add_absinthe_types, message_module, opts) do
     Enum.map(fields, fn {field_name, type, field_opts} = field ->
       absinthe_type = Type.from_message_field(message_module, field, opts)
       {field_name, {type, absinthe_type}, field_opts}
     end)
   end
+
+  defp normalize_default_value(%{}), do: {:{}, [], []}
+  defp normalize_default_value(value), do: value
 
   defp reject(fields, :internal, _opts) do
     Enum.reject(fields, fn {_name, _type, opts} -> Keyword.get(opts, :internal, false) == true end)

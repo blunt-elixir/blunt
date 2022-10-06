@@ -9,5 +9,6 @@ defmodule Blunt.Absinthe.Test.Address do
   def handle_validate(changeset, _opts) do
     changeset
     |> validate_length(:line1, min: 3)
+    |> validate_format(:line1, ~r/(\d)+.*/, message: "should start with a number")
   end
 end

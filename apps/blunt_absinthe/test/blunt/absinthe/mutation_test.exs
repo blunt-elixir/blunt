@@ -85,7 +85,7 @@ defmodule Blunt.Absinthe.MutationTest do
                variables: %{
                  "name" => "chris",
                  "gender" => "MALE",
-                 "address" => %{"line1" => "--"}
+                 "address" => %{"line1" => "10"}
                }
              )
 
@@ -137,6 +137,6 @@ defmodule Blunt.Absinthe.MutationTest do
                }
              )
 
-    assert message =~ "address.line1 should be at least 3 character(s)"
+    assert message =~ "address.line1 should start with a number, should be at least 3 character(s)"
   end
 end

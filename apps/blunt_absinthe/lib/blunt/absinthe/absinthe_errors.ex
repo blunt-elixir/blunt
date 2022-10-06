@@ -29,7 +29,7 @@ defmodule Blunt.Absinthe.AbsintheErrors do
       {key, messages}, acc when is_list(messages) or is_map(messages) ->
         Enum.map(messages, fn
           {field, messages} ->
-            [message: "#{key}.#{field} #{messages |> Enum.join(",")}"]
+            [message: "#{key}.#{field} #{messages |> Enum.join(", ")}"]
 
           message ->
             [message: "#{key} #{message}"]

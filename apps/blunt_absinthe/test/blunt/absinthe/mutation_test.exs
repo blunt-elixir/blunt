@@ -139,4 +139,52 @@ defmodule Blunt.Absinthe.MutationTest do
 
     assert message =~ "address.line1 should start with a number, should be at least 3 character(s)"
   end
+
+  test "reduce_map" do
+    errors = %{
+      input: %{
+        person: %{
+          address: %{
+            stuff: %{
+              thing: "broken"
+            },
+            other: "fixed",
+            city: "unknown"
+          },
+          tree: ["trunk", "branches"]
+        }
+      }
+    }
+
+    assert [
+             {[:input, :person, :address, :city], "unknown"},
+             {[:input, :person, :address, :other], "fixed"},
+             {[:input, :person, :address, :stuff, :thing], "broken"},
+             {[:input, :person, :tree], ["trunk", "branches"]}
+           ] = Blunt.Absinthe.AbsintheErrors.leaves_with_path(errors)
+  end
+
+  test "recur" do
+    tree = %{"name" => "chris", "gender" => "MALE", "address" => %{"line1" => "42 Infinity Ave", "line2" => nil}}
+
+    assert [
+             {["address", "line1"], "42 Infinity Ave"},
+             {["address", "line2"], nil},
+             {["gender"], "MALE"},
+             {["name"], "chris"}
+           ] = Blunt.Absinthe.AbsintheErrors.leaves_with_path(tree)
+  end
+
+  test "format errors with key in message" do
+    errors = %{input: %{person: %{address: %{stuff: %{thing: "everything is b0rked"}}}}}
+
+    assert [{[:input, :person, :address, :stuff, :thing], "everything is b0rked"}] =
+             Blunt.Absinthe.AbsintheErrors.leaves_with_path(errors)
+
+    result = Blunt.Absinthe.AbsintheErrors.format(errors, dispatch_id: "23424234")
+
+    assert result == [
+             [message: "input.person.address.stuff.thing everything is b0rked", dispatch_id: "23424234"]
+           ]
+  end
 end

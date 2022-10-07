@@ -27,17 +27,24 @@ defmodule Blunt.Absinthe.AbsintheErrors do
         Enum.map(messages, fn message -> [message: message] end) ++ acc
 
       {key, messages}, acc when is_list(messages) or is_map(messages) ->
-        Enum.map(messages, fn
-          {field, messages} ->
-            [message: "#{key}.#{field} #{messages |> Enum.join(", ")}"]
+        Enum.flat_map(leaves_with_path(messages, [key]), fn
+          {path, messages} ->
+            label = Enum.join(path, ".")
+            message = messages |> List.wrap() |> Enum.join(", ")
 
-          message ->
-            [message: "#{key} #{message}"]
+            [[message: "#{label} #{message}"]]
         end) ++ acc
 
       {key, message}, acc when is_binary(message) ->
         [[message: "#{key} #{message}"] | acc]
     end)
     |> Enum.map(&Keyword.merge(&1, extra_properties))
+  end
+
+  def leaves_with_path(input, path \\ []) do
+    Enum.flat_map(input, fn {key, value} ->
+      full = [key | path]
+      if is_map(value), do: leaves_with_path(value, full), else: [{Enum.reverse(full), value}]
+    end)
   end
 end

@@ -80,7 +80,7 @@ defmodule Blunt.Absinthe.MutationTest do
   end
 
   test "returns errors from nested changeset validations", %{query: query} do
-    assert {:ok, %{errors: [%{message: message}]}} =
+    assert {:ok, %{errors: [%{message: message, path: path}]}} =
              Absinthe.run(query, Schema,
                variables: %{
                  "name" => "chris",
@@ -90,6 +90,7 @@ defmodule Blunt.Absinthe.MutationTest do
              )
 
     assert message =~ "address.line1 should be at least 3 character(s)"
+    assert path == ~w(createPerson address line1)
   end
 
   test "user is put in the context from absinthe resolution context", %{query: query} do
@@ -125,7 +126,7 @@ defmodule Blunt.Absinthe.MutationTest do
   end
 
   test "returns errors from deeper nested changeset validations", %{update_query: update_query} do
-    assert {:ok, %{errors: [%{message: message}]}} =
+    assert {:ok, %{errors: [%{message: message, path: path}]}} =
              Absinthe.run(update_query, Schema,
                variables: %{
                  "input" => %{
@@ -138,53 +139,44 @@ defmodule Blunt.Absinthe.MutationTest do
              )
 
     assert message =~ "address.line1 should start with a number, should be at least 3 character(s)"
+    assert path == ~w(updatePerson input address line1)
   end
 
-  test "reduce_map" do
+  test "paths" do
     errors = %{
-      input: %{
-        person: %{
-          address: %{
-            stuff: %{
-              thing: "broken"
-            },
-            other: "fixed",
-            city: "unknown"
+      a: %{
+        b: %{
+          c: %{
+            d: "broken"
           },
-          tree: ["trunk", "branches"]
-        }
+          cc: "fixed",
+          ccc: "unknown"
+        },
+        tree: ["trunk", "branches"]
       }
     }
 
-    assert [
-             {[:input, :person, :address, :city], "unknown"},
-             {[:input, :person, :address, :other], "fixed"},
-             {[:input, :person, :address, :stuff, :thing], "broken"},
-             {[:input, :person, :tree], ["trunk", "branches"]}
-           ] = Blunt.Absinthe.AbsintheErrors.leaves_with_path(errors)
-  end
-
-  test "recur" do
-    tree = %{"name" => "chris", "gender" => "MALE", "address" => %{"line1" => "42 Infinity Ave", "line2" => nil}}
+    {:ok, context} = DispatchContext.new(%Blunt.Absinthe.Test.CreatePerson{}, [])
+    context = DispatchContext.put_error(context, errors)
+    %{id: dispatch_id} = context
 
     assert [
-             {["address", "line1"], "42 Infinity Ave"},
-             {["address", "line2"], nil},
-             {["gender"], "MALE"},
-             {["name"], "chris"}
-           ] = Blunt.Absinthe.AbsintheErrors.leaves_with_path(tree)
+             [message: "a.b.c.d broken", path: ~w(a b c d), dispatch_id: ^dispatch_id],
+             [message: "a.b.cc fixed", path: ~w(a b cc), dispatch_id: ^dispatch_id],
+             [message: "a.b.ccc unknown", path: ~w(a b ccc), dispatch_id: ^dispatch_id],
+             [message: "a.tree trunk, branches", path: ~w(a tree), dispatch_id: ^dispatch_id]
+           ] = Blunt.Absinthe.AbsintheErrors.from_dispatch_context(context)
   end
 
   test "format errors with key in message" do
     errors = %{input: %{person: %{address: %{stuff: %{thing: "everything is b0rked"}}}}}
 
-    assert [{[:input, :person, :address, :stuff, :thing], "everything is b0rked"}] =
-             Blunt.Absinthe.AbsintheErrors.leaves_with_path(errors)
-
-    result = Blunt.Absinthe.AbsintheErrors.format(errors, dispatch_id: "23424234")
-
-    assert result == [
-             [message: "input.person.address.stuff.thing everything is b0rked", dispatch_id: "23424234"]
-           ]
+    assert [
+             [
+               message: "input.person.address.stuff.thing everything is b0rked",
+               path: ~w( input person address stuff thing ),
+               dispatch_id: "23424234"
+             ]
+           ] = Blunt.Absinthe.AbsintheErrors.format(errors, dispatch_id: "23424234")
   end
 end

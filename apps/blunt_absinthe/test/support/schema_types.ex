@@ -2,7 +2,7 @@ defmodule Blunt.Absinthe.Test.SchemaTypes do
   use Blunt.Absinthe
   use Absinthe.Schema.Notation
 
-  alias Blunt.Absinthe.Test.{CreatePerson, GetPerson, UpdatePerson, Dog}
+  alias Blunt.Absinthe.Test.{CreatePerson, GetPerson, UpdatePerson, Address, Dog}
 
   derive_enum :gender, {CreatePerson, :gender}
 
@@ -10,9 +10,12 @@ defmodule Blunt.Absinthe.Test.SchemaTypes do
     field :id, :id
     field :name, :string
     field :gender, :gender
+    field :address, :address
   end
 
   derive_object(:dog, Dog)
+  derive_object(:address, Address)
+  derive_mutation_input Address
 
   object :person_queries do
     derive_query GetPerson, :person,
@@ -21,10 +24,10 @@ defmodule Blunt.Absinthe.Test.SchemaTypes do
       ]
   end
 
-  derive_mutation_input(UpdatePerson, arg_types: [gender: :gender])
+  derive_mutation_input(UpdatePerson, arg_types: [gender: :gender, address: :address_input])
 
   object :person_mutations do
-    derive_mutation CreatePerson, :person, arg_types: [gender: :gender]
+    derive_mutation CreatePerson, :person, arg_types: [gender: :gender, address: :address_input]
     derive_mutation UpdatePerson, :person, input_object: true
   end
 end

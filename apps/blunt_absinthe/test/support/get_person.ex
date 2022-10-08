@@ -9,5 +9,5 @@ defmodule Blunt.Absinthe.Test.GetPerson do
 
   field :error_out, :boolean, default: false
 
-  binding :person, BluntBoundedContext.QueryTest.ReadModel.Person
+  binding :person, Blunt.Absinthe.Test.ReadModel.Person
 end

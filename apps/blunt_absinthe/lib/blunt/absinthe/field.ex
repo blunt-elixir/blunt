@@ -86,6 +86,8 @@ defmodule Blunt.Absinthe.Field do
   def dispatch_and_resolve(operation, message_module, query_opts, parent, args, resolution) do
     context_configuration = DispatchContextConfiguration.configure(message_module, resolution)
 
+    input_object = Keyword.get(query_opts, :input_object, false) || Keyword.get(query_opts, :input_object?, false)
+
     args = Map.get(args, :input, args)
 
     opts =
@@ -112,6 +114,8 @@ defmodule Blunt.Absinthe.Field do
         return_value
 
       {:error, errors} when is_map(errors) ->
+        errors = if input_object, do: %{input: errors}, else: errors
+
         {:error, AbsintheErrors.format(errors)}
 
       {:ok, %Context{} = context} ->

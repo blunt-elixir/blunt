@@ -42,7 +42,7 @@ defmodule Blunt.Absinthe.AbsintheErrors do
     |> Enum.map(&Keyword.merge(&1, extra_properties))
   end
 
-  def leaves_with_path(input, path \\ []) do
+  defp leaves_with_path(input, path \\ []) do
     Enum.flat_map(input, fn {key, value} ->
       full = [key | path]
       if is_map(value), do: leaves_with_path(value, full), else: [{Enum.reverse(full), value}]

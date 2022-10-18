@@ -122,10 +122,10 @@ defmodule Blunt.Absinthe.Args do
     end)
   end
 
-  defp update(fields, :set_absinthe_type_opts, _opts) do
+  defp update(fields, :set_absinthe_type_opts, opts) do
     Enum.map(fields, fn {name, {type, absinthe_type}, field_opts} ->
       description = Keyword.get(field_opts, :desc)
-      default_value = Keyword.get(field_opts, :default) |> normalize_default_value()
+      default_value = get_default_value(name, field_opts, opts) |> normalize_default_value()
 
       absinthe_type_opts =
         field_opts
@@ -148,6 +148,16 @@ defmodule Blunt.Absinthe.Args do
       absinthe_type = Type.from_message_field(message_module, field, opts)
       {field_name, {type, absinthe_type}, field_opts}
     end)
+  end
+
+  defp get_default_value(name, field_opts, opts) do
+    case Keyword.get(opts, :arg_defaults, []) |> Keyword.get(name)  do
+      nil ->
+        Keyword.get(field_opts, :default)
+
+      value ->
+        value
+    end
   end
 
   defp normalize_default_value(%{}), do: {:{}, [], []}

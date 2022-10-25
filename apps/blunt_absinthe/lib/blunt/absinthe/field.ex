@@ -103,25 +103,13 @@ defmodule Blunt.Absinthe.Field do
 
     case results do
       {:error, %Context{} = context} ->
-        return_value = {:error, AbsintheErrors.from_dispatch_context(context)}
-
-        context
-        |> Context.put_pipeline(:absinthe_resolve, return_value)
-        |> Context.Shipper.ship()
-
-        return_value
+        {:error, AbsintheErrors.from_dispatch_context(context)}
 
       {:error, errors} when is_map(errors) ->
         {:error, AbsintheErrors.format(errors)}
 
       {:ok, %Context{} = context} ->
-        return_value = {:ok, Context.get_last_pipeline(context)}
-
-        context
-        |> Context.put_pipeline(:absinthe_resolve, return_value)
-        |> Context.Shipper.ship()
-
-        return_value
+        {:ok, Context.get_last_pipeline(context)}
 
       other ->
         other

@@ -40,14 +40,6 @@ defmodule Blunt.Absinthe.MutationTest do
     assert {:ok, _} = UUID.info(id)
   end
 
-  test "user is put in the context from absinthe resolution context", %{query: query} do
-    context = %{user: %{name: "chris"}, reply_to: self()}
-
-    _ = Absinthe.run(query, Schema, context: context, variables: %{"name" => "chris", "gender" => "MALE"})
-
-    assert_receive {:context, %DispatchContext{user: %{name: "chris"}}}
-  end
-
   test "mutation input types" do
     assert %InputObject{fields: fields} = Absinthe.Schema.lookup_type(Schema, :update_person_input)
 

@@ -1,0 +1,262 @@
+diff --git a/apps/blunt/lib/blunt.ex b/apps/blunt/lib/blunt.ex
+index 87bfd3d..21bbc96 100644
+--- a/apps/blunt/lib/blunt.ex
++++ b/apps/blunt/lib/blunt.ex
+@@ -1,11 +1,4 @@
+ defmodule Blunt do
+-  use Application
+-
+-  def start(_type, _args) do
+-    [Blunt.DispatchContext.Shipper]
+-    |> Supervisor.start_link(strategy: :one_for_one, name: Blunt.Supervisor)
+-  end
+-
+   defmacro __using__(_opts) do
+     quote do
+       import Blunt, only: :macros
+diff --git a/apps/blunt/lib/blunt/config.ex b/apps/blunt/lib/blunt/config.ex
+index ac696ad..8e19f16 100644
+--- a/apps/blunt/lib/blunt/config.ex
++++ b/apps/blunt/lib/blunt/config.ex
+@@ -5,7 +5,7 @@ defmodule Blunt.Config do
+     defexception [:message]
+   end
+ 
+-  alias Blunt.{Behaviour, DispatchContext, DispatchContext.Shipper, DispatchStrategy, DispatchStrategy.PipelineResolver}
++  alias Blunt.{Behaviour, DispatchContext, DispatchStrategy, DispatchStrategy.PipelineResolver}
+ 
+   def log_when_compiling?,
+     do: get(:log_when_compiling, false)
+@@ -87,14 +87,6 @@ defmodule Blunt.Config do
+     |> Behaviour.validate!(PipelineResolver)
+   end
+ 
+-  @doc false
+-  def context_shipper! do
+-    case get(:context_shipper) do
+-      nil -> nil
+-      shipper -> Behaviour.validate!(shipper, Shipper)
+-    end
+-  end
+-
+   def type_spec_provider do
+     get(:type_spec_provider)
+   end
+diff --git a/apps/blunt/lib/blunt/dispatch_context/shipper.ex b/apps/blunt/lib/blunt/dispatch_context/shipper.ex
+deleted file mode 100644
+index 0f93898..0000000
+--- a/apps/blunt/lib/blunt/dispatch_context/shipper.ex
++++ /dev/null
+@@ -1,29 +0,0 @@
+-defmodule Blunt.DispatchContext.Shipper do
+-  @callback ship(Blunt.DispatchContext.t()) :: :ok
+-
+-  use GenServer
+-
+-  def start_link(_opts) do
+-    shipper = Blunt.Config.context_shipper!()
+-    GenServer.start_link(__MODULE__, shipper, name: __MODULE__)
+-  end
+-
+-  def ship(context) do
+-    GenServer.cast(__MODULE__, {:ship, context})
+-    context
+-  end
+-
+-  @impl true
+-  def init(state),
+-    do: {:ok, state}
+-
+-  @impl true
+-  def handle_cast({:ship, _context}, nil),
+-    do: {:noreply, nil}
+-
+-  @impl true
+-  def handle_cast({:ship, context}, shipper) do
+-    shipper.ship(context)
+-    {:noreply, shipper}
+-  end
+-end
+diff --git a/apps/blunt/lib/blunt/dispatch_strategy.ex b/apps/blunt/lib/blunt/dispatch_strategy.ex
+index 1f6da74..0b2e839 100644
+--- a/apps/blunt/lib/blunt/dispatch_strategy.ex
++++ b/apps/blunt/lib/blunt/dispatch_strategy.ex
+@@ -18,9 +18,6 @@ defmodule Blunt.DispatchStrategy do
+ 
+   @spec return_final(any, context()) :: {:ok, any}
+   def return_final(value, context) do
+-    if DispatchContext.get_option(context, :ship, true),
+-      do: DispatchContext.Shipper.ship(context)
+-
+     case DispatchContext.get_return(context) do
+       :context -> {:ok, context}
+       _ -> {:ok, value}
+diff --git a/apps/blunt/mix.exs b/apps/blunt/mix.exs
+index ac2b3ab..78e3fbe 100644
+--- a/apps/blunt/mix.exs
++++ b/apps/blunt/mix.exs
+@@ -37,7 +37,6 @@ defmodule Blunt.MixProject do
+   # Run "mix help compile.app" to learn about applications.
+   def application do
+     [
+-      mod: {Blunt, []},
+       extra_applications: [:logger]
+     ]
+   end
+diff --git a/apps/blunt/test/shared/context_shipper.ex b/apps/blunt/test/shared/context_shipper.ex
+deleted file mode 100644
+index 4157d2f..0000000
+--- a/apps/blunt/test/shared/context_shipper.ex
++++ /dev/null
+@@ -1,12 +0,0 @@
+-defmodule Blunt.Test.ContextShipper do
+-  @behaviour Blunt.DispatchContext.Shipper
+-
+-  alias Blunt.DispatchContext
+-
+-  def ship(context) do
+-    case DispatchContext.get_option(context, :reply_to) do
+-      nil -> :ok
+-      reply_to -> send(reply_to, {:context, context})
+-    end
+-  end
+-end
+diff --git a/apps/blunt_absinthe/config/config.exs b/apps/blunt_absinthe/config/config.exs
+index cbb47ae..1b0c3a4 100644
+--- a/apps/blunt_absinthe/config/config.exs
++++ b/apps/blunt_absinthe/config/config.exs
+@@ -1,7 +1,5 @@
+ import Config
+ 
+-config :blunt, context_shipper: Blunt.Absinthe.Test.PublishingDispatchContextShipper
+-
+ config :blunt_absinthe,
+   dispatch_context_configuration: Blunt.Absinthe.Test.DispatchContextConfiguration
+ 
+diff --git a/apps/blunt_absinthe/lib/blunt/absinthe/field.ex b/apps/blunt_absinthe/lib/blunt/absinthe/field.ex
+index 25c180b..6df5b26 100644
+--- a/apps/blunt_absinthe/lib/blunt/absinthe/field.ex
++++ b/apps/blunt_absinthe/lib/blunt/absinthe/field.ex
+@@ -103,25 +103,13 @@ defmodule Blunt.Absinthe.Field do
+ 
+     case results do
+       {:error, %Context{} = context} ->
+-        return_value = {:error, AbsintheErrors.from_dispatch_context(context)}
+-
+-        context
+-        |> Context.put_pipeline(:absinthe_resolve, return_value)
+-        |> Context.Shipper.ship()
+-
+-        return_value
++        {:error, AbsintheErrors.from_dispatch_context(context)}
+ 
+       {:error, errors} when is_map(errors) ->
+         {:error, AbsintheErrors.format(errors)}
+ 
+       {:ok, %Context{} = context} ->
+-        return_value = {:ok, Context.get_last_pipeline(context)}
+-
+-        context
+-        |> Context.put_pipeline(:absinthe_resolve, return_value)
+-        |> Context.Shipper.ship()
+-
+-        return_value
++        {:ok, Context.get_last_pipeline(context)}
+ 
+       other ->
+         other
+diff --git a/apps/blunt_absinthe/test/support/publishing_dispatch_context_shipper.ex b/apps/blunt_absinthe/test/support/publishing_dispatch_context_shipper.ex
+deleted file mode 100644
+index ec2d59d..0000000
+--- a/apps/blunt_absinthe/test/support/publishing_dispatch_context_shipper.ex
++++ /dev/null
+@@ -1,12 +0,0 @@
+-defmodule Blunt.Absinthe.Test.PublishingDispatchContextShipper do
+-  @behaviour Blunt.DispatchContext.Shipper
+-
+-  alias Blunt.DispatchContext
+-
+-  def ship(context) do
+-    case DispatchContext.get_option(context, :reply_to) do
+-      nil -> :ok
+-      reply_to -> send(reply_to, {:context, context})
+-    end
+-  end
+-end
+diff --git a/apps/blunt_absinthe_relay/config/config.exs b/apps/blunt_absinthe_relay/config/config.exs
+index be412b2..4fba78e 100644
+--- a/apps/blunt_absinthe_relay/config/config.exs
++++ b/apps/blunt_absinthe_relay/config/config.exs
+@@ -4,5 +4,3 @@ config :blunt_absinthe,
+   dispatch_context_configuration: Blunt.Absinthe.Relay.Test.DispatchContextConfiguration
+ 
+ config :blunt_absinthe_relay, :repo, Blunt.Repo
+-
+-config :blunt, :context_shipper, Blunt.Absinthe.Relay.Test.PublishingDispatchContextShipper
+diff --git a/apps/blunt_absinthe_relay/lib/blunt/absinthe/relay/connection_field.ex b/apps/blunt_absinthe_relay/lib/blunt/absinthe/relay/connection_field.ex
+index d40f400..d838fff 100644
+--- a/apps/blunt_absinthe_relay/lib/blunt/absinthe/relay/connection_field.ex
++++ b/apps/blunt_absinthe_relay/lib/blunt/absinthe/relay/connection_field.ex
+@@ -68,13 +68,7 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
+ 
+     case results do
+       {:error, %Context{} = context} ->
+-        return_value = {:error, AbsintheErrors.from_dispatch_context(context)}
+-
+-        context
+-        |> Context.put_pipeline(:absinthe_resolve, return_value)
+-        |> Context.Shipper.ship()
+-
+-        return_value
++        {:error, AbsintheErrors.from_dispatch_context(context)}
+ 
+       {:ok, %Context{} = context} ->
+         query = Context.get_last_pipeline(context)
+@@ -92,17 +86,9 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
+               |> Map.put(:repo, repo)
+               |> Map.put(:query, query)
+ 
+-            context
+-            |> Context.put_pipeline(:absinthe_resolve, results)
+-            |> Context.Shipper.ship()
+-
+             {:ok, results}
+ 
+           {:error, error} ->
+-            context
+-            |> Context.put_pipeline(:absinthe_resolve, {:error, error})
+-            |> Context.Shipper.ship()
+-
+             {:error, error}
+         end
+     end
+diff --git a/apps/blunt_absinthe_relay/test/support/publishing_dispatch_context_shipper.ex b/apps/blunt_absinthe_relay/test/support/publishing_dispatch_context_shipper.ex
+deleted file mode 100644
+index 1329434..0000000
+--- a/apps/blunt_absinthe_relay/test/support/publishing_dispatch_context_shipper.ex
++++ /dev/null
+@@ -1,12 +0,0 @@
+-defmodule Blunt.Absinthe.Relay.Test.PublishingDispatchContextShipper do
+-  @behaviour Blunt.DispatchContext.Shipper
+-
+-  alias Blunt.DispatchContext
+-
+-  def ship(context) do
+-    case DispatchContext.get_option(context, :reply_to) do
+-      nil -> :ok
+-      reply_to -> send(reply_to, {:context, context})
+-    end
+-  end
+-end
+diff --git a/config/config.exs b/config/config.exs
+index c75c7d9..94472e2 100644
+--- a/config/config.exs
++++ b/config/config.exs
+@@ -11,7 +11,6 @@ config :blunt,
+   dispatch_return: :response,
+   documentation_output: false,
+   create_jason_encoders: false,
+-  context_shipper: Blunt.Test.ContextShipper,
+   dispatch_strategy: Blunt.DispatchStrategy.Default,
+   pipeline_resolver: Blunt.DispatchStrategy.PipelineResolver.Default,
+   dispatch_context_configuration: Blunt.DispatchContext.DefaultConfiguration,

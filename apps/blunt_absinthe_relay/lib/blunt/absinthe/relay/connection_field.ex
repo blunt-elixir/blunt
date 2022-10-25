@@ -68,13 +68,7 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
 
     case results do
       {:error, %Context{} = context} ->
-        return_value = {:error, AbsintheErrors.from_dispatch_context(context)}
-
-        context
-        |> Context.put_pipeline(:absinthe_resolve, return_value)
-        |> Context.Shipper.ship()
-
-        return_value
+        {:error, AbsintheErrors.from_dispatch_context(context)}
 
       {:ok, %Context{} = context} ->
         query = Context.get_last_pipeline(context)
@@ -92,17 +86,9 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
               |> Map.put(:repo, repo)
               |> Map.put(:query, query)
 
-            context
-            |> Context.put_pipeline(:absinthe_resolve, results)
-            |> Context.Shipper.ship()
-
             {:ok, results}
 
           {:error, error} ->
-            context
-            |> Context.put_pipeline(:absinthe_resolve, {:error, error})
-            |> Context.Shipper.ship()
-
             {:error, error}
         end
     end

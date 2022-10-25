@@ -44,12 +44,4 @@ defmodule Blunt.Absinthe.QueryTest do
 
     assert {:ok, %{errors: [%{message: "sumting wong"}]}} = Absinthe.run(query, Schema, variables: variables)
   end
-
-  test "user is put in the context from absinthe resolution context", %{person_id: person_id, query: query} do
-    context = %{user: %{name: "chris"}, reply_to: self()}
-
-    _ = Absinthe.run(query, Schema, context: context, variables: %{"id" => person_id})
-
-    assert_receive {:context, %DispatchContext{user: %{name: "chris"}}}
-  end
 end

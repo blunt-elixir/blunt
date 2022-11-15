@@ -123,6 +123,7 @@ defmodule Blunt.Data.Factories.Factory do
   end
 
   defp evaluate_values(%{input: input, values: values} = factory) do
+    values = List.flatten(values)
     data = Enum.reduce(values, input, &Value.evaluate(&1, &2, factory))
     %{factory | data: data}
   end

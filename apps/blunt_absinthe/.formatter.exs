@@ -8,7 +8,8 @@ locals_without_parens = [
   derive_object: 2,
   derive_object: 3,
   derive_mutation_input: 1,
-  derive_mutation_input: 2
+  derive_mutation_input: 2,
+  absinthe_resolver: 1
 ]
 
 [

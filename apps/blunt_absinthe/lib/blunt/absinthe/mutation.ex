@@ -3,7 +3,6 @@ defmodule Blunt.Absinthe.Mutation do
 
   alias Blunt.Absinthe.{Args, Field}
 
-  @spec generate_field(atom, any, keyword) :: {:field, [], [...]}
   def generate_field(command_module, return_type, opts) do
     field_name = Field.name(command_module, opts)
     body = Field.generate_body(:absinthe_mutation, field_name, command_module, opts)

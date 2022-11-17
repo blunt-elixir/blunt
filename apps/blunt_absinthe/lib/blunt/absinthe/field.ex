@@ -33,13 +33,17 @@ defmodule Blunt.Absinthe.Field do
     args = args(operation, message_module, opts)
     description = description(message_module)
     {before_resolve, after_resolve} = middleware(opts)
+    {configured_before_resolve, configured_after_resolve} = configured_middleware()
 
     Blunt.Message.Compilation.log(message_module, "regenerated #{operation} #{field_name}")
 
     quote do
       unquote_splicing(args)
       description(unquote(description))
+
+      middleware(unquote(__MODULE__).prepare_context(unquote(message_module)))
       middleware(unquote(before_resolve))
+      middleware(unquote(configured_before_resolve))
 
       resolve(fn parent, args, resolution ->
         Field.dispatch_and_resolve(
@@ -53,12 +57,22 @@ defmodule Blunt.Absinthe.Field do
       end)
 
       middleware(unquote(after_resolve))
+      middleware(unquote(configured_after_resolve))
+    end
+  end
+
+  def prepare_context(message_module) do
+    fn %{context: context} = resolution, _config ->
+      blunt = %{absinthe_pid: self(), message_module: message_module}
+      context = Map.put(context, :blunt, blunt)
+      %{resolution | context: context}
     end
   end
 
   @type middlware_function :: (resolution(), keyword() -> resolution())
   @spec middleware(keyword) :: {middlware_function, middlware_function}
   def middleware(opts), do: Middleware.middleware(opts)
+  def configured_middleware, do: Middleware.configured()
 
   @spec args(atom(), message_module, keyword) :: list
   def args(:absinthe_mutation, message_module, opts) do

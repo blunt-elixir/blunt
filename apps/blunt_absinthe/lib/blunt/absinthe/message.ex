@@ -1,8 +1,10 @@
 defmodule Blunt.Absinthe.Message do
   @moduledoc false
 
+  alias Blunt.Behaviour
   alias Blunt.Absinthe.Error
   alias Blunt.Message.Metadata
+  alias Blunt.Absinthe.Command.MutationResolver
 
   def validate!(:command, module) do
     error = "#{inspect(module)} is not a valid #{inspect(Blunt.Command)}"
@@ -23,6 +25,13 @@ defmodule Blunt.Absinthe.Message do
 
       _ ->
         raise Error, message: error
+    end
+  end
+
+  def defines_resolver?(module) do
+    case Behaviour.validate(module, MutationResolver) do
+      {:ok, _} -> true
+      _ -> false
     end
   end
 end

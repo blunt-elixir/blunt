@@ -8,5 +8,11 @@ defmodule Blunt.Absinthe.Middleware do
     {before_resolve, after_resolve}
   end
 
+  def configured do
+    before_resolve = Blunt.Absinthe.Config.before_resolve_middleware()
+    after_resolve = Blunt.Absinthe.Config.after_resolve_middleware()
+    {before_resolve, after_resolve}
+  end
+
   def identity(res, _), do: res
 end

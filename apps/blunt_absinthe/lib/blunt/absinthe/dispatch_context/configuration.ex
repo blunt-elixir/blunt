@@ -5,8 +5,11 @@ defmodule Blunt.Absinthe.DispatchContext.Configuration do
 
   alias Blunt.Absinthe.Config
 
-  def configure(message_module, resolution) do
+  def configure(message_module, %{context: context} = resolution) do
     configuration = Config.dispatch_context_configuration()
-    configuration.configure(message_module, resolution)
+
+    metadata = configuration.configure(message_module, resolution)
+
+    Keyword.put(metadata, :blunt, Map.get(context, :blunt))
   end
 end

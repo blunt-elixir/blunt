@@ -1,4 +1,6 @@
 defmodule Blunt.Absinthe.MutationResolver do
+  alias Blunt.Absinthe.Message
+
   @callback resolve(Absinthe.Resolution.t(), keyword()) :: Absinthe.Resolution.t()
 
   defmodule Error do
@@ -45,6 +47,22 @@ defmodule Blunt.Absinthe.MutationResolver do
         x ->
           raise Error, message: "Expected {:ok, _} or {:error, _}. Got #{inspect(x)}"
       end
+    end
+  end
+
+  def after_resolve(%{context: context} = resolution, config) do
+    case Map.get(context, :blunt, %{}) do
+      %{message_module: module} ->
+        cond do
+          Message.defines_resolver?(module) ->
+            module.resolve(resolution, config)
+
+          true ->
+            resolution
+        end
+
+      _ ->
+        resolution
     end
   end
 end

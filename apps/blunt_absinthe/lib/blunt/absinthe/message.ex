@@ -4,7 +4,7 @@ defmodule Blunt.Absinthe.Message do
   alias Blunt.Behaviour
   alias Blunt.Absinthe.Error
   alias Blunt.Message.Metadata
-  alias Blunt.Absinthe.Command.MutationResolver
+  alias Blunt.Absinthe.MutationResolver
 
   def validate!(:command, module) do
     error = "#{inspect(module)} is not a valid #{inspect(Blunt.Command)}"

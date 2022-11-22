@@ -1,4 +1,4 @@
-defmodule Blunt.Absinthe.Command.MutationResolver do
+defmodule Blunt.Absinthe.MutationResolver do
   @callback resolve(Absinthe.Resolution.t(), keyword()) :: Absinthe.Resolution.t()
 
   defmodule Error do
@@ -38,6 +38,9 @@ defmodule Blunt.Absinthe.Command.MutationResolver do
 
         {:error, error} ->
           Absinthe.Resolution.put_result(unquote(resolution), {:error, error})
+
+        %Absinthe.Resolution{} = resolution ->
+          resolution
 
         x ->
           raise Error, message: "Expected {:ok, _} or {:error, _}. Got #{inspect(x)}"

@@ -63,7 +63,7 @@ defmodule Blunt.Absinthe.Field do
 
   def prepare_context(message_module) do
     fn %{context: context} = resolution, _config ->
-      blunt = %{absinthe_pid: self(), message_module: message_module}
+      blunt = %{reply_to: self(), message_module: message_module}
       context = Map.put(context, :blunt, blunt)
       %{resolution | context: context}
     end

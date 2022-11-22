@@ -9,43 +9,42 @@ defmodule Blunt.Absinthe.MutationResolver do
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour unquote(__MODULE__)
-      @dialyzer {:nowarn_function, resolve: 2}
       import unquote(__MODULE__), only: :macros
     end
   end
 
   defmacro absinthe_resolver({:fn, _, [{:->, _, [[{_resolution, _, _}, {_config, _, _}], _]}]} = function) do
     quote do
+      @behaviour unquote(__MODULE__)
       @impl unquote(__MODULE__)
+      @dialyzer {:nowarn_function, resolve: 2}
       def resolve(resolution, config) do
-        unquote(function).(resolution, config)
+        result = unquote(function).(resolution, config)
+
+        case result do
+          {:ok, result} ->
+            Absinthe.Resolution.put_result(resolution, {:ok, result})
+
+          {:error, error} ->
+            Absinthe.Resolution.put_result(resolution, {:error, error})
+
+          %Absinthe.Resolution{} = resolution ->
+            resolution
+
+          x ->
+            raise Error, message: "Expected {:ok, _} or {:error, _}. Got #{inspect(x)}"
+        end
       end
     end
   end
 
   defmacro receive_event(resolution, timeout \\ 5000, do: code_block) do
     quote do
-      result =
-        receive do
-          unquote(code_block)
-        after
-          unquote(timeout) ->
-            Absinthe.Resolution.put_result(unquote(resolution), {:error, :timeout})
-        end
-
-      case result do
-        {:ok, result} ->
-          Absinthe.Resolution.put_result(unquote(resolution), {:ok, result})
-
-        {:error, error} ->
-          Absinthe.Resolution.put_result(unquote(resolution), {:error, error})
-
-        %Absinthe.Resolution{} = resolution ->
-          resolution
-
-        x ->
-          raise Error, message: "Expected {:ok, _} or {:error, _}. Got #{inspect(x)}"
+      receive do
+        unquote(code_block)
+      after
+        unquote(timeout) ->
+          Absinthe.Resolution.put_result(unquote(resolution), {:error, :timeout})
       end
     end
   end

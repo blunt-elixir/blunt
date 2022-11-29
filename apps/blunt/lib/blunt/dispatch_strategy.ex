@@ -27,7 +27,7 @@ defmodule Blunt.DispatchStrategy do
 
     start_time =
       telemetry_start([:blunt, :dispatch_strategy, :execute], %{
-        message_type: message_type,
+        message_module: message_type,
         message: message
       })
 
@@ -66,10 +66,6 @@ defmodule Blunt.DispatchStrategy do
           Map.put(telemetry_metadata, :result, result)
       end
 
-    do_telemetry_stop(event_prefix, start_time, telemetry_metadata)
-  end
-
-  defp do_telemetry_stop(event_prefix, start_time, telemetry_metadata) do
     Telemetry.stop(event_prefix, start_time, telemetry_metadata)
   end
 
@@ -90,9 +86,9 @@ defmodule Blunt.DispatchStrategy do
 
   @spec execute({module :: atom, function :: atom, args :: list}, context()) :: {:error, context()} | {:ok, context()}
   def execute({pipeline, callback, args}, context) do
-    start_time = telemetry_start([:blunt, :dispatch_strategy, callback, :start], context)
+    start_time = telemetry_start([:blunt, :dispatch_strategy, callback], context)
     result = do_execute({pipeline, callback, args}, context)
-    telemetry_stop([:blunt, :dispatch_strategy, callback, :stop], start_time, result, result)
+    telemetry_stop([:blunt, :dispatch_strategy, callback], start_time, %{}, result)
     result
   end
 

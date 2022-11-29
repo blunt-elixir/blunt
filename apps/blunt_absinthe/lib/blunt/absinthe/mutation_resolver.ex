@@ -49,7 +49,9 @@ defmodule Blunt.Absinthe.MutationResolver do
     end
   end
 
-  def after_resolve(%{context: context} = resolution, config) do
+  def after_resolve(%{errors: [_ | _]} = resolution, _config), do: resolution
+
+  def after_resolve(%{context: context, errors: []} = resolution, config) do
     case Map.get(context, :blunt, %{}) do
       %{message_module: module} ->
         cond do

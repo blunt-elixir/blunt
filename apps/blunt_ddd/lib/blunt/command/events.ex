@@ -45,9 +45,11 @@ defmodule Blunt.Command.Events do
     do: Enum.each(command.__events__(), &generate_event(env, &1))
 
   defp generate_event(%{module: command} = env, {__name, opts, {file, line}} = event) do
-    version = Keyword.get(opts, :version, 1)
-    event_body = Keyword.get(opts, :do, nil)
-    to_drop = Keyword.get(opts, :drop, []) |> List.wrap()
+    {version, opts} = Keyword.pop(opts, :version, 1)
+    {event_body, opts} = Keyword.pop(opts, :do, nil)
+    {to_drop, opts} = Keyword.pop(opts, :drop, [])
+
+    to_drop = List.wrap(to_drop)
 
     schema_fields =
       command
@@ -63,7 +65,7 @@ defmodule Blunt.Command.Events do
         {name, type, opts} ->
           opts =
             opts
-            |> Keyword.put(:required, false)
+            |> Keyword.put_new(:required, false)
             |> Macro.escape()
 
           quote do: field(unquote(name), unquote(type), unquote(opts))
@@ -73,7 +75,7 @@ defmodule Blunt.Command.Events do
 
     domain_event =
       quote do
-        use Blunt.DomainEvent
+        use Blunt.DomainEvent, unquote(opts)
         @version unquote(version)
         unquote_splicing(schema_fields)
         Module.eval_quoted(__MODULE__, unquote(event_body))

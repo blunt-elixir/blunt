@@ -129,9 +129,15 @@ defmodule Blunt.Data.Factories.Values do
     end
   end
 
-  defmacro required_prop(field) when is_atom(field) do
+  defmacro required_prop(field_or_fields) when is_atom(field_or_fields) or is_list(field_or_fields) do
     quote do
-      %Values.RequiredProp{field: unquote(field)}
+      %Values.RequiredProp{fields: List.wrap(unquote(field_or_fields))}
+    end
+  end
+
+  defmacro required_props(fields) when is_list(fields) do
+    quote do
+      %Values.RequiredProp{fields: unquote(fields)}
     end
   end
 

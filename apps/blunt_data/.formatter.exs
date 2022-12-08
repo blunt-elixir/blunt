@@ -16,6 +16,7 @@ locals_without_parens = [
   prop: 2,
   lazy_prop: 2,
   required_prop: 1,
+  required_props: 1,
   defaults: 1,
   merge_input: 1,
   input: 1,

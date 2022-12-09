@@ -111,6 +111,12 @@ defmodule Blunt.Data.Factories.Values do
     end
   end
 
+  defmacro merge_props(source_prop) when is_atom(source_prop) do
+    quote do
+      %Values.MergeProps{prop: unquote(source_prop)}
+    end
+  end
+
   defmacro map(func) do
     quote do
       %Values.Mapper{func: unquote(func)}

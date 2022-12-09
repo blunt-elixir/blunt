@@ -24,6 +24,8 @@ defmodule Blunt.Data.Factories.Values.RequiredProp do
         fields = Enum.map(errors, &elem(&1, 1))
         raise FactoryError.required_field(current_factory, fields)
       end
+
+      acc
     end
   end
 end

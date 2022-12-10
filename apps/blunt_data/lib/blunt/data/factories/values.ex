@@ -81,12 +81,50 @@ defmodule Blunt.Data.Factories.Values do
   end
 
   @doc """
+
   The `field` of the factory source data will be assigned
   to the value of `path_func_or_value` in the factory source
+
+  ## Options
+  * **prefix** *atom* | *string*
+    If this option is set, the resulting keys in the factory data will be prefixed
+    with this value
   """
-  defmacro prop(field, path_func_or_value) do
+
+  defmacro merge_prop(field, path_func_or_value, opts \\ []) do
+    {prefix, opts} = Keyword.pop(opts, :prefix)
+
+    opts =
+      opts
+      |> Keyword.put(:merge_prefix, prefix)
+      |> Keyword.put(:merge, true)
+
     quote do
-      %Values.Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value)}
+      %Values.Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value), opts: unquote(opts)}
+    end
+  end
+
+  @doc """
+  The `field` of the factory source data will be assigned
+  to the value of `path_func_or_value` in the factory source
+
+  ## Options
+
+  * **merge** *boolean*
+
+    If `true`, the results of prop will be merged into the current factory's data. If `false`,
+    the the results of the will be in the factory's data under key matching the name of the prop.
+
+  * **merge_prefix** *atom* | *string*
+
+    Only used in conjunction with `merge`.
+
+    If merge is true and this option is set, the resulting keys in the factory data will be prefixed
+    with this value
+  """
+  defmacro prop(field, path_func_or_value, opts \\ []) do
+    quote do
+      %Values.Prop{field: unquote(field), path_func_or_value: unquote(path_func_or_value), opts: unquote(opts)}
     end
   end
 
@@ -108,12 +146,6 @@ defmodule Blunt.Data.Factories.Values do
   defmacro merge_input(key, opts \\ []) do
     quote do
       %Values.MergeInput{key: unquote(key), opts: unquote(opts)}
-    end
-  end
-
-  defmacro merge_props(source_prop) when is_atom(source_prop) do
-    quote do
-      %Values.MergeProps{prop: unquote(source_prop)}
     end
   end
 

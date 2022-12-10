@@ -1,7 +1,7 @@
 defmodule Blunt.Data.Factories.Values.Prop do
   @moduledoc false
   @derive {Inspect, except: [:lazy]}
-  defstruct [:field, :path_func_or_value, lazy: false]
+  defstruct [:field, :path_func_or_value, opts: [], lazy: false]
 
   alias Blunt.Data.FactoryError
   alias Blunt.Data.Factories.Factory
@@ -10,18 +10,18 @@ defmodule Blunt.Data.Factories.Values.Prop do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%Prop{field: field}), do: [field]
 
-    def evaluate(%Prop{field: field, path_func_or_value: path, lazy: lazy}, acc, current_factory)
+    def evaluate(%Prop{field: field, path_func_or_value: path, lazy: lazy, opts: opts}, acc, current_factory)
         when is_list(path) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         case path do
           [] ->
             value = Factory.log_value(current_factory, [], field, lazy, "prop")
-            Map.put(acc, field, value)
+            put_values(acc, field, value, opts)
 
           [path] ->
             value = get_in(acc, Access.key(path))
             value = Factory.log_value(current_factory, value, field, lazy, "prop")
-            Map.put(acc, field, value)
+            put_values(acc, field, value, opts)
 
           [head | rest] ->
             # ensure that the first key in the path is not nil
@@ -34,14 +34,14 @@ defmodule Blunt.Data.Factories.Values.Prop do
             keys = [Access.key(head, %{}) | Enum.map(rest, &Access.key/1)]
             value = get_in(acc, keys)
             value = Factory.log_value(current_factory, value, field, lazy, "prop")
-            Map.put(acc, field, value)
+            put_values(acc, field, value, opts)
         end
       else
         acc
       end
     end
 
-    def evaluate(%Prop{field: field, path_func_or_value: func, lazy: lazy}, acc, current_factory)
+    def evaluate(%Prop{field: field, path_func_or_value: func, lazy: lazy, opts: opts}, acc, current_factory)
         when is_function(func, 0) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         value =
@@ -69,13 +69,13 @@ defmodule Blunt.Data.Factories.Values.Prop do
           end
 
         value = Factory.log_value(current_factory, value, field, lazy, "prop")
-        Map.put(acc, field, value)
+        put_values(acc, field, value, opts)
       else
         acc
       end
     end
 
-    def evaluate(%Prop{field: field, path_func_or_value: func, lazy: lazy}, acc, current_factory)
+    def evaluate(%Prop{field: field, path_func_or_value: func, lazy: lazy, opts: opts}, acc, current_factory)
         when is_function(func, 1) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         value =
@@ -103,18 +103,39 @@ defmodule Blunt.Data.Factories.Values.Prop do
           end
 
         value = Factory.log_value(current_factory, value, field, lazy, "prop")
-        Map.put(acc, field, value)
+        put_values(acc, field, value, opts)
       else
         acc
       end
     end
 
-    def evaluate(%Prop{field: field, path_func_or_value: value, lazy: lazy}, acc, current_factory) do
+    def evaluate(%Prop{field: field, path_func_or_value: value, lazy: lazy, opts: opts}, acc, current_factory) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         value = Factory.log_value(current_factory, value, field, lazy, "prop")
-        Map.put(acc, field, value)
+        put_values(acc, field, value, opts)
       else
         acc
+      end
+    end
+
+    defp put_values(factory_data, prop, value, opts) do
+      if Keyword.get(opts, :merge, false) do
+        merge_data(factory_data, value, opts)
+      else
+        Map.put(factory_data, prop, value)
+      end
+    end
+
+    defp merge_data(factory_data, value, opts) do
+      case Keyword.get(opts, :merge_prefix) do
+        nil ->
+          Map.merge(factory_data, value)
+
+        prefix ->
+          Enum.reduce(value, factory_data, fn
+            {key, value}, acc -> Map.put(acc, :"#{prefix}_#{key}", value)
+            _, acc -> acc
+          end)
       end
     end
   end

@@ -25,6 +25,7 @@ locals_without_parens = [
   input: 1,
   inspect_props: 0,
   inspect_props: 1
+  inspect_prop_keys: 0
 ]
 
 [

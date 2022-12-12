@@ -29,6 +29,16 @@ defmodule Blunt.Data.Factories.Values.InspectProps do
       |> Factory.log_value(acc, "all props", false, "inspect")
     end
 
+    def evaluate(%InspectProps{props: :__keys}, acc, current_factory) do
+      keys = acc |> Map.keys() |> Enum.sort()
+
+      current_factory
+      |> Factory.enable_debug()
+      |> Factory.log_value(keys, "all props keys", false, "inspect")
+
+      acc
+    end
+
     def evaluate(%InspectProps{props: props}, acc, current_factory) do
       value = Map.take(acc, props)
 

@@ -210,4 +210,10 @@ defmodule Blunt.Data.Factories.Values do
       %Values.InspectProps{props: :all}
     end
   end
+
+  defmacro inspect_prop_keys do
+    quote do
+      %Values.InspectProps{props: :__keys}
+    end
+  end
 end

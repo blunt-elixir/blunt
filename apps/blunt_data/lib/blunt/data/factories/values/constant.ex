@@ -13,5 +13,8 @@ defmodule Blunt.Data.Factories.Values.Constant do
     end
 
     def declared_props(%Constant{field: field}), do: [field]
+
+    def error(%{field: field}, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: field)
   end
 end

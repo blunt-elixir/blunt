@@ -9,6 +9,9 @@ defmodule Blunt.Data.Factories.Values.Data do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%Data{field: field}), do: [field]
 
+    def error(%{field: field}, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: field)
+
     def evaluate(%Data{field: field, factory: factory, lazy: lazy}, acc, current_factory) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do
         operation =

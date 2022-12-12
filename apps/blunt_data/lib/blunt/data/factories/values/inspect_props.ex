@@ -8,6 +8,9 @@ defmodule Blunt.Data.Factories.Values.InspectProps do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%InspectProps{}), do: []
 
+    def error(_value, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: :inspect_props)
+
     def evaluate(%InspectProps{props: :declared}, acc, current_factory) do
       keys =
         current_factory.values

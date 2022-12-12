@@ -8,6 +8,9 @@ defmodule Blunt.Data.Factories.Values.Mapper do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%Mapper{}), do: []
 
+    def error(_value, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: :map)
+
     def evaluate(%Mapper{func: :declared_only}, acc, current_factory) do
       keys =
         current_factory.values

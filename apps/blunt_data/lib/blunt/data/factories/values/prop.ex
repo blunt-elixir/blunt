@@ -10,6 +10,9 @@ defmodule Blunt.Data.Factories.Values.Prop do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%Prop{field: field}), do: [field]
 
+    def error(%Prop{field: field}, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: field)
+
     def evaluate(%Prop{field: field, path_func_or_value: path, lazy: lazy, opts: opts}, acc, current_factory)
         when is_list(path) do
       if not lazy or (lazy and not Map.has_key?(acc, field)) do

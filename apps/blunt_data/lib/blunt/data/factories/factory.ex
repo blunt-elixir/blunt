@@ -124,8 +124,18 @@ defmodule Blunt.Data.Factories.Factory do
 
   defp evaluate_values(%{input: input, values: values} = factory) do
     values = List.flatten(values)
-    data = Enum.reduce(values, input, &Value.evaluate(&1, &2, factory))
+    data = Enum.reduce(values, input, evaluate_value(factory))
     %{factory | data: data}
+  end
+
+  defp evaluate_value(factory) do
+    fn value, data ->
+      try do
+        Value.evaluate(value, data, factory)
+      rescue
+        e -> raise Value.error(value, e, factory)
+      end
+    end
   end
 
   def log_value(%__MODULE__{opts: opts}, value, field, lazy, type) do

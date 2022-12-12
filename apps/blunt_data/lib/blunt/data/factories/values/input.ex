@@ -8,6 +8,9 @@ defmodule Blunt.Data.Factories.Values.Input do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%Input{}), do: []
 
+    def error(_value, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: :input)
+
     def evaluate(%Input{props: props}, acc, current_factory) do
       {kept, removed} = Map.split(acc, props)
       removed_keys = Map.keys(removed)

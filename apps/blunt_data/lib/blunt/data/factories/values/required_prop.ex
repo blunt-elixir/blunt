@@ -9,6 +9,9 @@ defmodule Blunt.Data.Factories.Values.RequiredProp do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%RequiredProp{fields: fields}), do: fields
 
+    def error(%{fields: fields}, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: inspect(fields))
+
     def evaluate(%RequiredProp{fields: fields}, acc, current_factory) do
       results =
         Enum.reduce(fields, [], fn field, results ->

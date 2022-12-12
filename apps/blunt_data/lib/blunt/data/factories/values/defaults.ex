@@ -8,6 +8,9 @@ defmodule Blunt.Data.Factories.Values.Defaults do
   defimpl Blunt.Data.Factories.Value do
     def declared_props(%Defaults{values: values}), do: Map.keys(values)
 
+    def error(_value, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: :defaults)
+
     def evaluate(%Defaults{values: values}, acc, current_factory) do
       Enum.reduce(values, acc, fn
         {key, _value}, acc when is_map_key(acc, key) ->
@@ -18,5 +21,7 @@ defmodule Blunt.Data.Factories.Values.Defaults do
           Map.put(acc, key, value)
       end)
     end
+
+    def error(_value, error), do: raise(%Blunt.Data.Factories.ValueError{error: error, prop: :defaults})
   end
 end

@@ -15,5 +15,8 @@ defmodule Blunt.Data.Factories.Values.Build do
     end
 
     def declared_props(%Build{field: field}), do: [field]
+
+    def error(%{field: field}, error, current_factory),
+      do: raise(Blunt.Data.Factories.ValueError, factory: current_factory, error: error, prop: field)
   end
 end

@@ -16,8 +16,6 @@ defmodule Blunt.Data.Factories.FactoryTest do
       end)
 
     """
-    blunt factory error.
-
     factory: error_env
     prop: :name
 

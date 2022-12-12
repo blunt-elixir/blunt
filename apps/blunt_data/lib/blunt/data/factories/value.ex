@@ -10,8 +10,6 @@ defmodule Blunt.Data.Factories.ValueError do
 
   def message(%{factory: %{name: factory_name}, prop: prop, error: error}) do
     """
-    blunt factory error.
-
     factory: #{factory_name}
     prop: #{inspect(prop)}
 

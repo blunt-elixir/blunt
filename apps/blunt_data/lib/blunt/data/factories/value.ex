@@ -10,6 +10,7 @@ defmodule Blunt.Data.Factories.ValueError do
 
   def message(%{factory: %{name: factory_name}, prop: prop, error: error}) do
     """
+
     factory: #{factory_name}
     prop: #{inspect(prop)}
 
@@ -21,5 +22,5 @@ end
 defimpl Blunt.Data.Factories.Value, for: Any do
   def declared_props(_value), do: []
   def evaluate(_value, acc, _current_factory), do: acc
-  def error(value, error), do: error
+  def error(_value, error, _current_factory), do: error
 end

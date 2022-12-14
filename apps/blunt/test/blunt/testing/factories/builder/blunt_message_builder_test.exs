@@ -12,5 +12,10 @@ defmodule Blunt.Testing.Factories.Builder.BluntMessageBuilderTest do
       assert %{data: %{name: "stoobz"}} = BluntMessageBuilder.build(Testing, %{data: %{name: "stoobz"}})
       assert %{data: %{name: "stoobz"}} = BluntMessageBuilder.build(Testing, %{data: %{"name" => "stoobz"}})
     end
+
+    test "discarded_data is not considered" do
+      assert %{data: %{name: "stoobz"}} =
+               BluntMessageBuilder.build(Testing, %{data: %{name: "stoobz"}, other_data: DateTime.utc_now()})
+    end
   end
 end

@@ -30,7 +30,7 @@ defmodule Blunt.Testing.Factories.Builder.BluntMessageBuilder do
   def build(message_module, data) do
     case message_module.new(data) do
       {:ok, message} ->
-        message
+        normalize_internal_map_fields(message)
 
       other ->
         other
@@ -51,4 +51,35 @@ defmodule Blunt.Testing.Factories.Builder.BluntMessageBuilder do
       end
     end
   end
+
+  defp normalize_internal_map_fields(%{__struct__: message_module} = message) do
+    internal_fields =
+      Metadata.fields(message_module, :internal)
+      |> Enum.filter(fn {_name, type, _opts} -> type == :map end)
+      |> Enum.map(&elem(&1, 0))
+
+    fields =
+      message
+      |> Map.from_struct()
+      |> Enum.into(%{}, fn {key, value} ->
+        case {Enum.member?(internal_fields, key), value} do
+          {true, value} when is_map(value) ->
+            value = atomize(value)
+            {key, value}
+
+          _ ->
+            {key, value}
+        end
+      end)
+
+    struct!(message_module, fields)
+  end
+
+  defp atomize(list) when is_list(list), do: Enum.map(list, &atomize(&1))
+
+  defp atomize(map) when is_map(map) do
+    Enum.into(map, %{}, fn {key, value} -> {String.to_atom(key), atomize(value)} end)
+  end
+
+  defp atomize(other), do: other
 end

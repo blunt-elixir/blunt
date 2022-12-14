@@ -57,6 +57,7 @@ defmodule Blunt.Testing.Factories.Builder.BluntMessageBuilder do
       Metadata.fields(message_module, :internal)
       |> Enum.filter(fn {_name, type, _opts} -> type == :map end)
       |> Enum.map(&elem(&1, 0))
+      |> Kernel.--([:discarded_data])
 
     fields =
       message

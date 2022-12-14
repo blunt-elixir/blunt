@@ -29,6 +29,7 @@ defmodule Blunt.Message.TypeSpec do
   defp field_type({name, :date, opts}), do: {name, field_type_spec(quote(do: Date.t()), opts)}
   defp field_type({name, :decimal, opts}), do: {name, field_type_spec(quote(do: float()), opts)}
   defp field_type({name, :enum, opts}), do: {name, enum_values(opts)}
+  defp field_type({name, :float, opts}), do: {name, field_type_spec(quote(do: float()), opts)}
   defp field_type({name, :integer, opts}), do: {name, field_type_spec(quote(do: integer()), opts)}
   defp field_type({name, :map, opts}), do: {name, field_type_spec(quote(do: map()), opts)}
   defp field_type({name, :pid, opts}), do: {name, field_type_spec(quote(do: pid()), opts)}

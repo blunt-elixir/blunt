@@ -44,4 +44,15 @@ defmodule Blunt.ValueObjectTest do
       capture_log(fn -> refute SomeObject.equals?(left, right) end) =~ error
     end
   end
+
+  describe "float field types" do
+    defmodule FloatFieldObject do
+      use Blunt.ValueObject
+      field :one, :float
+    end
+
+    test "are supported" do
+      assert %{one: 5.0} = FloatFieldObject.new(one: 5.0)
+    end
+  end
 end

@@ -51,6 +51,10 @@ defmodule Blunt.MixProject do
         {:ecto, "~> 3.7 or ~> 3.8"},
         {:decimal, "~> 1.6 or ~> 2.0"},
 
+        # Telemetry
+        {:telemetry, "~> 0.4 or ~> 1.0"},
+        {:telemetry_registry, "~> 0.2 or ~> 0.3"},
+
         # Optional deps.
         {:faker, "~> 0.17.0", optional: true},
         {:ex_machina, "~> 2.7", optional: true},

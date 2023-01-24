@@ -1,12 +1,72 @@
 defmodule Blunt.DispatchStrategy do
-  alias Blunt.{Config, DispatchContext}
+  use TelemetryRegistry
+  alias Blunt.{Config, DispatchContext, Telemetry}
+
+  telemetry_event(%{
+    event: [:blunt, :dispatch_strategy, :execute, :start],
+    description: "Emitted when a message dispatch is started",
+    measurements: "%{system_time: integer()}",
+    metadata: """
+    """
+  })
+
+  telemetry_event(%{
+    event: [:blunt, :dispatch_strategy, :execute, :stop],
+    description: "Emitted when a message dispatch is finished",
+    measurements: "%{duration: non_neg_integer()}",
+    metadata: """
+    """
+  })
 
   @type context :: DispatchContext.t()
 
   @callback dispatch(context()) :: {:ok, context() | any()} | {:error, context()}
 
   def dispatch(context) do
-    Config.dispatch_strategy!().dispatch(context)
+    %{message: %{__struct__: message_type} = message} = context
+
+    start_time =
+      telemetry_start([:blunt, :dispatch_strategy, :execute], %{
+        message_module: message_type,
+        message: message
+      })
+
+    result = Config.dispatch_strategy!().dispatch(context)
+    telemetry_stop([:blunt, :dispatch_strategy, :execute], start_time, %{}, result)
+    result
+  end
+
+  defp telemetry_start(event_prefix, telemetry_metadata) do
+    Telemetry.start(event_prefix, telemetry_metadata)
+  end
+
+  defp telemetry_stop(event_prefix, start_time, telemetry_metadata, result) do
+    telemetry_metadata =
+      case result do
+        {:ok, %DispatchContext{} = context} ->
+          Map.put(telemetry_metadata, :context, context)
+
+        {:ok, result} ->
+          Map.put(telemetry_metadata, :result, result)
+
+        {:error, %DispatchContext{} = context} ->
+          errors = DispatchContext.errors(context)
+
+          telemetry_metadata
+          |> Map.put(:error, errors)
+          |> Map.put(:context, context)
+
+        {:error, error} ->
+          Map.put(telemetry_metadata, :error, error)
+
+        %DispatchContext{} = context ->
+          Map.put(telemetry_metadata, :context, context)
+
+        result ->
+          Map.put(telemetry_metadata, :result, result)
+      end
+
+    Telemetry.stop(event_prefix, start_time, telemetry_metadata)
   end
 
   @spec return_last_pipeline(context()) :: {:ok, any}
@@ -26,6 +86,13 @@ defmodule Blunt.DispatchStrategy do
 
   @spec execute({module :: atom, function :: atom, args :: list}, context()) :: {:error, context()} | {:ok, context()}
   def execute({pipeline, callback, args}, context) do
+    start_time = telemetry_start([:blunt, :dispatch_strategy, callback], context)
+    result = do_execute({pipeline, callback, args}, context)
+    telemetry_stop([:blunt, :dispatch_strategy, callback], start_time, %{}, result)
+    result
+  end
+
+  defp do_execute({pipeline, callback, args}, context) do
     case apply(pipeline, callback, args) do
       {:error, %DispatchContext{} = context} ->
         {:error, translate_errors(context)}

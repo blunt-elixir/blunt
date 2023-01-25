@@ -1,4 +1,4 @@
-# BluntU
+# Blunt
 
 **TODO: Add description**
 

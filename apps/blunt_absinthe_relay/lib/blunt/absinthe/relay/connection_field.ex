@@ -75,7 +75,9 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
 
         repo_fun = fn query ->
           fun = Keyword.get(query_opts, :repo_fun, :all)
-          apply(repo, fun, [query])
+          repo_opts = Keyword.get(query_opts, :repo_opts, [:timeout, :log, :telemetry_event, :telemetry_options])
+          opts = Keyword.take(query_opts, repo_opts)
+          apply(repo, fun, [query, opts])
         end
 
         case Connection.from_query(query, repo_fun, args) do

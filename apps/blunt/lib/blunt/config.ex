@@ -75,16 +75,14 @@ defmodule Blunt.Config do
 
   @doc false
   def dispatch_strategy! do
-    :dispatch_strategy
-    |> get(DispatchStrategy.Default)
-    |> Behaviour.validate!(DispatchStrategy)
+    %Blunt.Dialect{dispatch_strategy: strategy} = Blunt.Dialect.Registry.get_dialect!()
+    strategy
   end
 
   @doc false
   def pipeline_resolver! do
-    :pipeline_resolver
-    |> get(PipelineResolver.Default)
-    |> Behaviour.validate!(PipelineResolver)
+    %Blunt.Dialect{pipeline_resolver: resolver} = Blunt.Dialect.Registry.get_dialect!()
+    resolver
   end
 
   def type_spec_provider do

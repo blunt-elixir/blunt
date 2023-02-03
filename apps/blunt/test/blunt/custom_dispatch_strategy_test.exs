@@ -2,13 +2,16 @@ defmodule Blunt.CustomDispatchStrategyTest do
   use ExUnit.Case, async: false
 
   alias Blunt.DispatchContext, as: Context
-  alias Blunt.{Command, DispatchStrategy, CustomDispatchStrategy}
+  alias Blunt.{Command, CustomDispatchStrategy}
 
   setup do
-    Application.put_env(:blunt, :dispatch_strategy, CustomDispatchStrategy)
+    Blunt.Dialect.Registry.put_dialect(%Blunt.Dialect{
+      dispatch_strategy: CustomDispatchStrategy,
+      pipeline_resolver: Blunt.DispatchStrategy.PipelineResolver.Default
+    })
 
     on_exit(fn ->
-      Application.put_env(:blunt, :dispatch_strategy, DispatchStrategy.Default)
+      Blunt.Dialect.Registry.restore_dialect()
     end)
   end
 

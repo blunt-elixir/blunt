@@ -11,9 +11,13 @@ defmodule BluntCommandedDialect.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.
   def application do
@@ -25,7 +29,8 @@ defmodule BluntCommandedDialect.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:blunt, in_umbrella: true}
+      {:blunt, in_umbrella: true},
+      {:commanded, "~> 1.4", only: :test}
     ]
   end
 end

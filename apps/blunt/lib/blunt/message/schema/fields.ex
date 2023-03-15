@@ -4,7 +4,7 @@ defmodule Blunt.Message.Schema.Fields do
   alias Blunt.Message.Schema.FieldDefinition
 
   def record(name, type, opts \\ []) do
-    quote bind_quoted: [name: name, type: type, opts: opts] do
+    quote bind_quoted: [name: name, type: type, opts: opts, self: __MODULE__] do
       internal = Keyword.get(opts, :internal, false)
       required = internal == false and Keyword.get(opts, :required, @require_all_fields?)
 
@@ -17,6 +17,7 @@ defmodule Blunt.Message.Schema.Fields do
         |> Keyword.put(:required, required)
         |> Keyword.put_new(:internal, false)
         |> Keyword.put_new(:virtual, type == :any)
+        |> self.__put_docs_from_attribute__(__MODULE__)
 
       if required do
         @required_fields name
@@ -33,6 +34,13 @@ defmodule Blunt.Message.Schema.Fields do
         end
 
       @schema_fields {name, type, opts}
+    end
+  end
+
+  def __put_docs_from_attribute__(opts, module) do
+    case Module.delete_attribute(module, :doc) do
+      {_line, doc} -> Keyword.put_new(opts, :desc, doc)
+      _ -> opts
     end
   end
 

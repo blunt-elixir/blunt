@@ -46,12 +46,20 @@ defmodule Blunt.Data.FactoriesTest do
       prop :name, [:person, :name]
     end
 
+    factory FactoryWithValuesMessage, as: :single_key_prop do
+      const :dog, "corn"
+      prop :id, [:person, :id]
+      prop :name, [:dog]
+    end
+
     test "factory values" do
       id = UUID.uuid4()
 
       person = %{id: id, name: "chris", dog: "maize"}
 
       assert %FactoryWithValuesMessage{id: ^id, name: "chris", dog: "maize"} = build(:my_message, person: person)
+
+      assert %FactoryWithValuesMessage{id: ^id, name: "corn", dog: "corn"} = build(:single_key_prop, person: person)
     end
   end
 

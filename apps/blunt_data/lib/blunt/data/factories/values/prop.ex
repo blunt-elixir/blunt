@@ -21,11 +21,6 @@ defmodule Blunt.Data.Factories.Values.Prop do
             value = Factory.log_value(current_factory, [], field, lazy, "prop")
             put_values(acc, field, value, opts)
 
-          [path] ->
-            value = get_in(acc, Access.key(path))
-            value = Factory.log_value(current_factory, value, field, lazy, "prop")
-            put_values(acc, field, value, opts)
-
           [head | rest] ->
             # ensure that the first key in the path is not nil
             acc =

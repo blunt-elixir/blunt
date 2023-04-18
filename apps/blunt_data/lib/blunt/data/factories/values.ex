@@ -193,6 +193,10 @@ defmodule Blunt.Data.Factories.Values do
     end
   end
 
+  defmacro drop_undeclared_props do
+    quote do: %Values.RemoveProp{fields: :undeclared}
+  end
+
   defmacro inspect_props(:declared) do
     quote do
       %Values.InspectProps{props: :declared}

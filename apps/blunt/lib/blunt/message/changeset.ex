@@ -68,8 +68,11 @@ defmodule Blunt.Message.Changeset do
 
     changeset =
       embeds
-      |> Enum.reduce(changeset, &Changeset.cast_embed(&2, &1, with: embed_changeset))
-      |> Changeset.validate_required(required_fields)
+      |> Enum.reduce(
+        changeset,
+        &Changeset.cast_embed(&2, &1, with: embed_changeset, required: &1 in required_fields)
+      )
+      |> Changeset.validate_required(required_fields -- embeds)
       |> run_built_in_validations(message_module)
       |> message_module.handle_validate(opts)
 

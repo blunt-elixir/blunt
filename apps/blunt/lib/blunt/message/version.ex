@@ -14,7 +14,7 @@ defmodule Blunt.Message.Version do
     if Module.delete_attribute(module, :versioned?) do
       version = Module.get_attribute(module, :version) || 1
       Module.put_attribute(module, :metadata, version: version)
-      Module.put_attribute(module, :schema_fields, {:version, :decimal, default: version, required: false})
+      Module.put_attribute(module, :schema_fields, {:version, :integer, default: version, required: false})
     end
   end
 end

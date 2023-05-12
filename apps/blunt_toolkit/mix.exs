@@ -1,7 +1,7 @@
 defmodule CommandedToolkit.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc1"
+  @version String.trim(File.read!("__VERSION"))
 
   def project do
     [

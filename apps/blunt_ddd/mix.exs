@@ -1,7 +1,7 @@
 defmodule CqrsToolsDdd.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc1"
+  @version String.trim(File.read!("__VERSION"))
 
   def project do
     [
@@ -17,8 +17,10 @@ defmodule CqrsToolsDdd.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: [
+        organization: "oforce_dev",
         description: "DDD semantics for blunt",
         licenses: ["MIT"],
+        files: ~w(lib .formatter.exs mix.exs README* __VERSION),
         links: %{"GitHub" => "https://github.com/blunt-elixir/blunt_ddd"}
       ],
       source_url: "https://github.com/blunt-elixir/blunt_ddd",
@@ -62,9 +64,18 @@ defmodule CqrsToolsDdd.MixProject do
   end
 
   defp blunt(_env) do
-    [
-      {:blunt, in_umbrella: true},
-      {:blunt_data, in_umbrella: true}
-    ]
+    case System.get_env("HEX_API_KEY") do
+      nil ->
+        [
+          {:blunt, in_umbrella: true},
+          {:blunt_data, in_umbrella: true}
+        ]
+
+      _hex ->
+        [
+          {:blunt, "~> #{@version}", organization: "oforce_dev"},
+          {:blunt_data, "~> #{@version}", organization: "oforce_dev"}
+        ]
+    end
   end
 end

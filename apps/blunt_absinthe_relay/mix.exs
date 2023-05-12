@@ -1,7 +1,7 @@
 defmodule BluntAbsintheRelay.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc1"
+  @version String.trim(File.read!("__VERSION"))
 
   def project do
     [
@@ -18,8 +18,10 @@ defmodule BluntAbsintheRelay.MixProject do
       deps: deps(),
       source_url: "https://github.com/blunt-elixir/blunt_absinthe_relay",
       package: [
+        organization: "oforce_dev",
         description: "Absinthe Relay macros for `blunt` commands and queries",
         licenses: ["MIT"],
+        files: ~w(lib .formatter.exs mix.exs README* __VERSION),
         links: %{"GitHub" => "https://github.com/blunt-elixir/blunt_absinthe_relay"}
       ],
       elixirc_paths: elixirc_paths(Mix.env())
@@ -40,8 +42,8 @@ defmodule BluntAbsintheRelay.MixProject do
 
     blunt(env) ++
       [
-        {:absinthe, "~> 1.7", override: true},
-        {:absinthe_relay, "~> 1.5", optional: true},
+        {:absinthe, "~> 1.7"},
+        {:absinthe_relay, "~> 1.5.2"},
 
         # For testing
         {:etso, "~> 0.1.6", only: [:test]},
@@ -64,10 +66,20 @@ defmodule BluntAbsintheRelay.MixProject do
   end
 
   defp blunt(_env) do
-    [
-      {:blunt, in_umbrella: true},
-      {:blunt_data, in_umbrella: true},
-      {:blunt_absinthe, in_umbrella: true}
-    ]
+    case System.get_env("HEX_API_KEY") do
+      nil ->
+        [
+          {:blunt, in_umbrella: true},
+          {:blunt_ddd, in_umbrella: true},
+          {:blunt_data, in_umbrella: true}
+        ]
+
+      _hex ->
+        [
+          {:blunt, "~> #{@version}", organization: "oforce_dev"},
+          {:blunt_absinthe, "~> #{@version}", organization: "oforce_dev"},
+          {:blunt_data, "~> #{@version}", organization: "oforce_dev"}
+        ]
+    end
   end
 end

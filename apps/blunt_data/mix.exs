@@ -1,13 +1,20 @@
 defmodule BluntData.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc1"
+  @version String.trim(File.read!("__VERSION"))
 
   def project do
     [
       app: :blunt_data,
       version: @version,
       elixir: "~> 1.12",
+      package: [
+        organization: "oforce_dev",
+        description: "Blunt Testing Utils",
+        licenses: ["MIT"],
+        files: ~w(lib .formatter.exs mix.exs README* __VERSION),
+        links: %{"GitHub" => "https://github.com/blunt-elixir/blunt"}
+      ],
       #
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -37,6 +44,7 @@ defmodule BluntData.MixProject do
       # Optional deps.
       {:faker, "~> 0.17.0", optional: true},
       {:ex_machina, "~> 2.7", optional: true},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
 
       # For testing
       {:elixir_uuid, "~> 1.6", only: [:dev, :test], override: true, hex: :uuid_utils}

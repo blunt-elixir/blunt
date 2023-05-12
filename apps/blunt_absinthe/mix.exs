@@ -1,7 +1,7 @@
 defmodule BluntAbsinthe.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc1"
+  @version String.trim(File.read!("__VERSION"))
 
   def project do
     [
@@ -18,8 +18,10 @@ defmodule BluntAbsinthe.MixProject do
       deps: deps(),
       source_url: "https://github.com/elixir-blunt/blunt_absinthe",
       package: [
+        organization: "oforce_dev",
         description: "Absinthe macros for `blunt` commands and queries",
         licenses: ["MIT"],
+        files: ~w(lib .formatter.exs mix.exs README* __VERSION),
         links: %{"GitHub" => "https://github.com/elixir-blunt/blunt_absinthe"}
       ],
       elixirc_paths: elixirc_paths(Mix.env())
@@ -63,10 +65,20 @@ defmodule BluntAbsinthe.MixProject do
   end
 
   defp blunt(_env) do
-    [
-      {:blunt, in_umbrella: true},
-      {:blunt_ddd, in_umbrella: true},
-      {:blunt_data, in_umbrella: true}
-    ]
+    case System.get_env("HEX_API_KEY") do
+      nil ->
+        [
+          {:blunt, in_umbrella: true},
+          {:blunt_ddd, in_umbrella: true},
+          {:blunt_data, in_umbrella: true}
+        ]
+
+      _hex ->
+        [
+          {:blunt, "~> #{@version}", organization: "oforce_dev"},
+          {:blunt_ddd, "~> #{@version}", organization: "oforce_dev"},
+          {:blunt_data, "~> #{@version}", organization: "oforce_dev"}
+        ]
+    end
   end
 end

@@ -1,7 +1,7 @@
 defmodule Blunt.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc1"
+  @version String.trim(File.read!("__VERSION"))
 
   def project do
     [
@@ -18,8 +18,10 @@ defmodule Blunt.MixProject do
       deps: deps(),
       source_url: "https://github.com/blunt-elixir/blunt",
       package: [
-        description: "CQRS Tools for Elixir",
+        organization: "oforce_dev",
+        description: "CQRS for Elixir",
         licenses: ["MIT"],
+        files: ~w(lib .formatter.exs mix.exs README* __VERSION),
         links: %{"GitHub" => "https://github.com/blunt-elixir/blunt"}
       ],
       consolidate_protocols: Mix.env() != :test,
@@ -69,6 +71,12 @@ defmodule Blunt.MixProject do
       ]
   end
 
-  defp blunt(:prod), do: [{:blunt_data, "~> 0.1"}]
-  defp blunt(_env), do: [{:blunt_data, in_umbrella: true}]
+  defp blunt(:prod), do: [{:blunt_data, "~> #{@version}", organization: "oforce_dev"}]
+
+  defp blunt(_env) do
+    case System.get_env("HEX_API_KEY") do
+      nil -> [{:blunt_data, in_umbrella: true, organization: "oforce_dev"}]
+      _hex -> [{:blunt_data, "~> #{@version}", organization: "oforce_dev"}]
+    end
+  end
 end

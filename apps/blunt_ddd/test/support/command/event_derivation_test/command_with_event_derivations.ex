@@ -28,5 +28,5 @@ defmodule Support.Command.EventDerivationTest.ComandWithVersionedEvent do
   use Blunt.Command
   use Blunt.Command.EventDerivation
 
-  derive_event VersionedEventHappened, version: 2.5
+  derive_event VersionedEventHappened, version: 2
 end

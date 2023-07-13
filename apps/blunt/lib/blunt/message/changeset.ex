@@ -64,7 +64,8 @@ defmodule Blunt.Message.Changeset do
 
     opts = opts |> List.wrap() |> Keyword.new()
     {type, opts} = Keyword.pop(opts, :type, :schema)
-    embed_changeset = {__MODULE__, :changeset, [Keyword.put(opts, :type, :embed)]}
+
+    embed_changeset = fn struct, params -> changeset(struct, params, type: :embed) end
 
     changeset =
       embeds

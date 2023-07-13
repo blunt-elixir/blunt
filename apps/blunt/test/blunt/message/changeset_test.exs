@@ -3,6 +3,7 @@ defmodule Blunt.Message.ChangesetTest do
 
   defmodule EmbeddedMessage do
     use Blunt.ValueObject
+    field :name, :string
   end
 
   defmodule SomeCommand do
@@ -21,7 +22,9 @@ defmodule Blunt.Message.ChangesetTest do
 
   test "works" do
     opts = [test_option: true, reply_to: self()]
-    assert {:ok, %SomeCommand{msg: %EmbeddedMessage{}}} = SomeCommand.new(%{name: "John", msg: %{}}, %{}, opts)
+
+    assert {:ok, %SomeCommand{msg: %EmbeddedMessage{name: "chris"}}} =
+             SomeCommand.new(%{name: "John", msg: %{name: "chris"}}, %{}, opts)
 
     assert_receive {:opts, opts}
     assert true = Keyword.get(opts, :test_option)

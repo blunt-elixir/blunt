@@ -27,6 +27,8 @@ defmodule Blunt.Message.TypeSpec do
   defp field_type({name, :binary_id, opts}), do: {name, field_type_spec(quote(do: binary()), opts)}
   defp field_type({name, :boolean, opts}), do: {name, field_type_spec(quote(do: boolean()), opts)}
   defp field_type({name, :date, opts}), do: {name, field_type_spec(quote(do: Date.t()), opts)}
+  defp field_type({name, :datetime, opts}), do: {name, field_type_spec(quote(do: DateTime.t()), opts)}
+  defp field_type({name, :utc_datetime, opts}), do: {name, field_type_spec(quote(do: DateTime.t()), opts)}
   defp field_type({name, :decimal, opts}), do: {name, field_type_spec(quote(do: float()), opts)}
   defp field_type({name, :enum, opts}), do: {name, enum_values(opts)}
   defp field_type({name, :float, opts}), do: {name, field_type_spec(quote(do: float()), opts)}

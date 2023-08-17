@@ -12,9 +12,10 @@ defmodule Blunt.State do
     end
   end
 
-  defmacro __using__(_opts) do
-    quote do
+  defmacro __using__(opts \\ []) do
+    quote bind_quoted: [opts: opts] do
       use Blunt.Message.Compilation
+      use Blunt.Message.CompilerHooks, message_type: :aggregate_state
 
       @primary_key_type false
       @require_all_fields? false

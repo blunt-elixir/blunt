@@ -46,7 +46,8 @@ defmodule CommandedToolkit.MixProject do
         {:commanded, "~> 1.3"},
         {:eventstore, "~> 1.3"},
         {:jason, "~> 1.3"},
-        {:elixir_uuid, "~> 1.6", override: true, hex: :uuid_utils},
+        {:uniq, "~> 0.1"},
+        {:elixir_uuid, "~> 0.1", hex: :uniq_compat},
         {:faker, "~> 0.17.0", only: :test},
         {:ex_machina, "~> 2.7", only: :test}
       ]

@@ -44,10 +44,7 @@ defmodule BluntData.MixProject do
       # Optional deps.
       {:faker, "~> 0.17.0", optional: true},
       {:ex_machina, "~> 2.7", optional: true},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
-
-      # For testing
-      {:elixir_uuid, "~> 1.6", only: [:dev, :test], override: true, hex: :uuid_utils}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
   end
 end

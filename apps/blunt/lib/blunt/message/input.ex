@@ -10,7 +10,7 @@ defmodule Blunt.Message.Input do
         normalize(Enum.into(values, %{}), message)
 
       true ->
-        Logger.warn(inspect(message) <> " values are expected to be a keyword list")
+        Logger.warning(inspect(message) <> " values are expected to be a keyword list")
         normalize(%{}, message)
     end
   end

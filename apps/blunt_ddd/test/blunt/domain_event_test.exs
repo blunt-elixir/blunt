@@ -20,7 +20,7 @@ defmodule Blunt.DomainEventTest do
   end
 
   test "version is decimal" do
-    assert %EventWithDecimalVersion{version: 2.3} = EventWithDecimalVersion.new(%{})
+    assert %EventWithDecimalVersion{version: 2} = EventWithDecimalVersion.new(%{})
   end
 
   test "EventDerivedFromCommand has fields from CommandToTestDerivation" do

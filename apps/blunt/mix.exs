@@ -64,7 +64,8 @@ defmodule Blunt.MixProject do
         # For testing
         {:etso, "~> 0.1.6", only: [:test]},
         {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
-        {:elixir_uuid, "~> 1.6", only: [:dev, :test], override: true, hex: :uuid_utils},
+        {:uniq, "~> 0.1"},
+        {:elixir_uuid, "~> 0.1", hex: :uniq_compat},
 
         # generate docs
         {:ex_doc, "~> 0.28", only: :dev, runtime: false}

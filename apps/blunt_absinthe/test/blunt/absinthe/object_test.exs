@@ -19,6 +19,7 @@ defmodule Blunt.Absinthe.ObjectTest do
     end
 
     query do
+      field :hello, :string, resolve: fn _, _ -> {:ok, "world"} end
     end
   end
 

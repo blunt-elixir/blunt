@@ -43,7 +43,7 @@ defmodule Blunt.Message.CompilerHooks do
 
     case function_exported?(module, function, 1) do
       true -> apply(module, function, [env])
-      false -> Logger.warn("Compiler hook #{inspect(module)}.#{function}/1 not found")
+      false -> Logger.warning("Compiler hook #{inspect(module)}.#{function}/1 not found")
     end
   end
 

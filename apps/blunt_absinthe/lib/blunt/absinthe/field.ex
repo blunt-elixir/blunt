@@ -32,6 +32,7 @@ defmodule Blunt.Absinthe.Field do
 
     args = args(operation, message_module, opts)
     description = description(message_module)
+
     {before_resolve, after_resolve} = middleware(opts)
     {configured_before_resolve, configured_after_resolve} = configured_middleware()
 
@@ -63,7 +64,7 @@ defmodule Blunt.Absinthe.Field do
 
   def prepare_context(message_module) do
     fn %{context: context} = resolution, _config ->
-      blunt = %{reply_to: self(), message_module: message_module}
+      blunt = %{absinthe_pid: self(), message_module: message_module}
       context = Map.put(context, :blunt, blunt)
       %{resolution | context: context}
     end

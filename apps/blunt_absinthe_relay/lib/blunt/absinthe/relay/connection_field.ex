@@ -70,6 +70,9 @@ defmodule Blunt.Absinthe.Relay.ConnectionField do
       {:error, %Context{} = context} ->
         {:error, AbsintheErrors.from_dispatch_context(context)}
 
+      {:error, context} when is_map(context) ->
+          {:error, AbsintheErrors.format(context)}
+
       {:ok, %Context{} = context} ->
         query = Context.get_last_pipeline(context)
 

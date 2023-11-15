@@ -56,6 +56,12 @@ defmodule Blunt.Absinthe.MutationTest do
            } = fields
   end
 
+  test "mutation input argument required" do
+    assert sdl = Absinthe.Schema.to_sdl(Schema)
+
+    assert sdl =~ "updatePersonRequired(input: UpdatePersonRequiredInput!): Person"
+  end
+
   test "derive object" do
     assert %Object{fields: fields} = Absinthe.Schema.lookup_type(Schema, :dog)
     assert %{name: %{type: :string}} = fields

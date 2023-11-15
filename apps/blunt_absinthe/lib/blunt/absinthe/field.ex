@@ -79,11 +79,17 @@ defmodule Blunt.Absinthe.Field do
   def args(:absinthe_mutation, message_module, opts) do
     input_object = Keyword.get(opts, :input_object, false)
     input_object? = Keyword.get(opts, :input_object?, false)
+    required? = Keyword.get(opts, :required, false)
 
     case input_object || input_object? do
       true ->
         field_name = :"#{Field.name(message_module, opts)}_input"
-        [quote(do: arg(:input, unquote(field_name)))]
+
+        if required? do
+          [quote(do: arg(:input, non_null(unquote(field_name))))]
+        else
+          [quote(do: arg(:input, unquote(field_name)))]
+        end
 
       false ->
         Args.from_message_fields(message_module, opts)

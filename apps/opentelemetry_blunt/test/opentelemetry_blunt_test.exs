@@ -69,15 +69,14 @@ defmodule OpentelemetryBluntTest do
       assert_receive(
         {:span,
          span(
-           name: "dispatch",
+           name: "blunt.dispatch",
            attributes: attributes,
            parent_span_id: :undefined,
            status: :undefined
          )}
       )
 
-      :otel_attributes.map(attributes)
-      |> IO.inspect(label: "~/code/personal/blunt/apps/opentelemetry_blunt/test/opentelemetry_blunt_test.exs:79")
+      assert %{message_module: OpentelemetryBluntTest.MyCommand} = :otel_attributes.map(attributes)
     end
   end
 end
